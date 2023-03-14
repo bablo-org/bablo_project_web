@@ -3,3 +3,4 @@ build
 
 firebase.config.js
 .firebase
+src/env.js
