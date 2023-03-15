@@ -1,8 +1,11 @@
 import { auth, signOut } from "../services/firebase";
 
-const HomePage = () => {
+const HomePage = ({onLogout}) => {
   return (
-    <button onClick={() => signOut(auth)}>Log out</button>
+    <button onClick={() => signOut(auth).then(() => {
+      localStorage.removeItem('isAuth');
+      onLogout();
+    })}>Log out</button>
   );
 }
 
