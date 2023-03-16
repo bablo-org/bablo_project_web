@@ -4,3 +4,5 @@ build
 firebase.config.js
 .firebase
 src/env.js
+
+.DS_Store
