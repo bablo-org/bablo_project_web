@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { auth, signInWithEmailAndPassword } from '../../services/firebase';
 import Spinner from '../Spinner/Spinner';
-import '../LoginForm/LoginForm.css';
+import classes from '../LoginForm/LoginForm.module.css';
+
 
 const InputForm = () => {
   const [email, setEmail] = useState('');
@@ -41,7 +42,7 @@ const InputForm = () => {
     <form
       onSubmit={(e) => onLoginPress(e)}
     >
-      <div className="form-control">
+      <div className={classes.form}>
         <label>Почта</label>
         <input  
           type="email"
@@ -59,7 +60,7 @@ const InputForm = () => {
       </div>
       <div className="form-actions">
         {error ? <div className='error-text'>{errorMessage}</div> : null}
-        {loading ? <Spinner/> : <button>Войти</button>}
+        {loading ? <Spinner/> : <button className={classes.button}>Войти</button>}
       </div>
     </form>
   );

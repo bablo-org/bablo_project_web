@@ -1,12 +1,8 @@
-import { auth, signOut } from "../services/firebase";
-
-const HomePage = ({onLogout}) => {
+import Header from '../components/Header';
+const HomePage = ({ onLogout }) => {
   return (
-    <button onClick={() => signOut(auth).then(() => {
-      localStorage.removeItem('isAuth');
-      onLogout();
-    })}>Log out</button>
+      <Header onLogout={onLogout}/>
   );
-}
+};
 
 export default HomePage;
