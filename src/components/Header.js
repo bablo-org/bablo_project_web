@@ -1,7 +1,7 @@
 import classes from './Header.module.css';
 import { auth, signOut } from '../services/firebase';
 
-const Header = ({onLogout}) => {
+const Header = ({ onLogout }) => {
   return (
     <header className={classes.header}>
       <div className={classes.navDiv}>
@@ -10,16 +10,16 @@ const Header = ({onLogout}) => {
         <button>Итоги</button>
       </div>
       <button
-          className={classes.logOutButton}
-          onClick={() =>
-            signOut(auth).then(() => {
-              localStorage.removeItem('isAuth');
-              onLogout();
-            })
-          }
-        >
-          Log out
-        </button>
+        className={classes.logOutButton}
+        onClick={() =>
+          signOut(auth).then(() => {
+            localStorage.removeItem('isAuth');
+            onLogout();
+          })
+        }
+      >
+        Log out
+      </button>
     </header>
   );
 };

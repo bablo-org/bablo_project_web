@@ -1,0 +1,26 @@
+.circle {
+    height: 100px;
+    width: 100px;
+    font-size: xx-large;
+    font: inherit;
+    background-color: #240370;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 60px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    margin-left: 50px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-style: dashed;
+
+
+  }
+
+  .circle:active {
+    background-color: #33059e;
+  }
+  .circle:hover {
+    background-color: #4c00ff;
+  }
