@@ -1,7 +1,10 @@
 import classes from './Header.module.css';
-import { auth, signOut } from '../services/firebase';
+import { auth, signOut } from '../../services/firebase';
+import { useContext } from 'react';
+import { AuthContext } from '../../context/Auth';
 
-const Header = ({onLogout}) => {
+const Header = () => {
+  const authContext = useContext(AuthContext);
   return (
     <header className={classes.header}>
       <div className={classes.navDiv}>
@@ -14,7 +17,8 @@ const Header = ({onLogout}) => {
           onClick={() =>
             signOut(auth).then(() => {
               localStorage.removeItem('isAuth');
-              onLogout();
+              authContext.setIsAuth(false);
+              authContext.setUser(null);
             })
           }
         >
