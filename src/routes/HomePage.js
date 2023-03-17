@@ -10,6 +10,6 @@ const HomePage = () => {
       authContext.setIsAuth(false);
     })}>Log out</button>
   );
-}
+};
 
 export default HomePage;

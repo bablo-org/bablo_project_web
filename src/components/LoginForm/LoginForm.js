@@ -1,10 +1,11 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import { auth, signInWithEmailAndPassword } from "../../services/firebase";
 import Spinner from "../Spinner/Spinner";
-import "../LoginForm/LoginForm.css";
 import { useNavigate } from "react-router-dom";
 import { PATHES } from "../../routes";
 import { AuthContext } from "../../context/Auth";
+import classes from '../LoginForm/LoginForm.module.css';
+
 
 const InputForm = () => {
   const navigate = useNavigate();
@@ -48,8 +49,10 @@ const InputForm = () => {
   }, [authContext.isAuth, navigate]);
 
   return (
-    <form onSubmit={(e) => onLoginPress(e)}>
-      <div className="form-control">
+    <form
+      onSubmit={(e) => onLoginPress(e)}
+    >
+      <div className={classes.form}>
         <label>Почта</label>
         <input
           type="email"
@@ -66,8 +69,8 @@ const InputForm = () => {
         />
       </div>
       <div className="form-actions">
-        {error ? <div className="error-text">{errorMessage}</div> : null}
-        {loading ? <Spinner /> : <button>Войти</button>}
+        {error ? <div className='error-text'>{errorMessage}</div> : null}
+        {loading ? <Spinner/> : <button className={classes.button}>Войти</button>}
       </div>
     </form>
   );

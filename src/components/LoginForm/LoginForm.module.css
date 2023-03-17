@@ -1,7 +1,7 @@
 * {
   box-sizing: border-box;
 }
-.form-control {
+.form {
   margin-bottom: 1rem;
   flex: 1;
   display: flex;
@@ -10,12 +10,12 @@
   flex-direction: column;
 }
 
-.form-control input,
-.form-control label {
+.form input,
+.form label {
   display: block;
 }
 
-.form-control label {
+.form label {
   font-weight: bold;
   margin-bottom: 0.5rem;
   font-size: large;
@@ -23,8 +23,8 @@
   
 }
 
-.form-control input,
-.form-control select {
+.form input,
+.form select {
   font: inherit;
   padding: 0.5rem;
   border-radius: 4px;
@@ -33,7 +33,7 @@
   max-width: 100%;
 }
 
-.form-control input:focus {
+.form input:focus {
   outline: none;
   border-color: #240370;
   background-color: #e0d4fd;
@@ -45,12 +45,12 @@
   flex-wrap: wrap;
 }
 
-.control-group .form-control {
+.control-group .form {
   min-width: 15rem;
   flex: 1;
 }
 
-button {
+.button {
   font: inherit;
   background-color: #240370;
   color: white;
@@ -60,15 +60,15 @@ button {
   cursor: pointer;
 }
 
-button:hover,
-button:active {
+.button:hover,
+.button:active {
   background-color: #33059e;
   border-color: #33059e;
 }
 
-button:disabled,
-button:disabled:hover,
-button:disabled:active {
+.button:disabled,
+.button:disabled:hover,
+.button:disabled:active {
   background-color: #ccc;
   color: #3f3f3f;
   border:#ccc;
