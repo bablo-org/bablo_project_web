@@ -44,7 +44,7 @@ const InputForm = () => {
 
   useEffect(() => {
     if (authContext.isAuth) {
-      navigate(PATHES.HOME)
+      navigate(PATHES.ADD_TRANSACTION)
     }
   }, [authContext.isAuth, navigate]);
 
