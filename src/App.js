@@ -15,14 +15,6 @@ function App() {
   const [user, setUser] = useState();
   const [isAuth, setIsAuth] = useState(localStorage.getItem("isAuth"));
 
-  const authContextValue = useMemo(
-    () => ({
-      isAuth: Boolean(isAuth),
-      user,
-    }),
-    [user, isAuth]
-  );
-
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -41,7 +33,7 @@ function App() {
 
   return (
     <div className="App">
-      <AuthContext.Provider value={{...authContextValue, setIsAuth, setUser}}>
+      <AuthContext.Provider value={{user, isAuth, setIsAuth, setUser}}>
         <RouterProvider router={router} />
       </AuthContext.Provider>
     </div>

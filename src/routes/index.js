@@ -23,6 +23,7 @@ export default createBrowserRouter([
         <AuthorizedLayout />
       </ProtectedRoute>
     ),
+    path: '/',
     children: [
       {
         path: PATHES.ADD_TRANSACTION,
