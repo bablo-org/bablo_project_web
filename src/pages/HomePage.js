@@ -1,18 +1,18 @@
 import { Fragment } from 'react';
 import Header from '../components/Header';
-import UserSquare from '../components/UserSquare';
+import UserAvatars from '../components/AvatarsList/UserAvatars';
 import classes from '../components/Header.module.css';
 const HomePage = ({ onLogout }) => {
   const dummyNames = [`Пахан`, `Арсен`, `Дрюс`, `Тоха-Лепеха`, `Мишустин`];
-  const nameList = dummyNames.map((name) => <UserSquare>{name}</UserSquare>);
+  const nameList = dummyNames.map((name) => <UserAvatars>{name}</UserAvatars>);
 
   return (
     <Fragment>
       <Header onLogout={onLogout} />
-      <label className={classes.label}>Кто кому дает за щеку?</label>
+      <label className={classes.addDebtlabel}>Кто кому дает за щеку?</label>
       <div>
-        <div className={classes.firsDiv}>{nameList}</div>
-        <div className={classes.secondDiv}>{nameList}</div>
+        <div className={classes.avatarsContainer}>{nameList}</div>
+        <div className={classes.avatarsContainer}>{nameList}</div>
       </div>
     </Fragment>
   );

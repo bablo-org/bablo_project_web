@@ -52,7 +52,7 @@ button {
     border-color: #33059e;
   }
 
-  .label {
+  .addDebtlabel {
     font-size: xxx-large;
     color: white;
     display: flex;
@@ -62,15 +62,10 @@ button {
    
   }
 
-  .firsDiv {
+  .avatarsContainer {
     display: flex;
     justify-content: center;
     margin-bottom: 20px;
   }
 
-  .secondDiv {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-  }
 
