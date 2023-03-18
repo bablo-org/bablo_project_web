@@ -4,13 +4,6 @@ import classes from './AvatarsList.module.css';
 
 const AvatarsList = () => {
   const [selectedId, setSelectedId] = useState();
-  // const [isTouched, setIsTouched] = useState(false)
-  const [isDisabled, setIsDisabled] = useState(false);
-
-  const onTouchedHandler = (p1, p2) => {
-    setIsDisabled(p1)
-    setSelectedId(p2)
-  }
 
   const dummyNames = [
     {
@@ -39,9 +32,9 @@ const AvatarsList = () => {
     <UserAvatar
       name={user.name}
       id={user.id}
-      onSelected={onTouchedHandler}
+      onSelected={setSelectedId}
       isActive={selectedId === user.id}
-      isDisabled={isDisabled}
+      isDisabled={selectedId && selectedId !== user.id}
     />
   ));
 
@@ -50,5 +43,3 @@ const AvatarsList = () => {
 
 export default AvatarsList;
 
-// дисейбл
-// отжимать
