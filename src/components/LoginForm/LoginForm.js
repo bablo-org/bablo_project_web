@@ -6,7 +6,6 @@ import { PATHES } from "../../routes";
 import { AuthContext } from "../../context/Auth";
 import classes from '../LoginForm/LoginForm.module.css';
 
-
 const InputForm = () => {
   const navigate = useNavigate();
   const authContext = useContext(AuthContext);
@@ -16,16 +15,16 @@ const InputForm = () => {
   const [error, setError] = useState(false);
   const errorMessage = useMemo(() => {
     switch (error) {
-      case "auth/invalid-email":
-        return "Email address is not valid";
-      case "auth/user-disabled":
-        return "Email has been disabled";
-      case "auth/user-not-found":
-        return "User not found";
-      case "auth/wrong-password":
-        return "Password is invalid for the given email";
+      case 'auth/invalid-email':
+        return 'Email address is not valid';
+      case 'auth/user-disabled':
+        return 'Email has been disabled';
+      case 'auth/user-not-found':
+        return 'User not found';
+      case 'auth/wrong-password':
+        return 'Password is invalid for the given email';
       default:
-        return "Unknown error.";
+        return 'Unknown error.';
     }
   }, [error]);
 
@@ -49,9 +48,7 @@ const InputForm = () => {
   }, [authContext.isAuth, navigate]);
 
   return (
-    <form
-      onSubmit={(e) => onLoginPress(e)}
-    >
+    <form onSubmit={(e) => onLoginPress(e)}>
       <div className={classes.form}>
         <label>Почта</label>
         <input
@@ -69,8 +66,12 @@ const InputForm = () => {
         />
       </div>
       <div className="form-actions">
-        {error ? <div className='error-text'>{errorMessage}</div> : null}
-        {loading ? <Spinner/> : <button className={classes.button}>Войти</button>}
+        {error ? <div className="error-text">{errorMessage}</div> : null}
+        {loading ? (
+          <Spinner />
+        ) : (
+          <button className={classes.button}>Войти</button>
+        )}
       </div>
     </form>
   );
