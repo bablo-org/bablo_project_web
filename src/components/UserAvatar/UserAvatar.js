@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import classes from './UserAvatars.module.css';
+import classes from './UserAvatar.module.css';
 
-const UserAvatars = (props) => {
+const UserAvatar = ({name}) => {
   const [isActive, setIsActive] = useState(false);
 
   return (
@@ -10,9 +10,9 @@ const UserAvatars = (props) => {
       style={{ borderColor: isActive ? 'white' : '#240370' }}
       onClick={() => setIsActive((prevState) => !prevState)}
     >
-      <div class={classes.content}>{props.children}</div>
+      <div class={classes.content}>{name}</div>
     </div>
   );
 };
 
-export default UserAvatars;
+export default UserAvatar;
