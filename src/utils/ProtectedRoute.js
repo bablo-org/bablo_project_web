@@ -6,7 +6,7 @@ import { PATHES } from "../routes";
 export default function ProtectedRoute({children}) {
   const authContext = useContext(AuthContext);
 
-  if (!authContext.isAuth) {
+  if (!authContext.user) {
     return (
       <Navigate to={PATHES.LOGIN} />
     )

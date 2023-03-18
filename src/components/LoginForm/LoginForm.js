@@ -33,19 +33,15 @@ const InputForm = () => {
     setLoading(true);
     setError(false);
     signInWithEmailAndPassword(auth, email, password)
-      .then(() => {
-        localStorage.setItem("isAuth", "true");
-        authContext.setIsAuth(true);
-      })
       .catch((error) => setError(error.code))
       .finally(() => setLoading(false));
   };
 
   useEffect(() => {
-    if (authContext.isAuth) {
+    if (authContext.user) {
       navigate(PATHES.ADD_TRANSACTION)
     }
-  }, [authContext.isAuth, navigate]);
+  }, [authContext.user, navigate]);
 
   return (
     <form onSubmit={(e) => onLoginPress(e)}>

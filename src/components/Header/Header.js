@@ -20,8 +20,6 @@ const Header = () => {
           className={classes.logOutButton}
           onClick={() =>
             signOut(auth).then(() => {
-              localStorage.removeItem('isAuth');
-              authContext.setIsAuth(false);
               authContext.setUser(null);
             })
           }
