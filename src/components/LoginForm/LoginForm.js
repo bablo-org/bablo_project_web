@@ -1,11 +1,16 @@
-import { useMemo, useState } from 'react';
-import { auth, signInWithEmailAndPassword } from '../../services/firebase';
-import Spinner from '../Spinner/Spinner';
+import { useContext, useEffect, useMemo, useState } from "react";
+import { auth, signInWithEmailAndPassword } from "../../services/firebase";
+import Spinner from "../Spinner/Spinner";
+import { useNavigate } from "react-router-dom";
+import { PATHES } from "../../routes";
+import { AuthContext } from "../../context/Auth";
 import classes from '../LoginForm/LoginForm.module.css';
 
 const InputForm = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
+  const authContext = useContext(AuthContext);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const errorMessage = useMemo(() => {
@@ -28,12 +33,15 @@ const InputForm = () => {
     setLoading(true);
     setError(false);
     signInWithEmailAndPassword(auth, email, password)
-      .then(() => {
-        localStorage.setItem('isAuth', 'true');
-      })
       .catch((error) => setError(error.code))
       .finally(() => setLoading(false));
   };
+
+  useEffect(() => {
+    if (authContext.user) {
+      navigate(PATHES.ADD_TRANSACTION)
+    }
+  }, [authContext.user, navigate]);
 
   return (
     <form onSubmit={(e) => onLoginPress(e)}>
