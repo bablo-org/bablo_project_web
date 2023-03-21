@@ -6,15 +6,15 @@ const DebtForm = () => {
   const [sender, setSender] = useState();
   const [receiver, setReceiver] = useState();
   const [enteredCurrency, setEnteredCurrency] = useState(``);
-  const [enteredSum, setenteredSum] = useState(``);
+  const [enteredSum, setEnteredSum] = useState(``);
   const [enteredDescription, setEnteredDescription] = useState(``);
-  const [EnteredDate, setEnteredDate] = useState(``);
+  const [enteredDate, setEnteredDate] = useState(``);
 
   const currencyInputChangeHandler = (event) => {
     setEnteredCurrency(event.target.value);
   };
   const sumInputChangeHandler = (event) => {
-    setenteredSum(event.target.value);
+    setEnteredSum(event.target.value);
   };
   const descriptionInputChangeHandler = (event) => {
     setEnteredDescription(event.target.value);
@@ -28,12 +28,12 @@ const DebtForm = () => {
     currency: enteredCurrency,
     sum: enteredSum + ` ${enteredCurrency}`,
     description: enteredDescription,
-    date: EnteredDate,
+    date: enteredDate,
   };
 
   const clearForm = () => {
     setEnteredCurrency(``);
-    setenteredSum(``);
+    setEnteredSum(``);
     setEnteredDescription(``);
     setEnteredDate(``);
   };
@@ -90,7 +90,7 @@ const DebtForm = () => {
           <div className={classes.control}>
             <label htmlFor="date">Date</label>
             <input
-              value={EnteredDate}
+              value={enteredDate}
               type="date"
               id="date"
               onChange={dateInputChangeHandler}
