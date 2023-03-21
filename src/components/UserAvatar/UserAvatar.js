@@ -1,11 +1,13 @@
 import classes from './UserAvatar.module.css';
 
-const UserAvatar = ({name, id, onSelected, isActive, isDisabled}) => {
+const UserAvatar = ({ name, id, onSelected, isActive, isDisabled, avatarsName }) => {
   const onAvatarClicked = () => {
     if (isActive) {
       onSelected();
+      avatarsName()
     } else {
-      onSelected(id)
+      onSelected(id);
+      avatarsName(name)
     }
   };
 

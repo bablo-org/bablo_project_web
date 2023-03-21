@@ -1,9 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import UserAvatar from '../UserAvatar/UserAvatar';
 import classes from './AvatarsList.module.css';
 
-const AvatarsList = () => {
+const AvatarsList = ({ onUserSelected }) => {
   const [selectedId, setSelectedId] = useState();
+  const [selectedName, setSelectedName] = useState();
+
+  useEffect(() => {
+    onUserSelected(selectedName);
+  }, [selectedId]);
 
   const dummyNames = [
     {
@@ -35,6 +40,7 @@ const AvatarsList = () => {
       onSelected={setSelectedId}
       isActive={selectedId === user.id}
       isDisabled={selectedId && selectedId !== user.id}
+      avatarsName={setSelectedName}
     />
   ));
 
@@ -42,4 +48,3 @@ const AvatarsList = () => {
 };
 
 export default AvatarsList;
-

@@ -1,0 +1,85 @@
+.form {
+    margin: 1rem 0;
+    height: 25rem;
+    overflow: auto;
+    box-sizing: border-box;
+  }
+  
+  .control {
+    margin-bottom: 0.5rem;
+  }
+  
+  .control label {
+    font-weight: bold;
+    margin-bottom: 1rem;
+    display: block;
+  }
+  
+  .control input {
+    font: inherit;
+    border: 2px solid #33059e;
+    border-radius: 10px;
+    width: 25rem;
+    max-width: 200%;
+  }
+  
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+  }
+  
+  .actions button {
+    font: inherit;
+    color: #fdfdfd;
+    cursor: pointer;
+    background-color: #ca2800;
+    border: none;
+    border-radius: 25px;
+    padding: 0.5rem 2rem; 
+  }
+  
+  .actions button:hover,
+  .actions button:active {
+    background-color: #9e3605;
+    border-color: #33059e;
+  }
+  
+  .actions .submit {
+    border-color: #33059e;
+    background-color: #240370;
+    color: white;
+  }
+  
+  .actions .submit:hover,
+  .actions .submit:active {
+    background-color: #7a2706;
+  }
+  
+  .invalid label {
+    color: #ca3e51;
+  }
+  
+  .invalid input {
+    border-color: #aa0b20;
+    background-color: #ffeff1;
+  }
+
+  .formContainer {
+    display: flex;
+    justify-content: center;
+  }
+
+  .currencySelector {
+    font: inherit;
+    border: 2px solid #33059e;
+    border-radius: 10px;
+    width: 25rem;
+    max-width: 200%;
+  }
+
+  .container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
