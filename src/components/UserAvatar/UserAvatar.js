@@ -1,14 +1,24 @@
-import { useState } from 'react';
 import classes from './UserAvatar.module.css';
 
-const UserAvatar = ({name}) => {
-  const [isActive, setIsActive] = useState(false);
+const UserAvatar = ({ name, id, onSelected, isActive, isDisabled, avatarsName }) => {
+  const onAvatarClicked = () => {
+    if (isActive) {
+      onSelected();
+      avatarsName()
+    } else {
+      onSelected(id);
+      avatarsName(name)
+    }
+  };
 
   return (
     <div
       className={classes.circle}
-      style={{ borderColor: isActive ? 'white' : '#240370' }}
-      onClick={() => setIsActive((prevState) => !prevState)}
+      style={{
+        borderColor: isActive ? 'white' : '#240370',
+        backgroundColor: isDisabled && 'grey',
+      }}
+      onClick={onAvatarClicked}
     >
       <div class={classes.content}>{name}</div>
     </div>
