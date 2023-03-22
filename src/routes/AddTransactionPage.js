@@ -7,7 +7,7 @@ const AddTransactionPage = (props) => {
   return (
     <Fragment>
       <label className={classes.addDebtlabel}>Кто кому дает за щеку?</label>
-        <DebtForm></DebtForm>
+        <DebtForm/>
     </Fragment>
   );
 };
