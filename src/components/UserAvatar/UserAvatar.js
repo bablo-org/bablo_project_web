@@ -20,7 +20,7 @@ const UserAvatar = ({ name, id, onSelected, isActive, isDisabled, avatarsName })
       }}
       onClick={onAvatarClicked}
     >
-      <div class={classes.content}>{name}</div>
+      <div className={classes.content}>{name}</div>
     </div>
   );
 };
