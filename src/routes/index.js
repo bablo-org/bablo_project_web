@@ -26,6 +26,10 @@ export default createBrowserRouter([
     path: '/',
     children: [
       {
+        index: true,
+        element: <AddTransactionPage />,
+      },
+      {
         path: PATHES.ADD_TRANSACTION,
         element: <AddTransactionPage />,
       },
