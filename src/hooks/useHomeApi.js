@@ -9,6 +9,27 @@ const useHomeApi = () => {
         return res.map(_transformUsers);
     }
 
+    const getTransactions = async () => {
+        const res = await authorizedRequest(`${_apiBase}/transactions`)
+        return res.map(_transformedTransactions)
+    }
+
+
+    const _transformedTransactions = (transaction) => {
+        return {
+            id: transaction.id,
+            sender: transaction.sender,
+            reciever: transaction.reciever,
+            currency: transaction.currency,
+            amount: transaction.amount,
+            description: transaction.description,
+            date: transaction.date,
+            status: transaction.status,
+            created: transaction.created,
+            updated: transaction.updated
+        }
+    }
+
     const _transformUsers = (user) => {
         return {
             id: user.id,
@@ -17,7 +38,7 @@ const useHomeApi = () => {
             created: user.created
           }
     }
-    return {loading, error, getUsers}
+    return {loading, error, getUsers, getTransactions}
 }
 
 export default useHomeApi;
