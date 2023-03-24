@@ -5,7 +5,6 @@ import classes from './AvatarsList.module.css';
 import useHomeApi from '../../hooks/useHomeApi';
 import Spinner from '../Spinner/Spinner';
 
-
 const AvatarsList = ({ onUserSelected }) => {
   const [selectedId, setSelectedId] = useState();
   const [selectedName, setSelectedName] = useState();
@@ -13,9 +12,8 @@ const AvatarsList = ({ onUserSelected }) => {
   const { loading, error, getUsers } = useHomeApi();
 
   useEffect(() => {
-    getUsers()
-      .then(setUsers)
-  }, [])
+    getUsers().then(setUsers);
+  }, []);
 
   useEffect(() => {
     onUserSelected(selectedName);
@@ -23,6 +21,7 @@ const AvatarsList = ({ onUserSelected }) => {
 
   const nameList = users.map((user) => (
     <UserAvatar
+      key={user.id}
       name={user.name}
       id={user.id}
       onSelected={setSelectedId}
@@ -30,14 +29,12 @@ const AvatarsList = ({ onUserSelected }) => {
       isDisabled={selectedId && selectedId !== user.id}
       avatarsName={setSelectedName}
     />
-
   ));
 
   return (
     <div className={classes.avatarsContainer}>
       {loading ? <Spinner /> : nameList}
       {error && <div>Дрюс что-то сломал.</div>}
-
     </div>
   );
 };

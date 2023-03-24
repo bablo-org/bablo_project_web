@@ -62,7 +62,7 @@ const DebtForm = () => {
               className={classes.currencySelector}
               onChange={currencyInputChangeHandler}
             >
-              <option value="" selected disabled hidden>
+              <option value="" defaultValue disabled hidden>
                 Choose Value
               </option>
               <option value="USD">United States Dollars</option>
