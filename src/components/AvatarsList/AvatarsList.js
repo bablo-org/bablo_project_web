@@ -2,38 +2,26 @@ import { useEffect, useState } from 'react';
 import UserAvatar from '../UserAvatar/UserAvatar';
 import classes from './AvatarsList.module.css';
 
+import useHomeApi from '../../hooks/useHomeApi';
+import Spinner from '../Spinner/Spinner';
+
+
 const AvatarsList = ({ onUserSelected }) => {
   const [selectedId, setSelectedId] = useState();
   const [selectedName, setSelectedName] = useState();
+  const [users, setUsers] = useState([]);
+  const { loading, error, getUsers } = useHomeApi();
+
+  useEffect(() => {
+    getUsers()
+      .then(setUsers)
+  }, [])
 
   useEffect(() => {
     onUserSelected(selectedName);
   }, [selectedId]);
 
-  const dummyNames = [
-    {
-      name: `Пахан`,
-      id: `n1`,
-    },
-    {
-      name: `Дрюс`,
-      id: `n2`,
-    },
-    {
-      name: `Тоха-Лепеха`,
-      id: `n3`,
-    },
-    {
-      name: `Мишустин`,
-      id: `n4`,
-    },
-    {
-      name: `Арсен`,
-      id: `n5`,
-    },
-  ];
-
-  const nameList = dummyNames.map((user) => (
+  const nameList = users.map((user) => (
     <UserAvatar
       name={user.name}
       id={user.id}
@@ -42,9 +30,16 @@ const AvatarsList = ({ onUserSelected }) => {
       isDisabled={selectedId && selectedId !== user.id}
       avatarsName={setSelectedName}
     />
+
   ));
 
-  return <div className={classes.avatarsContainer}>{nameList}</div>;
+  return (
+    <div className={classes.avatarsContainer}>
+      {loading ? <Spinner /> : nameList}
+      {error && <div>Дрюс что-то сломал.</div>}
+
+    </div>
+  );
 };
 
 export default AvatarsList;
