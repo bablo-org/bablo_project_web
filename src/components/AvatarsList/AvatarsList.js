@@ -1,22 +1,23 @@
 import { useEffect, useState } from 'react';
+import { auth } from '../../services/firebase';
 import UserAvatar from '../UserAvatar/UserAvatar';
 import classes from './AvatarsList.module.css';
 
 import useHomeApi from '../../hooks/useHomeApi';
 import Spinner from '../Spinner/Spinner';
 
-const AvatarsList = ({ onUserSelected }) => {
+const AvatarsList = ({ onUserSelected, currentUser }) => {
+  const defaultUser = auth.currentUser.uid;
   const [selectedId, setSelectedId] = useState();
-  const [selectedName, setSelectedName] = useState();
   const [users, setUsers] = useState([]);
   const { loading, error, getUsers } = useHomeApi();
-
+  
   useEffect(() => {
     getUsers().then(setUsers);
   }, []);
 
   useEffect(() => {
-    onUserSelected(selectedName);
+    onUserSelected(selectedId);
   }, [selectedId]);
 
   const nameList = users.map((user) => (
@@ -27,8 +28,9 @@ const AvatarsList = ({ onUserSelected }) => {
       onSelected={setSelectedId}
       isActive={selectedId === user.id}
       isDisabled={selectedId && selectedId !== user.id}
-      avatarsName={setSelectedName}
+      isBlock={currentUser === user.id || currentUser && currentUser !== defaultUser && user.id !== defaultUser}
     />
+
   ));
 
   return (

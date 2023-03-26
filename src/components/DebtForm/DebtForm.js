@@ -50,9 +50,9 @@ const DebtForm = () => {
   return (
     <Fragment>
       <div>
-        <AvatarsList onUserSelected={setSender} />
-        <AvatarsList onUserSelected={setReceiver} />
-      </div>
+        <AvatarsList onUserSelected={setSender} currentUser={receiver}/>
+        <AvatarsList onUserSelected={setReceiver} currentUser={sender}/>
+      </div> 
       <div className={classes.container}>
         <form className={classes.form} onSubmit={submissionOfDebtHandler}>
           <div className={classes.control}>
