@@ -1,6 +1,6 @@
 import classes from './UserAvatar.module.css';
 
-const UserAvatar = ({ name, id, onSelected, isActive, isDisabled, isBlock}) => {
+const UserAvatar = ({ name, id, onSelected, isActive, isDisabled, isBlocked}) => {
   const onAvatarClicked = () => {
     if (isActive) {
       onSelected();
@@ -16,9 +16,9 @@ const UserAvatar = ({ name, id, onSelected, isActive, isDisabled, isBlock}) => {
       className={classes.circle}
       style={{
         borderColor: isActive ? 'white' : '#240370',
-        backgroundColor: (isDisabled || isBlock) && 'grey',
+        backgroundColor: (isDisabled || isBlocked) && 'grey',
       }}
-      onClick={!isBlock && onAvatarClicked}
+      onClick={!isBlocked && onAvatarClicked}
     >
       <div className={classes.content}>{name}</div>
     </div>

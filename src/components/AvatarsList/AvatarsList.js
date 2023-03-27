@@ -6,8 +6,8 @@ import classes from './AvatarsList.module.css';
 import useHomeApi from '../../hooks/useHomeApi';
 import Spinner from '../Spinner/Spinner';
 
-const AvatarsList = ({ onUserSelected, currentUser }) => {
-  const defaultUser = auth.currentUser.uid;
+const AvatarsList = ({ onUserSelected, blockedUserId }) => {
+  const currentUserId = auth.currentUser.uid;
   const [selectedId, setSelectedId] = useState();
   const [users, setUsers] = useState([]);
   const { loading, error, getUsers } = useHomeApi();
@@ -29,6 +29,7 @@ const AvatarsList = ({ onUserSelected, currentUser }) => {
       isActive={selectedId === user.id}
       isDisabled={selectedId && selectedId !== user.id}
       isBlock={currentUser === user.id || currentUser && currentUser !== defaultUser && user.id !== defaultUser}
+      isBlocked={blockedUserId === user.id || blockedUserId && blockedUserId !== currentUserId && user.id !== currentUserId}
     />
 
   ));
