@@ -9,20 +9,17 @@ const TransactionsList = () => {
   const { getTransactions, getUsers, loading } = useHomeApi();
   useEffect(() => {
     getTransactions().then(setTransactions);
-  }, []);
-
-  useEffect(() => {
     getUsers().then(setUsers);
   }, []);
 
-  if (loading === true) {
-      return (<Spinner/>)
-    } else if (loading === false && transactions.length === 0) {
-      return <p className={classes.noTransactionsAvailable}>Суй ананас в жопу</p>;
+  if (loading) {
+    return <Spinner />;
+  } else if (!loading && transactions.length === 0) {
+    return <p className={classes.noTransactionsAvailable}>Суй ананас в жопу</p>;
   }
 
-  const formatUserName = (arg) => {
-    const idToName = users.find((user) => user.id === arg)?.name;
+  const formatUserName = (incomingId) => {
+    const idToName = users.find((user) => user.id === incomingId)?.name;
     return idToName;
   };
 
