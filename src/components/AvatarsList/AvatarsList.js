@@ -28,7 +28,6 @@ const AvatarsList = ({ onUserSelected, blockedUserId }) => {
       onSelected={setSelectedId}
       isActive={selectedId === user.id}
       isDisabled={selectedId && selectedId !== user.id}
-      isBlock={currentUser === user.id || currentUser && currentUser !== defaultUser && user.id !== defaultUser}
       isBlocked={blockedUserId === user.id || blockedUserId && blockedUserId !== currentUserId && user.id !== currentUserId}
     />
 
