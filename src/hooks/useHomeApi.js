@@ -19,7 +19,7 @@ const useHomeApi = () => {
         return {
             id: transaction.id,
             sender: transaction.sender,
-            reciever: transaction.reciever,
+            receiver: transaction.receiver,
             currency: transaction.currency,
             amount: transaction.amount,
             description: transaction.description,

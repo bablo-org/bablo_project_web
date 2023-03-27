@@ -11,7 +11,7 @@ const AvatarsList = ({ onUserSelected, blockedUserId }) => {
   const [selectedId, setSelectedId] = useState();
   const [users, setUsers] = useState([]);
   const { loading, error, getUsers } = useHomeApi();
-  
+
   useEffect(() => {
     getUsers().then(setUsers);
   }, []);
@@ -28,9 +28,13 @@ const AvatarsList = ({ onUserSelected, blockedUserId }) => {
       onSelected={setSelectedId}
       isActive={selectedId === user.id}
       isDisabled={selectedId && selectedId !== user.id}
-      isBlocked={blockedUserId === user.id || blockedUserId && blockedUserId !== currentUserId && user.id !== currentUserId}
+      isBlocked={
+        blockedUserId === user.id ||
+        (blockedUserId &&
+          blockedUserId !== currentUserId &&
+          user.id !== currentUserId)
+      }
     />
-
   ));
 
   return (
