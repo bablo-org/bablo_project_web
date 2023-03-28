@@ -12,9 +12,10 @@ const Header = () => {
   return (
     <header className={classes.header}>
       <div className={classes.navDiv}>
-        <button onClick={() => navigate(PATHES.ADD_TRANSACTION)}>Добавить залупу</button>
-        <button onClick={() => navigate(PATHES.HISTORY)}>Вспомнить былое</button>
+        <button onClick={() => navigate(PATHES.ADD_TRANSACTION)}>Добавить транзакцию</button>
+        <button onClick={() => navigate(PATHES.HISTORY)}>История</button>
         <button onClick={() => navigate(PATHES.SUMMARY)}>Итоги</button>
+        <button onClick={() => navigate(PATHES.PROFILE)}>Профиль</button>
       </div>
       <button
           className={classes.logOutButton}

@@ -5,12 +5,14 @@ import HistoryPage from "./HistoryPage";
 import SummaryPage from "./SummaryPage";
 import LoginPage from "./LoginPage";
 import AuthorizedLayout from "../layouts/AuthorizedLayout";
+import UserProfile from "../components/UserProfile/UserProfile";
 
 export const PATHES = {
   LOGIN: "/login",
   ADD_TRANSACTION: "/add",
   HISTORY: "/history",
   SUMMARY: "/summary",
+  PROFILE: "/profile"
 };
 export default createBrowserRouter([
   {
@@ -41,6 +43,10 @@ export default createBrowserRouter([
         path: PATHES.SUMMARY,
         element: <SummaryPage />,
       },
+      {
+        path: PATHES.PROFILE,
+        element: <UserProfile />
+      }
     ],
   },
 ]);
