@@ -1,6 +1,7 @@
-import { Fragment, useState } from 'react';
+import { Fragment, useState, useEffect } from 'react';
 import classes from './DebtForm.module.css';
 import AvatarsList from '../AvatarsList/AvatarsList';
+import useHomeApi from '../../hooks/useHomeApi';
 
 const DebtForm = () => {
   const [sender, setSender] = useState();
@@ -9,6 +10,12 @@ const DebtForm = () => {
   const [enteredSum, setEnteredSum] = useState(``);
   const [enteredDescription, setEnteredDescription] = useState(``);
   const [enteredDate, setEnteredDate] = useState(``);
+  const [currencies, setCurrencies] = useState([]);
+  const { getCurrencies } = useHomeApi();
+
+  useEffect(() => {
+    getCurrencies().then(setCurrencies);
+  }, []);
 
   const currencyInputChangeHandler = (event) => {
     setEnteredCurrency(event.target.value);
@@ -36,6 +43,8 @@ const DebtForm = () => {
     setEnteredSum(``);
     setEnteredDescription(``);
     setEnteredDate(``);
+    setSender(``);
+    setReceiver(``);
   };
 
   const cancelingOfDebtHandler = () => {
@@ -47,27 +56,34 @@ const DebtForm = () => {
     console.warn(debtData);
     clearForm();
   };
+  const currencySelector = (
+    <select
+      className={classes.currencySelector}
+      value={enteredCurrency}
+      onChange={currencyInputChangeHandler}
+    >
+      <option value="" defaultValue disabled hidden>
+        Choose Value
+      </option>
+      {currencies.map((currency) => (
+        <option key={currency.id} value={currency.id}>
+          {currency.name}
+        </option>
+      ))}
+    </select>
+  );
+
   return (
     <Fragment>
       <div>
-        <AvatarsList onUserSelected={setSender} blockedUserId={receiver}/>
-        <AvatarsList onUserSelected={setReceiver} blockedUserId={sender}/>
-      </div> 
+        <AvatarsList onUserSelected={setSender} blockedUserId={receiver} />
+        <AvatarsList onUserSelected={setReceiver} blockedUserId={sender} />
+      </div>
       <div className={classes.container}>
         <form className={classes.form} onSubmit={submissionOfDebtHandler}>
           <div className={classes.control}>
             <label htmlFor="currency">Currency</label>
-            <select
-              value={enteredCurrency}
-              className={classes.currencySelector}
-              onChange={currencyInputChangeHandler}
-            >
-              <option value="" defaultValue disabled hidden>
-                Choose Value
-              </option>
-              <option value="USD">United States Dollars</option>
-              <option value="THB">Thailand Baht</option>
-            </select>
+            {currencySelector}
           </div>
           <div className={classes.control}>
             <label htmlFor="sum">Sum</label>
