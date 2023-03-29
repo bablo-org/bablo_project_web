@@ -19,6 +19,18 @@ const useHomeApi = () => {
     return res.map(_transformedCurrencies);
   };
 
+  const postTransactions = async (data) => {
+    try {
+    await authorizedRequest(`${_apiBase}/transactions`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers: {'Content-Type': 'application/json'}
+    });
+  } catch (e) {
+    console.warn(e)
+  }
+  };
+
   const _transformedCurrencies = (currency) => {
     return {
       id: currency.id,
@@ -51,7 +63,9 @@ const useHomeApi = () => {
       created: user.created,
     };
   };
-  return { loading, error, getUsers, getTransactions, getCurrencies };
+  return { loading, error, getUsers, getTransactions, getCurrencies, postTransactions };
 };
 
 export default useHomeApi;
+
+// {method: 'POST', body: JSON.stringify(data)}

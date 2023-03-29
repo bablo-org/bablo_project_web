@@ -10,10 +10,9 @@ const DebtForm = () => {
   const [isFormValid, setFormIsValid] = useState(true);
   const [enteredSum, setEnteredSum] = useState(``);
   const [enteredDescription, setEnteredDescription] = useState(``);
-  const [enteredDate, setEnteredDate] = useState(``);
-
+  const [enteredDate, setEnteredDate] = useState();
   const [currencies, setCurrencies] = useState([]);
-  const { getCurrencies } = useHomeApi();
+  const { getCurrencies, postTransactions } = useHomeApi();
 
   useEffect(() => {
     getCurrencies().then(setCurrencies);
@@ -30,14 +29,6 @@ const DebtForm = () => {
   };
   const dateInputChangeHandler = (event) => {
     setEnteredDate(event.target.value);
-  };
-  const debtData = {
-    sender: sender,
-    receiver: receiver,
-    currency: enteredCurrency,
-    sum: enteredSum + ` ${enteredCurrency}`,
-    description: enteredDescription,
-    date: enteredDate,
   };
 
   const clearForm = () => {
@@ -63,8 +54,16 @@ const DebtForm = () => {
     ) {
       setFormIsValid(false);
     } else {
+      const debtData = {
+        sender: sender,
+        receiver: receiver,
+        currency: enteredCurrency,
+        amount: parseInt(enteredSum),
+        description: enteredDescription,
+        date: enteredDate ? new Date(enteredDate).toISOString() : undefined,
+      };
       setFormIsValid(true);
-      console.warn(debtData);
+      postTransactions(debtData);
       clearForm();
     }
   };
