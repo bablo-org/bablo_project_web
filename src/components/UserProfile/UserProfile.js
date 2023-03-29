@@ -4,11 +4,14 @@ import { useState } from "react";
 import { getDownloadURL, storage, ref } from '../../services/firebase';
 import Spinner from "../Spinner/Spinner";
 
+const IMAGE_ERRORS = {
+    WRONG_TYPE: "Расширение выбранного файла должно быть 'jpeg', 'bmp', 'png' или 'gif'",
+    WRONG_SIZE: "Размер выбранного файла должен быть не более 1 Mbyte",
+}
+
 const UserProfile = () => {
     const { putUser, postUserAvatar } = useHomeApi();
     const [imageError, setImageError] = useState();
-    const [imageTypeError, setImageTypeError] = useState();
-    const [imageSizeError, setImageSizeError] = useState();
     const [isProfileUpdated, setIsProfileUpdate] = useState();
     const [loading, setLoading] = useState();
     const [error, setError] = useState();
@@ -30,9 +33,7 @@ const UserProfile = () => {
         if (e.target.files[0]) {
             setError(false);
             setIsProfileUpdate(false);
-            setImageError(false);
-            setImageTypeError(false);
-            setImageSizeError(false);
+            setImageError();
             encodeImageFileAsURL(e);
         }
     }
@@ -42,22 +43,21 @@ const UserProfile = () => {
         const fileSize = element.target.files[0].size;
         const fileType = element.target.files[0].type.split('/')[1];
 
-        if (['jpeg', 'bmp', 'png', 'gif'].includes(fileType) && fileSize < 1024001) {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => {
-                setEncodedImageName(encodeURIComponent(element.target.files[0].name));
-                trasformString(reader.result);
-            }
-        } else {
-            setImageError(true);
-            if (['jpeg', 'bmp', 'png', 'gif'].includes(fileType)) {
-                if (fileSize > 1024001) {
-                    setImageSizeError(true);
-                }
-            } else {
-                setImageTypeError(true);
-            }
+        if (fileSize > 1024001) {
+            setImageError(IMAGE_ERRORS.WRONG_SIZE);
+            return;
+        }
+
+        if (!['jpeg', 'bmp', 'png', 'gif'].includes(fileType)) {
+            setImageError(IMAGE_ERRORS.WRONG_TYPE);
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+            setEncodedImageName(encodeURIComponent(element.target.files[0].name));
+            trasformString(reader.result);
         }
     }
 
@@ -79,6 +79,7 @@ const UserProfile = () => {
                 setLoading(true);
                 await putUser(JSON.stringify({ name }));
                 setIsProfileUpdate(true);
+                setError(false);
             }
         } catch (error) {
             throw (error);
@@ -86,13 +87,17 @@ const UserProfile = () => {
             setLoading(false);
         }
     }
+
     const validateAndSubmit = (e) => {
         e.preventDefault();
-        if (!imageError && (name || encodedImageName)) {
-            updateUser();
-        } else {
+        if (!name && !encodedImageName) {
             setError(true);
+            return;
         }
+        if (imageError) {
+            return;
+        }
+        updateUser();
     }
 
     return (
@@ -108,19 +113,9 @@ const UserProfile = () => {
                 <div className={classes.control}>
                     <label>Выберите файл аватара</label>
                     <input type="file" onChange={changeUserAvatar} />
-                    {imageTypeError && (
+                    {imageError && (
                         <div style={{ color: '#a70000' }}>
-                            Расширение выбранного файла должно быть 'jpeg', 'bmp', 'png' или 'gif'
-                        </div>
-                    )}
-                    {imageSizeError && (
-                        <div style={{ color: '#a70000' }}>
-                            Размер выбранного файла должен быть не более 1 Mbyte
-                        </div>
-                    )}
-                    {imageError && !imageTypeError && !imageSizeError && (
-                        <div style={{ color: '#a70000' }}>
-                            Неизвестная ошибка
+                            {imageError}
                         </div>
                     )}
                     {error && !imageError && (
@@ -130,15 +125,13 @@ const UserProfile = () => {
                     )}
                 </div>
                 <div className={classes.actions}>
-                    {loading ?
-                        <Spinner width='100px' height='100px' /> :
-                        !isProfileUpdated ?
-                            <button className={classes.submit}>Подтвердить</button> : null}
+                    {loading && <Spinner width='100px' height='100px' />}
+                    {!isProfileUpdated && !loading && <button className={classes.submit}>Подтвердить</button>}
                 </div>
-                {isProfileUpdated ?
+                {isProfileUpdated &&
                     <div style={{ color: 'green', fontWeight: 'bold', fontSize: '22px' }}>
                         Внесенные данные успешно изменены
-                    </div> : null}
+                    </div>}
             </form>
         </div>
     )
