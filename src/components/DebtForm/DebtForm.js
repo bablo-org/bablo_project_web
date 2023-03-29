@@ -28,15 +28,7 @@ const DebtForm = () => {
     setEnteredDescription(event.target.value);
   };
   const dateInputChangeHandler = (event) => {
-    setEnteredDate(event.target.value)
-  };
-  const debtData = {
-    sender: sender,
-    receiver: receiver,
-    currency: enteredCurrency,
-    amount: parseInt(enteredSum),
-    description: enteredDescription,
-    date: enteredDate ? (new Date(enteredDate)).toISOString(): undefined,
+    setEnteredDate(event.target.value);
   };
 
   const clearForm = () => {
@@ -62,6 +54,14 @@ const DebtForm = () => {
     ) {
       setFormIsValid(false);
     } else {
+      const debtData = {
+        sender: sender,
+        receiver: receiver,
+        currency: enteredCurrency,
+        amount: parseInt(enteredSum),
+        description: enteredDescription,
+        date: enteredDate ? new Date(enteredDate).toISOString() : undefined,
+      };
       setFormIsValid(true);
       postTransactions(debtData);
       clearForm();

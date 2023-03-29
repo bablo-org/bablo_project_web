@@ -21,7 +21,6 @@ const useHomeApi = () => {
 
   const postTransactions = async (data) => {
     try {
-      console.warn(data)
     await authorizedRequest(`${_apiBase}/transactions`, {
       method: 'POST',
       body: JSON.stringify(data),
