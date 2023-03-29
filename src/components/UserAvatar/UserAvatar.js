@@ -23,7 +23,7 @@ const UserAvatar = ({
         borderColor: isActive ? 'white' : '#240370',
         backgroundColor: (isDisabled || isBlocked) && 'grey',
       }}
-      onClick={!isBlocked && onAvatarClicked}
+      onClick={!isBlocked ? onAvatarClicked: null}
     >
       <div className={classes.content}>{name}</div>
     </div>
