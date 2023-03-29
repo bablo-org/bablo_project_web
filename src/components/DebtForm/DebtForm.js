@@ -7,7 +7,7 @@ const DebtForm = () => {
   const [sender, setSender] = useState();
   const [receiver, setReceiver] = useState();
   const [enteredCurrency, setEnteredCurrency] = useState(``);
-  const [isFormValid, setFormIsValid] = useState(true);
+  const [isFormValid, setIsFormIsValid] = useState(true);
   const [enteredSum, setEnteredSum] = useState(``);
   const [enteredDescription, setEnteredDescription] = useState(``);
   const [enteredDate, setEnteredDate] = useState();
@@ -52,7 +52,7 @@ const DebtForm = () => {
       enteredDescription === `` ||
       enteredDate === ``
     ) {
-      setFormIsValid(false);
+      setIsFormIsValid(false);
     } else {
       const debtData = {
         sender: sender,
@@ -62,7 +62,7 @@ const DebtForm = () => {
         description: enteredDescription,
         date: enteredDate ? new Date(enteredDate).toISOString() : undefined,
       };
-      setFormIsValid(true);
+      setIsFormIsValid(true);
       postTransactions(debtData);
       clearForm();
     }
@@ -130,7 +130,7 @@ const DebtForm = () => {
             </button>
             <button className={classes.submit}>Confirm</button>
           </div>
-          {!isFormValid ? <p>Все поля должны быть заполнены... Лох</p> : null}
+          {!isFormValid ? <p>Все поля должны быть заполнены... Лох</p> : undefined}
         </form>
       </div>
     </Fragment>
