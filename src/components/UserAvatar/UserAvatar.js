@@ -19,7 +19,7 @@ const UserAvatar = ({ name, id, onSelected, isActive, isDisabled, isBlocked, ava
         opacity: (isDisabled || isBlocked) && '0.3',
         backgroundSize: 'cover'
       }}
-      onClick={!isBlocked && onAvatarClicked}
+      onClick={!isBlocked ? onAvatarClicked : undefined}
     >
       <div className={classes.content}>{name}</div>
     </div>

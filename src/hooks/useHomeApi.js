@@ -24,8 +24,8 @@ const useHomeApi = () => {
         return res;
     }
 
-    const postUserAvatar = async (bodyData, type) => {
-        const res = await authorizedRequest(`${_apiBase}/users/uploadAvatar?fileName=${type}`, 
+    const postUserAvatar = async (bodyData, fileName) => {
+        const res = await authorizedRequest(`${_apiBase}/users/uploadAvatar?fileName=${fileName}`, 
         { method: 'POST', body: bodyData})
         return res;
     }
