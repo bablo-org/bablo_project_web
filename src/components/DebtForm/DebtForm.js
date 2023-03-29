@@ -7,9 +7,11 @@ const DebtForm = () => {
   const [sender, setSender] = useState();
   const [receiver, setReceiver] = useState();
   const [enteredCurrency, setEnteredCurrency] = useState(``);
+  const [isFormValid, setFormIsValid] = useState(true);
   const [enteredSum, setEnteredSum] = useState(``);
   const [enteredDescription, setEnteredDescription] = useState(``);
   const [enteredDate, setEnteredDate] = useState(``);
+
   const [currencies, setCurrencies] = useState([]);
   const { getCurrencies } = useHomeApi();
 
@@ -21,7 +23,7 @@ const DebtForm = () => {
     setEnteredCurrency(event.target.value);
   };
   const sumInputChangeHandler = (event) => {
-    setEnteredSum(event.target.value);
+    setEnteredSum(event.target.value.replace(/\D/g, ''));
   };
   const descriptionInputChangeHandler = (event) => {
     setEnteredDescription(event.target.value);
@@ -43,8 +45,6 @@ const DebtForm = () => {
     setEnteredSum(``);
     setEnteredDescription(``);
     setEnteredDate(``);
-    setSender(``);
-    setReceiver(``);
   };
 
   const cancelingOfDebtHandler = () => {
@@ -53,9 +53,22 @@ const DebtForm = () => {
 
   const submissionOfDebtHandler = (event) => {
     event.preventDefault();
-    console.warn(debtData);
-    clearForm();
+    if (
+      sender === undefined ||
+      receiver === undefined ||
+      enteredCurrency === `` ||
+      enteredSum === `` ||
+      enteredDescription === `` ||
+      enteredDate === ``
+    ) {
+      setFormIsValid(false);
+    } else {
+      setFormIsValid(true);
+      console.warn(debtData);
+      clearForm();
+    }
   };
+
   const currencySelector = (
     <select
       className={classes.currencySelector}
@@ -118,6 +131,7 @@ const DebtForm = () => {
             </button>
             <button className={classes.submit}>Confirm</button>
           </div>
+          {!isFormValid ? <p>Все поля должны быть заполнены... Лох</p> : null}
         </form>
       </div>
     </Fragment>
