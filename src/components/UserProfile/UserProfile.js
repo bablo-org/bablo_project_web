@@ -110,6 +110,7 @@ const UserProfile = () => {
   const resetAvatar = () => {
     setAvatar(undefined);
     inputFileValue.current.value = "";
+    toggleSelect();
   };
 
   const toggleSelect = () => {
