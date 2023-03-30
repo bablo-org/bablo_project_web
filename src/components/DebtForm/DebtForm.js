@@ -7,11 +7,12 @@ const DebtForm = () => {
   const [sender, setSender] = useState();
   const [receiver, setReceiver] = useState();
   const [enteredCurrency, setEnteredCurrency] = useState(``);
+  const [isFormValid, setIsFormIsValid] = useState(true);
   const [enteredSum, setEnteredSum] = useState(``);
   const [enteredDescription, setEnteredDescription] = useState(``);
-  const [enteredDate, setEnteredDate] = useState(``);
+  const [enteredDate, setEnteredDate] = useState();
   const [currencies, setCurrencies] = useState([]);
-  const { getCurrencies } = useHomeApi();
+  const { getCurrencies, postTransactions } = useHomeApi();
 
   useEffect(() => {
     getCurrencies().then(setCurrencies);
@@ -21,7 +22,7 @@ const DebtForm = () => {
     setEnteredCurrency(event.target.value);
   };
   const sumInputChangeHandler = (event) => {
-    setEnteredSum(event.target.value);
+    setEnteredSum(event.target.value.replace(/\D/g, ''));
   };
   const descriptionInputChangeHandler = (event) => {
     setEnteredDescription(event.target.value);
@@ -29,22 +30,12 @@ const DebtForm = () => {
   const dateInputChangeHandler = (event) => {
     setEnteredDate(event.target.value);
   };
-  const debtData = {
-    sender: sender,
-    receiver: receiver,
-    currency: enteredCurrency,
-    sum: enteredSum + ` ${enteredCurrency}`,
-    description: enteredDescription,
-    date: enteredDate,
-  };
 
   const clearForm = () => {
     setEnteredCurrency(``);
     setEnteredSum(``);
     setEnteredDescription(``);
     setEnteredDate(``);
-    setSender(``);
-    setReceiver(``);
   };
 
   const cancelingOfDebtHandler = () => {
@@ -53,9 +44,30 @@ const DebtForm = () => {
 
   const submissionOfDebtHandler = (event) => {
     event.preventDefault();
-    console.warn(debtData);
-    clearForm();
+    if (
+      sender === undefined ||
+      receiver === undefined ||
+      enteredCurrency === `` ||
+      enteredSum === `` ||
+      enteredDescription === `` ||
+      enteredDate === ``
+    ) {
+      setIsFormIsValid(false);
+    } else {
+      const debtData = {
+        sender: sender,
+        receiver: receiver,
+        currency: enteredCurrency,
+        amount: parseInt(enteredSum),
+        description: enteredDescription,
+        date: enteredDate ? new Date(enteredDate).toISOString() : undefined,
+      };
+      setIsFormIsValid(true);
+      postTransactions(debtData);
+      clearForm();
+    }
   };
+
   const currencySelector = (
     <select
       className={classes.currencySelector}
@@ -118,6 +130,7 @@ const DebtForm = () => {
             </button>
             <button className={classes.submit}>Confirm</button>
           </div>
+          {!isFormValid ? <p>Все поля должны быть заполнены... Лох</p> : undefined}
         </form>
       </div>
     </Fragment>
