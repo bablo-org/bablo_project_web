@@ -18,6 +18,18 @@ const useHomeApi = () => {
     const res = await authorizedRequest(`${_apiBase}/currencies`);
     return res.map(_transformedCurrencies);
   };
+    const putUser = async (data) => {
+        const res = await authorizedRequest(`${_apiBase}/users/updateProfile`, 
+        { method: 'PUT', body: data, headers: { 'Content-Type': 'application/json' } })
+        return res;
+    }
+
+    const postUserAvatar = async (bodyData, fileName) => {
+        const res = await authorizedRequest(`${_apiBase}/users/uploadAvatar?fileName=${fileName}`, 
+        { method: 'POST', body: bodyData})
+        return res;
+    }
+
 
   const postTransactions = async (data) => {
     try {
@@ -54,17 +66,18 @@ const useHomeApi = () => {
       updated: transaction.updated,
     };
   };
-
-  const _transformUsers = (user) => {
-    return {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      created: user.created,
-    };
-  };
-  return { loading, error, getUsers, getTransactions, getCurrencies, postTransactions };
-};
+  
+    const _transformUsers = (user) => {
+        return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            created: user.created,
+            avatar: user.avatar
+        }
+    }
+    return { loading, error, getUsers, getTransactions, putUser, postUserAvatar, getCurrencies, postTransactions }
+}
 
 export default useHomeApi;
 
