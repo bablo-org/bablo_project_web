@@ -1,7 +1,6 @@
 .form {
     margin: 1rem 0;
     height: 25rem;
-    overflow: auto;
     box-sizing: border-box;
   }
   
@@ -81,4 +80,24 @@
     display: flex;
     justify-content: center;
     margin-bottom: 20px;
+  }
+
+  .circle {
+    height: 100px;
+    width: 100px;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 60px;
+    margin-bottom: 20px;
+    border-style: dashed;
+    background-size: cover;
+    margin: 0px auto 20px auto;
+  }
+  .reset {
+    margin-left: 60%;
+    margin-top: 10%;
+    font-weight: bold;
+  }
+  .reset:hover {
+    cursor: pointer;
   }
