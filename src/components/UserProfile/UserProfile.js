@@ -1,6 +1,6 @@
 import useHomeApi from "../../hooks/useHomeApi";
 import classes from "./UserProfile.module.css";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { getDownloadURL, storage, ref } from "../../services/firebase";
 import Spinner from "../Spinner/Spinner";
 
@@ -20,6 +20,8 @@ const UserProfile = () => {
   const [encodedImageCode, setEncodedImageCode] = useState();
   const [name, setName] = useState();
   const [avatar, setAvatar] = useState();
+  const inputFileValue = useRef();
+  const [isSelected, setIsSelected] = useState();
 
   const changeUserName = (e) => {
     if (e.target.value && e.target.value !== "") {
@@ -39,6 +41,7 @@ const UserProfile = () => {
   };
 
   const encodeImageFileAsURL = (element) => {
+    setAvatar(undefined);
     const file = element.target.files[0];
     const fileSize = element.target.files[0].size;
     const fileType = element.target.files[0].type.split("/")[1];
@@ -58,6 +61,7 @@ const UserProfile = () => {
     reader.onload = () => {
       setEncodedImageName(encodeURIComponent(element.target.files[0].name));
       trasformString(reader.result);
+      setAvatar(reader.result);
     };
   };
 
@@ -75,7 +79,6 @@ const UserProfile = () => {
           encodedImageName
         );
         const avatar = await getDownloadURL(ref(storage, response.path));
-        setAvatar(avatar);
         await putUser(JSON.stringify({ name, avatar }));
         setIsProfileUpdate(true);
       } else if (name) {
@@ -88,6 +91,7 @@ const UserProfile = () => {
       throw error;
     } finally {
       setLoading(false);
+      setAvatar(false);
     }
   };
 
@@ -103,6 +107,16 @@ const UserProfile = () => {
     updateUser();
   };
 
+  const resetAvatar = () => {
+    setAvatar(undefined);
+    inputFileValue.current.value = "";
+    toggleSelect();
+  };
+
+  const toggleSelect = () => {
+    setIsSelected(!isSelected);
+  };
+
   return (
     <div className={classes.container}>
       <form onSubmit={validateAndSubmit} className={classes.form}>
@@ -113,7 +127,25 @@ const UserProfile = () => {
         </div>
         <div className={classes.control}>
           <label>Выберите файл аватара</label>
-          <input type="file" onChange={changeUserAvatar} />
+          {avatar && (
+            <div
+              className={classes.circle}
+              style={{
+                backgroundImage: `url(${avatar})`,
+                color: isSelected && "#aa0b20",
+              }}
+            >
+              <div
+                onClick={resetAvatar}
+                className={classes.reset}
+                onMouseOver={toggleSelect}
+                onMouseOut={toggleSelect}
+              >
+                X
+              </div>
+            </div>
+          )}
+          <input type="file" onChange={changeUserAvatar} ref={inputFileValue} />
           {imageError && <div style={{ color: "#a70000" }}>{imageError}</div>}
           {error && !imageError && (
             <div style={{ color: "#a70000" }}>Введите данные</div>
