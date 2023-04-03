@@ -24,3 +24,12 @@
   .circle:hover {
     background-color: #4c00ff;
   }
+  .content {
+    -webkit-touch-callout: none;
+	  -webkit-user-select: none;
+	  -khtml-user-select: none;
+	  -moz-user-select: none;
+	  -ms-user-select: none;
+	  user-select: none;
+    background: rgb(0, 0, 0, 0.4);
+  }
