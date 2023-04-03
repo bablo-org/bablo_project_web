@@ -1,28 +1,31 @@
-import { Fragment, useState, useEffect } from 'react';
-import classes from './DebtForm.module.css';
-import AvatarsList from '../AvatarsList/AvatarsList';
-import useHomeApi from '../../hooks/useHomeApi';
+import { Fragment, useState, useEffect } from "react";
+import classes from "./DebtForm.module.css";
+import AvatarsList from "../AvatarsList/AvatarsList";
+import useHomeApi from "../../hooks/useHomeApi";
 
 const DebtForm = () => {
-  const [sender, setSender] = useState();
-  const [receiver, setReceiver] = useState();
+  const [users, setUsers] = useState([]);
+  const [sender, setSender] = useState([]);
+  const [receiver, setReceiver] = useState([]);
   const [enteredCurrency, setEnteredCurrency] = useState(``);
   const [isFormValid, setIsFormIsValid] = useState(true);
   const [enteredSum, setEnteredSum] = useState(``);
   const [enteredDescription, setEnteredDescription] = useState(``);
   const [enteredDate, setEnteredDate] = useState();
   const [currencies, setCurrencies] = useState([]);
-  const { getCurrencies, postTransactions } = useHomeApi();
+  const { getCurrencies, postTransactions, loading, error, getUsers } =
+    useHomeApi();
 
   useEffect(() => {
     getCurrencies().then(setCurrencies);
+    getUsers().then(setUsers);
   }, []);
 
   const currencyInputChangeHandler = (event) => {
     setEnteredCurrency(event.target.value);
   };
   const sumInputChangeHandler = (event) => {
-    setEnteredSum(event.target.value.replace(/\D/g, ''));
+    setEnteredSum(event.target.value.replace(/\D/g, ""));
   };
   const descriptionInputChangeHandler = (event) => {
     setEnteredDescription(event.target.value);
@@ -88,8 +91,22 @@ const DebtForm = () => {
   return (
     <Fragment>
       <div>
-        <AvatarsList onUserSelected={setSender} blockedUserId={receiver} />
-        <AvatarsList onUserSelected={setReceiver} blockedUserId={sender} />
+        <AvatarsList
+          users={users}
+          loading={loading}
+          error={error}
+          onUserSelected={setSender}
+          blockedUserIds={undefined}
+        />
+        {sender.length > 0 && (
+          <AvatarsList
+            users={users}
+            loading={loading}
+            error={error}
+            onUserSelected={setReceiver}
+            blockedUserIds={sender}
+          />
+        )}
       </div>
       <div className={classes.container}>
         <form className={classes.form} onSubmit={submissionOfDebtHandler}>
@@ -130,7 +147,9 @@ const DebtForm = () => {
             </button>
             <button className={classes.submit}>Confirm</button>
           </div>
-          {!isFormValid ? <p>Все поля должны быть заполнены... Лох</p> : undefined}
+          {!isFormValid ? (
+            <p>Все поля должны быть заполнены... Лох</p>
+          ) : undefined}
         </form>
       </div>
     </Fragment>
