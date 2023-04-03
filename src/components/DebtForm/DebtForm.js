@@ -103,6 +103,7 @@ const DebtForm = () => {
   return (
     <Fragment>
       <div>
+      <label className={classes.addDebtlabel}>Должник</label>
         <AvatarsList
           users={users}
           loading={loading}
@@ -110,7 +111,10 @@ const DebtForm = () => {
           onUserSelected={setSender}
           blockedUserIds={undefined}
         />
+        
         {sender.length > 0 && (
+          <>
+          <label className={classes.addDebtlabel}>Получатель</label>
           <AvatarsList
             users={users}
             loading={loading}
@@ -118,6 +122,7 @@ const DebtForm = () => {
             onUserSelected={setReceiver}
             blockedUserIds={sender}
           />
+          </>
         )}
       </div>
       <div className={classes.container}>
