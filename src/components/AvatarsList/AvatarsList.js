@@ -21,20 +21,22 @@ const AvatarsList = ({ onUserSelected, blockedUserId }) => {
   }, [selectedId]);
 
   const nameList = users.map((user) => (
-      <UserAvatar
-        key={user.id}
-        name={user.name}
-        id={user.id}
-        onSelected={setSelectedId}
-        isActive={selectedId === user.id}
-        isDisabled={selectedId && selectedId !== user.id}
-        isBlocked={blockedUserId === user.id || blockedUserId && blockedUserId !== currentUserId && user.id !== currentUserId}
-        avatarUrl={user.avatar}
-      />
-    )
-  );
-
-
+    <UserAvatar
+      key={user.id}
+      name={user.name}
+      id={user.id}
+      onSelected={setSelectedId}
+      isActive={selectedId === user.id}
+      isDisabled={selectedId && selectedId !== user.id}
+      isBlocked={
+        blockedUserId === user.id ||
+        (blockedUserId &&
+          blockedUserId !== currentUserId &&
+          user.id !== currentUserId)
+      }
+      avatarUrl={user.avatar}
+    />
+  ));
 
   return (
     <div className={classes.avatarsContainer}>
