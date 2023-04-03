@@ -9,6 +9,7 @@ const DebtForm = () => {
   const [receiver, setReceiver] = useState([]);
   const [enteredCurrency, setEnteredCurrency] = useState(``);
   const [isFormValid, setIsFormIsValid] = useState(true);
+  const [isSumValid, setIsSumValid] = useState(true);
   const [enteredSum, setEnteredSum] = useState(``);
   const [enteredDescription, setEnteredDescription] = useState(``);
   const [enteredDate, setEnteredDate] = useState();
@@ -25,7 +26,7 @@ const DebtForm = () => {
     setEnteredCurrency(event.target.value);
   };
   const sumInputChangeHandler = (event) => {
-    setEnteredSum(event.target.value.replace(/\D/g, ""));
+    setEnteredSum(event.target.value);
   };
   const descriptionInputChangeHandler = (event) => {
     setEnteredDescription(event.target.value);
@@ -47,6 +48,7 @@ const DebtForm = () => {
 
   const submissionOfDebtHandler = (event) => {
     event.preventDefault();
+    const transformedSum = Array.from(JSON.stringify(enteredSum));
     if (
       sender === undefined ||
       receiver === undefined ||
@@ -56,6 +58,15 @@ const DebtForm = () => {
       enteredDate === ``
     ) {
       setIsFormIsValid(false);
+    } else if (
+      transformedSum.indexOf(`-`) === 1 ||
+      transformedSum.indexOf(`.`) === 1 ||
+      transformedSum.includes(`-`) ||
+      transformedSum.includes(`+`) ||
+      transformedSum.includes(`e`) ||
+      transformedSum.includes(`=`)
+    ) {
+      setIsSumValid(false);
     } else {
       const debtData = {
         sender: sender,
@@ -67,6 +78,7 @@ const DebtForm = () => {
       };
       setIsFormIsValid(true);
       postTransactions(debtData);
+      setIsSumValid(true);
       clearForm();
     }
   };
@@ -111,20 +123,21 @@ const DebtForm = () => {
       <div className={classes.container}>
         <form className={classes.form} onSubmit={submissionOfDebtHandler}>
           <div className={classes.control}>
-            <label htmlFor="currency">Currency</label>
+            <label htmlFor="currency">Валюта</label>
             {currencySelector}
           </div>
           <div className={classes.control}>
-            <label htmlFor="sum">Sum</label>
+            <label htmlFor="sum">Сумма</label>
             <input
               value={enteredSum}
               type="number"
               id="sum"
               onChange={sumInputChangeHandler}
+              pattern="[0-9]"
             />
           </div>
           <div className={classes.control}>
-            <label htmlFor="description">Description</label>
+            <label htmlFor="description">Описание</label>
             <input
               value={enteredDescription}
               type="text"
@@ -133,7 +146,7 @@ const DebtForm = () => {
             />
           </div>
           <div className={classes.control}>
-            <label htmlFor="date">Date</label>
+            <label htmlFor="date">Дата</label>
             <input
               value={enteredDate}
               type="date"
@@ -150,6 +163,7 @@ const DebtForm = () => {
           {!isFormValid ? (
             <p>Все поля должны быть заполнены... Лох</p>
           ) : undefined}
+          {!isSumValid ? <p>В поле сумма должно быть число</p> : undefined}
         </form>
       </div>
     </Fragment>

@@ -83,3 +83,13 @@
     justify-content: center;
     margin-bottom: 20px;
   }
+
+  .addDebtlabel {
+    font-size: xx-large;
+    color: white;
+    display: flex;
+    margin-top: 20px;
+    margin-bottom: 0px;
+    justify-content: center;
+   
+  }
