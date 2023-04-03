@@ -59,7 +59,6 @@ const DebtForm = () => {
       transformedSum.indexOf(`-`) === 1 ||
       transformedSum.indexOf(`.`) === 1 ||
       transformedSum.includes(`-`) ||
-      transformedSum.includes(`.`) ||
       transformedSum.includes(`+`) ||
       transformedSum.includes(`e`) ||
       transformedSum.includes(`=`)
