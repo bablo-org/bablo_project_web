@@ -18,29 +18,58 @@ const useHomeApi = () => {
     const res = await authorizedRequest(`${_apiBase}/currencies`);
     return res.map(_transformedCurrencies);
   };
-    const putUser = async (data) => {
-        const res = await authorizedRequest(`${_apiBase}/users/updateProfile`, 
-        { method: 'PUT', body: data, headers: { 'Content-Type': 'application/json' } })
-        return res;
-    }
+  const putUser = async (data) => {
+    const res = await authorizedRequest(`${_apiBase}/users/updateProfile`, {
+      method: 'PUT',
+      body: data,
+      headers: { 'Content-Type': 'application/json' },
+    });
+    return res;
+  };
 
-    const postUserAvatar = async (bodyData, fileName) => {
-        const res = await authorizedRequest(`${_apiBase}/users/uploadAvatar?fileName=${fileName}`, 
-        { method: 'POST', body: bodyData})
-        return res;
-    }
+  const putTransactionsDecline = async (data) => {
+    const res = await authorizedRequest(`${_apiBase}/transactions/decline`, {
+      method: `PUT`,
+      body: data,
+      headers: { 'Content-Type': 'application/json' },
+    });
+    return res;
+  };
+  const putTransactionsComplete = async (data) => {
+    const res = await authorizedRequest(`${_apiBase}/transactions/complete`, {
+      method: `PUT`,
+      body: data,
+      headers: { 'Content-Type': 'application/json' },
+    });
+    return res;
+  };
+  const putTransactionsApprove = async (data) => {
+    const res = await authorizedRequest(`${_apiBase}/transactions/approve`, {
+      method: `PUT`,
+      body: data,
+      headers: { 'Content-Type': 'application/json' },
+    });
+    return res;
+  };
 
+  const postUserAvatar = async (bodyData, fileName) => {
+    const res = await authorizedRequest(
+      `${_apiBase}/users/uploadAvatar?fileName=${fileName}`,
+      { method: 'POST', body: bodyData }
+    );
+    return res;
+  };
 
   const postTransactions = async (data) => {
     try {
-    await authorizedRequest(`${_apiBase}/transactions`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-      headers: {'Content-Type': 'application/json'}
-    });
-  } catch (e) {
-    console.warn(e)
-  }
+      await authorizedRequest(`${_apiBase}/transactions`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/json' },
+      });
+    } catch (e) {
+      console.warn(e);
+    }
   };
 
   const _transformedCurrencies = (currency) => {
@@ -66,18 +95,30 @@ const useHomeApi = () => {
       updated: transaction.updated,
     };
   };
-  
-    const _transformUsers = (user) => {
-        return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            created: user.created,
-            avatar: user.avatar
-        }
-    }
-    return { loading, error, getUsers, getTransactions, putUser, postUserAvatar, getCurrencies, postTransactions }
-}
+
+  const _transformUsers = (user) => {
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      created: user.created,
+      avatar: user.avatar,
+    };
+  };
+  return {
+    loading,
+    error,
+    getUsers,
+    getTransactions,
+    putUser,
+    postUserAvatar,
+    getCurrencies,
+    postTransactions,
+    putTransactionsApprove,
+    putTransactionsComplete,
+    putTransactionsDecline,
+  };
+};
 
 export default useHomeApi;
 

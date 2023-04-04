@@ -25,6 +25,7 @@ const TransactionsList = () => {
     return sortedTransactions.map((transaction) => (
       <TransactionItem
         key={transaction.id}
+        id={transaction.id}
         sender={formatUserName(transaction.sender)}
         receiver={formatUserName(transaction.receiver)}
         currency={transaction.currency}

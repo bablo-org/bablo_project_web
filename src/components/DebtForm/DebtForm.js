@@ -72,7 +72,7 @@ const DebtForm = () => {
         sender: sender,
         receiver: receiver,
         currency: enteredCurrency,
-        amount: parseInt(enteredSum),
+        amount: parseFloat(enteredSum),
         description: enteredDescription,
         date: enteredDate ? new Date(enteredDate).toISOString() : undefined,
       };

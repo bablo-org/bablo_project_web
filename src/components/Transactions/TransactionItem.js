@@ -1,5 +1,6 @@
 import classes from './TransactionItem.module.css';
-
+import { auth } from '../../services/firebase';
+import useHomeApi from '../../hooks/useHomeApi';
 const TransactionItem = ({
   sender,
   receiver,
@@ -10,7 +11,15 @@ const TransactionItem = ({
   updated,
   currency,
   amount,
+  id
 }) => {
+  const {
+    putTransactionsApprove,
+    putTransactionsComplete,
+    putTransactionsDecline,
+  } = useHomeApi();
+
+  const currentUserId = auth.currentUser.uid;
   const formatDate = (ISOStringDate) => {
     const readableDate = new Date(ISOStringDate);
     let day = readableDate.getDate();
@@ -24,7 +33,9 @@ const TransactionItem = ({
     }
     return day + `/` + month + `/` + year;
   };
-
+const putTransactionsDeclineHandler = () => {
+  putTransactionsDecline([id])
+}
   return (
     <li className={classes.transaction}>
       <div>
@@ -43,6 +54,11 @@ const TransactionItem = ({
           Обновлена: {JSON.stringify(formatDate(updated))}
         </div>
         <div className={classes.price}>Сумма: {amount + ` ` + currency}</div>
+        <div>
+          <button onClick={putTransactionsDeclineHandler}>Decline</button>
+          <button>Approve</button>
+          <button>Complete</button>
+        </div>
       </div>
     </li>
   );
