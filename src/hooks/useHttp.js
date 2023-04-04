@@ -19,9 +19,14 @@ export const useHttp = () => {
                 throw new Error (response.status);
             }
 
-            const data = await response.json();
-            setError(false);
-            return data;
+            try {
+                const data = await response.json();
+                setError(false);
+                return data;
+            } catch (e) {
+                console.warn("Trying to parse empty JSON response");
+            }
+            
  
         } catch(e){
             setError(e.message);

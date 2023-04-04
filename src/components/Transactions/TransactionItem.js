@@ -1,5 +1,7 @@
 import classes from './TransactionItem.module.css';
-
+import { auth } from '../../services/firebase';
+import useHomeApi from '../../hooks/useHomeApi';
+import { useState } from 'react';
 const TransactionItem = ({
   sender,
   receiver,
@@ -10,7 +12,19 @@ const TransactionItem = ({
   updated,
   currency,
   amount,
+  id,
+  senderId,
+  recieverId,
+  reFetchTransactions
 }) => {
+  const currentUserId = auth.currentUser.uid;
+  const [isLoading, setIsLoading] = useState(false)
+  const {
+    putTransactionsApprove,
+    putTransactionsComplete,
+    putTransactionsDecline,
+  } = useHomeApi();
+
   const formatDate = (ISOStringDate) => {
     const readableDate = new Date(ISOStringDate);
     let day = readableDate.getDate();
@@ -23,6 +37,23 @@ const TransactionItem = ({
       month = `0` + month;
     }
     return day + `/` + month + `/` + year;
+  };
+  const putTransactionsDeclineHandler = () => {
+    setIsLoading(true)
+    putTransactionsDecline(JSON.stringify([id])).then(() =>
+    reFetchTransactions()
+    ).finally(() => setIsLoading(false));
+  };
+  const putTransactionsCompleteHandler = () => {
+    setIsLoading(true)
+    putTransactionsComplete(JSON.stringify([id])).then(() =>
+    reFetchTransactions()
+    ).finally(() => setIsLoading(false));
+  };
+  const putTransactionsApproveHandler = () => {
+    putTransactionsApprove(JSON.stringify([id])).then(() =>
+    reFetchTransactions()
+    ).finally(() => setIsLoading(false));
   };
 
   return (
@@ -43,6 +74,20 @@ const TransactionItem = ({
           Обновлена: {JSON.stringify(formatDate(updated))}
         </div>
         <div className={classes.price}>Сумма: {amount + ` ` + currency}</div>
+        <div>
+          {currentUserId === senderId && status === `PENDING` && !isLoading && (
+            <div>
+              <button onClick={putTransactionsDeclineHandler}>Decline</button>
+              <button onClick={putTransactionsApproveHandler}>Approve</button>
+            </div>
+          )}
+
+          {status === `APPROVED` &&
+            recieverId === currentUserId &&
+            !isLoading && (
+              <button onClick={putTransactionsCompleteHandler}>Complete</button>
+            )}
+        </div>
       </div>
     </li>
   );
