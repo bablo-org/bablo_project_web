@@ -66,9 +66,6 @@ const DebtForm = () => {
     } else if (receiver.length === 0) {
       setIsReceiverSelected(false);
     } else {
-      setIsSenderSelected(true);
-      setIsReceiverSelected(true);
-
       const debtData = sender.map((id) => {
         return {
           sender: id,
