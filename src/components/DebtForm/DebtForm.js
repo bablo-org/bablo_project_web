@@ -69,8 +69,8 @@ const DebtForm = () => {
       setIsSenderSelected(true);
       setIsReceiverSelected(true);
 
-      sender.forEach((id) => {
-        const debtData = {
+      const debtData = sender.map((id) => {
+        return {
           sender: id,
           receiver: receiver[0],
           currency: enteredCurrency,
@@ -80,8 +80,8 @@ const DebtForm = () => {
           description: enteredDescription,
           date: enteredDate ? new Date(enteredDate).toISOString() : undefined,
         };
-        postTransactions(debtData);
       });
+      postTransactions(debtData);
       clearForm();
     }
   };
