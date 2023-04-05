@@ -1,7 +1,6 @@
 .form {
     margin: 1rem 0;
     height: 25rem;
-    overflow: auto;
     box-sizing: border-box;
   }
   
@@ -28,7 +27,7 @@
     justify-content: flex-end;
     gap: 1rem;
   }
-  
+
   .actions button {
     font: inherit;
     color: #fdfdfd;
@@ -37,6 +36,9 @@
     border: none;
     border-radius: 25px;
     padding: 0.5rem 2rem; 
+  }
+  .actions .sum {
+    margin: auto;
   }
   
   .actions button:hover,
