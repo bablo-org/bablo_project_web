@@ -13,6 +13,10 @@ const TransactionsList = () => {
     getUsers().then(setUsers);
   }, []);
 
+const reFetchTransactions = () => {
+  getTransactions().then(setTransactions)
+}
+
   const formatUserName = (incomingId) => {
     const idToName = users.find((user) => user.id === incomingId)?.name;
     return idToName;
@@ -25,6 +29,7 @@ const TransactionsList = () => {
     return sortedTransactions.map((transaction) => (
       <TransactionItem
         key={transaction.id}
+        id={transaction.id}
         sender={formatUserName(transaction.sender)}
         receiver={formatUserName(transaction.receiver)}
         currency={transaction.currency}
@@ -34,6 +39,9 @@ const TransactionsList = () => {
         status={transaction.status}
         created={transaction.created}
         updated={transaction.updated}
+        senderId={transaction.sender}
+        recieverId={transaction.receiver}
+        reFetchTransactions={reFetchTransactions}
       />
     ));
   }, [transactions]);
