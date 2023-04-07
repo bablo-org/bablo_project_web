@@ -35,28 +35,31 @@ function AuthorizedLayout(props) {
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const listItemButtons = useMemo(() => ([
-    {
-      name: "Добавить транзакцию",
-      path: PATHES.ADD_TRANSACTION,
-      icon: <ReceiptIcon />,
-    },
-    {
-      name: "История",
-      path: PATHES.HISTORY,
-      icon: <HistoryIcon />,
-    },
-    {
-      name: "Итоги",
-      path: PATHES.SUMMARY,
-      icon: <SummarizeIcon />,
-    },
-    {
-      name: "Профиль",
-      path: PATHES.PROFILE,
-      icon: <AccountCircleIcon />,
-    },
-  ]), []);
+  const listItemButtons = useMemo(
+    () => [
+      {
+        name: "Добавить транзакцию",
+        path: PATHES.ADD_TRANSACTION,
+        icon: <ReceiptIcon />,
+      },
+      {
+        name: "История",
+        path: PATHES.HISTORY,
+        icon: <HistoryIcon />,
+      },
+      {
+        name: "Итоги",
+        path: PATHES.SUMMARY,
+        icon: <SummarizeIcon />,
+      },
+      {
+        name: "Профиль",
+        path: PATHES.PROFILE,
+        icon: <AccountCircleIcon />,
+      },
+    ],
+    []
+  );
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -69,7 +72,12 @@ function AuthorizedLayout(props) {
       <List>
         {listItemButtons.map((item) => (
           <ListItem key={item.name} disablePadding>
-            <ListItemButton onClick={() => navigate(item.path)}>
+            <ListItemButton
+              onClick={() => {
+                navigate(item.path);
+                handleDrawerToggle();
+              }}
+            >
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.name} />
             </ListItemButton>
