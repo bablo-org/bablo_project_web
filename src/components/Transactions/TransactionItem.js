@@ -2,6 +2,7 @@ import classes from './TransactionItem.module.css';
 import { auth } from '../../services/firebase';
 import useHomeApi from '../../hooks/useHomeApi';
 import { useState } from 'react';
+import { Button } from '@mui/material';
 const TransactionItem = ({
   sender,
   receiver,
@@ -77,15 +78,15 @@ const TransactionItem = ({
         <div>
           {currentUserId === senderId && status === `PENDING` && !isLoading && (
             <div>
-              <button onClick={putTransactionsDeclineHandler}>Decline</button>
-              <button onClick={putTransactionsApproveHandler}>Approve</button>
+              <Button color='error' variant='contained' onClick={putTransactionsDeclineHandler}>Decline</Button>
+              <Button color='secondary' variant='contained' onClick={putTransactionsApproveHandler}>Approve</Button>
             </div>
           )}
 
           {status === `APPROVED` &&
             recieverId === currentUserId &&
             !isLoading && (
-              <button onClick={putTransactionsCompleteHandler}>Complete</button>
+              <Button color='success' variant='contained' onClick={putTransactionsCompleteHandler}>Complete</Button>
             )}
         </div>
       </div>
