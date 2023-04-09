@@ -95,3 +95,8 @@
     justify-content: center;
    
   }
+
+.valid fieldset {
+  border-color: green; 
+  border-width: 2px; 
+}
