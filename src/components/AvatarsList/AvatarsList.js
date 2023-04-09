@@ -29,6 +29,7 @@ const AvatarsList = ({
     newSelectedIds.splice(index, 1);
     setSelectedIds(newSelectedIds);
   };
+
   const nameList = users.map((user) => (
     <UserAvatar
       key={user.id}
@@ -43,9 +44,9 @@ const AvatarsList = ({
             ? user.id == currentUserId ||
               (selectedIds.length > 0 && user.id !== selectedIds[0])
             : user.id !== currentUserId)) ||
-          (selectedIds.includes(currentUserId)
-            ? user.id !== currentUserId
-            : selectedIds.length > 0 && user.id == currentUserId)
+        (selectedIds.includes(currentUserId)
+          ? user.id !== currentUserId
+          : selectedIds.length > 0 && user.id == currentUserId)
       }
       avatarUrl={user.avatar}
     />
