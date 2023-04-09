@@ -29,7 +29,6 @@ const AvatarsList = ({
     newSelectedIds.splice(index, 1);
     setSelectedIds(newSelectedIds);
   };
-
   const nameList = users.map((user) => (
     <UserAvatar
       key={user.id}

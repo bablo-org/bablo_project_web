@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import TransactionItem from './TransactionItem';
 import classes from './TransactionsList.module.css';
 import Spinner from '../Spinner/Spinner';
+import { Card, List } from '@mui/material';
 const TransactionsList = () => {
   const [transactions, setTransactions] = useState([]);
   const [users, setUsers] = useState([]);
@@ -13,9 +14,9 @@ const TransactionsList = () => {
     getUsers().then(setUsers);
   }, []);
 
-const reFetchTransactions = () => {
-  getTransactions().then(setTransactions)
-}
+  const reFetchTransactions = () => {
+    getTransactions().then(setTransactions);
+  };
 
   const formatUserName = (incomingId) => {
     const idToName = users.find((user) => user.id === incomingId)?.name;
@@ -42,6 +43,7 @@ const reFetchTransactions = () => {
         senderId={transaction.sender}
         recieverId={transaction.receiver}
         reFetchTransactions={reFetchTransactions}
+        
       />
     ));
   }, [transactions]);
@@ -53,11 +55,9 @@ const reFetchTransactions = () => {
   }
 
   return (
-    <section className={classes.transactions}>
-      <div className={classes.card}>
-        <ul>{transformedTransactions}</ul>
-      </div>
-    </section>
+    <Card>
+      <List>{transformedTransactions}</List>
+    </Card>
   );
 };
 

@@ -1,7 +1,33 @@
-import classes from './TransactionItem.module.css';
 import { auth } from '../../services/firebase';
 import useHomeApi from '../../hooks/useHomeApi';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import * as React from 'react';
+import { styled } from '@mui/material/styles';
+import Card from '@mui/material/Card';
+import CardHeader from '@mui/material/CardHeader';
+import CardMedia from '@mui/material/CardMedia';
+import CardContent from '@mui/material/CardContent';
+import CardActions from '@mui/material/CardActions';
+import Collapse from '@mui/material/Collapse';
+import Avatar from '@mui/material/Avatar';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import { deepPurple } from '@mui/material/colors';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { auto } from '@popperjs/core';
+import { ArrowForward } from '@mui/icons-material';
+import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
+const ExpandMore = styled((props) => {
+  const { expand, ...other } = props;
+  return <IconButton {...other} />;
+})(({ theme, expand }) => ({
+  transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
+  marginLeft: 'auto',
+  transition: theme.transitions.create('transform', {
+    duration: theme.transitions.duration.shortest,
+  }),
+}));
 const TransactionItem = ({
   sender,
   receiver,
@@ -15,15 +41,19 @@ const TransactionItem = ({
   id,
   senderId,
   recieverId,
-  reFetchTransactions
+  reFetchTransactions,
 }) => {
   const currentUserId = auth.currentUser.uid;
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
   const {
     putTransactionsApprove,
     putTransactionsComplete,
     putTransactionsDecline,
   } = useHomeApi();
+  const [expanded, setExpanded] = useState(false);
+  const handleExpandClick = () => {
+    setExpanded(!expanded);
+  };
 
   const formatDate = (ISOStringDate) => {
     const readableDate = new Date(ISOStringDate);
@@ -39,58 +69,116 @@ const TransactionItem = ({
     return day + `/` + month + `/` + year;
   };
   const putTransactionsDeclineHandler = () => {
-    setIsLoading(true)
-    putTransactionsDecline(JSON.stringify([id])).then(() =>
-    reFetchTransactions()
-    ).finally(() => setIsLoading(false));
+    setIsLoading(true);
+    putTransactionsDecline(JSON.stringify([id]))
+      .then(() => reFetchTransactions())
+      .finally(() => setIsLoading(false));
   };
   const putTransactionsCompleteHandler = () => {
-    setIsLoading(true)
-    putTransactionsComplete(JSON.stringify([id])).then(() =>
-    reFetchTransactions()
-    ).finally(() => setIsLoading(false));
+    setIsLoading(true);
+    putTransactionsComplete(JSON.stringify([id]))
+      .then(() => reFetchTransactions())
+      .finally(() => setIsLoading(false));
   };
   const putTransactionsApproveHandler = () => {
-    putTransactionsApprove(JSON.stringify([id])).then(() =>
-    reFetchTransactions()
-    ).finally(() => setIsLoading(false));
+    putTransactionsApprove(JSON.stringify([id]))
+      .then(() => reFetchTransactions())
+      .finally(() => setIsLoading(false));
   };
 
   return (
-    <li className={classes.transaction}>
-      <div>
-        <h3 className={classes.transactionHeader}>Транзакция</h3>
-        <div className={classes.description}>Отправитель: {sender}</div>
-        <div className={classes.description}>Получатель: {receiver}</div>
-        <div className={classes.description}>Описание: {description}</div>
-        <div className={classes.description}>
-          Дата: {JSON.stringify(formatDate(date))}
-        </div>
-        <div className={classes.description}>Статус: {status}</div>
-        <div className={classes.description}>
-          Создана: {JSON.stringify(formatDate(created))}
-        </div>
-        <div className={classes.description}>
-          Обновлена: {JSON.stringify(formatDate(updated))}
-        </div>
-        <div className={classes.price}>Сумма: {amount + ` ` + currency}</div>
-        <div>
+    <Card sx={{ marginBottom: 2, fontSize: 'small' }}>
+      <CardHeader
+        sx={{ margin: auto }}
+        avatar={
+          <>
+            <Avatar
+              sx={{
+                bgcolor: deepPurple[500],
+                fontSize: 12,
+                width: 66,
+                height: 66,
+              }}
+            >
+              {sender}
+            </Avatar>
+            <ArrowForward
+              sx={{ margin: auto }}
+              fontSize="large"
+              color="action"
+            />
+            <Avatar
+              sx={{
+                bgcolor: deepPurple[500],
+                fontSize: 12,
+                width: 66,
+                height: 66,
+              }}
+            >
+              {receiver}
+            </Avatar>
+          </>
+        }
+        title={<Typography>Транзакция</Typography>}
+        subheader={<Typography>{JSON.stringify(formatDate(date))}</Typography>}
+      />
+      <CardContent>
+        <Typography>Статус: {status}</Typography>
+        <Typography
+          variant="body3"
+          fontWeight="bold"
+          color="#ad5502"
+          fontSize="large"
+        >
+          Сумма: {amount + ` ` + currency}
+        </Typography>
+      </CardContent>
+      <CardActions disableSpacing>
+        <ButtonGroup
+          size="small"
+          variant="contained"
+          aria-label="outlined primary button group"
+        >
           {currentUserId === senderId && status === `PENDING` && !isLoading && (
-            <div>
-              <button onClick={putTransactionsDeclineHandler}>Decline</button>
-              <button onClick={putTransactionsApproveHandler}>Approve</button>
-            </div>
+            <>
+              <Button onClick={putTransactionsApproveHandler} color="success">
+                Подтвердить
+              </Button>
+              <Button onClick={putTransactionsDeclineHandler} color="error">
+                Отклонить
+              </Button>
+            </>
           )}
-
           {status === `APPROVED` &&
             recieverId === currentUserId &&
             !isLoading && (
-              <button onClick={putTransactionsCompleteHandler}>Complete</button>
+              <Button onClick={putTransactionsCompleteHandler}>
+                Завершить
+              </Button>
             )}
-        </div>
-      </div>
-    </li>
+        </ButtonGroup>
+        <ExpandMore
+          expand={expanded}
+          onClick={handleExpandClick}
+          aria-expanded={expanded}
+          aria-label="show more"
+        >
+          <ExpandMoreIcon />
+        </ExpandMore>
+      </CardActions>
+      <Collapse in={expanded} timeout="auto" unmountOnExit>
+        <CardContent>
+          {[
+            `Описание: ` + description,
+            `Создана: ` + JSON.stringify(formatDate(created)),
+            `Обновлена: ` + JSON.stringify(formatDate(updated)),
+          ].map((text) => (
+            <Typography key={text}>{text}</Typography>
+          ))}
+        </CardContent>
+      </Collapse>
+    </Card>
   );
 };
-
+// A|-|T0N пеDICK
 export default TransactionItem;
