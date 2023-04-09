@@ -44,9 +44,9 @@ const AvatarsList = ({
             ? user.id == currentUserId ||
               (selectedIds.length > 0 && user.id !== selectedIds[0])
             : user.id !== currentUserId)) ||
-          (selectedIds.includes(currentUserId)
-            ? user.id !== currentUserId
-            : selectedIds.length > 0 && user.id == currentUserId)
+        (selectedIds.includes(currentUserId)
+          ? user.id !== currentUserId
+          : selectedIds.length > 0 && user.id == currentUserId)
       }
       avatarUrl={user.avatar}
     />
