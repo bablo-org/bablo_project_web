@@ -4,8 +4,12 @@ import Spinner from "../Spinner/Spinner";
 import { useNavigate } from "react-router-dom";
 import { PATHES } from "../../routes";
 import { AuthContext } from "../../context/Auth";
-import { Container, Grid, TextField, Button, FormControl, InputLabel } from "@mui/material";
-import LoginIcon from '@mui/icons-material/Login';
+import { Container, Grid, TextField, Button, FormControl } from "@mui/material";
+import LoginIcon from "@mui/icons-material/Login";
+import { Box } from "@mui/system";
+import classes from "./LoginForm.module.css";
+import Logo from "../../BabloLogo.png";
+import { validationProps } from "../../utils/validationForm";
 
 const InputForm = () => {
   const navigate = useNavigate();
@@ -45,37 +49,67 @@ const InputForm = () => {
   }, [authContext.user, navigate]);
 
   return (
-    <Container sx={{
-      backgroundColor: 'white',
-      marginTop: '5%'
-    }} maxWidth='sm'>
+    <Container
+      sx={{
+        backgroundColor: "white",
+        marginTop: "5%",
+      }}
+      maxWidth="sm"
+    >
+      <Box
+        sx={{
+          backgroundImage: `url(${Logo})`,
+          backgroundSize: "contain",
+          width: { xs: 250, md: 250 },
+          height: { xs: 250, md: 250 },
+          margin: 'auto'
+        }}
+      />
       <Grid container spacing={2} direction="column">
         <Grid item xs={12}>
           <form onSubmit={(e) => onLoginPress(e)}>
             <Grid container spacing={2} direction="column">
               <Grid item xs={12}>
                 <FormControl fullWidth>
-                <TextField
-                  label="Почта"
-                  type="email"
-                  id="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                ><InputLabel id="email">Почта</InputLabel></TextField>
-              
+                  <TextField
+                    label="Почта"
+                    type="email"
+                    id="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    InputLabelProps={{ shrink: true }}
+                    className={email ? classes.valid : undefined}
+                    inputProps={{
+                      inputMode: "numeric",
+                      pattern: validationProps.email.inputPropsPattern,
+                      title: validationProps.email.errorTitle,
+                    }}
+                    helperText={
+                      email
+                        ? validationProps.email.testEmail(email)
+                          ? validationProps.email.errorTitle
+                          : undefined
+                        : validationProps.email.title
+                    }
+                    error={
+                      !!(email&& validationProps.email.testEmail(email))
+                    }
+                  ></TextField>
                 </FormControl>
               </Grid>
               <Grid item xs={12}>
-              <FormControl fullWidth>
-                <TextField
-                  label="Пароль"
-                  type="password"
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+                <FormControl fullWidth>
+                  <TextField
+                    label="Пароль"
+                    type="password"
+                    id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    InputLabelProps={{ shrink: true }}
+                    className={password ? classes.valid : undefined}
+                  />
                 </FormControl>
               </Grid>
               <Grid item xs={12}>
@@ -83,17 +117,17 @@ const InputForm = () => {
                   <div className="error-text">{errorMessage}</div>
                 ) : null}
                 {loading ? (
-                  <Spinner width="100" height="100"/>
+                  <Spinner width="100" height="100" />
                 ) : (
                   <Button
-                      variant="contained"
-                      color="success"
-                      type="submit"
-                      endIcon={<LoginIcon />}
-                      size="large"
-                    >
-                      Войти
-                    </Button>
+                    variant="contained"
+                    color="success"
+                    type="submit"
+                    endIcon={<LoginIcon />}
+                    size="large"
+                  >
+                    Войти
+                  </Button>
                 )}
               </Grid>
             </Grid>
