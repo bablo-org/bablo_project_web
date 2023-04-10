@@ -2,6 +2,26 @@ import { Fragment, useState, useEffect } from "react";
 import classes from "./DebtForm.module.css";
 import AvatarsList from "../AvatarsList/AvatarsList";
 import useHomeApi from "../../hooks/useHomeApi";
+import { validationProps } from "../../utils/validationForm";
+import {
+  TextField,
+  InputLabel,
+  MenuItem,
+  FormControl,
+  Select,
+  FormHelperText,
+  Container,
+  Stack,
+  Button,
+  Grid,
+} from "@mui/material";
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import {
+  Check as CheckIcon,
+  Clear as ClearIcon,
+  SafetyDivider as SafetyDividerIcon,
+} from "@mui/icons-material";
 
 const DebtForm = () => {
   const [users, setUsers] = useState([]);
@@ -13,7 +33,7 @@ const DebtForm = () => {
   const [enteredSum, setEnteredSum] = useState(``);
   const [enteredUsersSum, setEnteredUsersSum] = useState({});
   const [enteredDescription, setEnteredDescription] = useState(``);
-  const [enteredDate, setEnteredDate] = useState();
+  const [enteredDate, setEnteredDate] = useState(null);
   const [currencies, setCurrencies] = useState([]);
   const { getCurrencies, postTransactions, loading, error, getUsers } =
     useHomeApi();
@@ -44,15 +64,16 @@ const DebtForm = () => {
   const descriptionInputChangeHandler = (event) => {
     setEnteredDescription(event.target.value);
   };
-  const dateInputChangeHandler = (event) => {
-    setEnteredDate(event.target.value);
+  const dateInputChangeHandler = (date) => {
+    setEnteredDate(date);
   };
 
   const clearForm = () => {
     setEnteredCurrency(``);
     setEnteredSum(``);
     setEnteredDescription(``);
-    setEnteredDate(``);
+    setEnteredDate(null);
+    setEnteredUsersSum({});
   };
 
   const cancelingOfDebtHandler = () => {
@@ -92,40 +113,21 @@ const DebtForm = () => {
     setEnteredUsersSum(newUsersSum);
   };
 
-  const currencySelector = (
-    <select
-      className={classes.currencySelector}
-      value={enteredCurrency}
-      onChange={currencyInputChangeHandler}
-      required
-    >
-      <option value="" defaultValue disabled hidden>
-        Choose Value
-      </option>
-      {currencies.map((currency) => (
-        <option key={currency.id} value={currency.id}>
-          {currency.name}
-        </option>
-      ))}
-    </select>
-  );
-
   return (
-    <Fragment>
-      <div>
-        <label className={classes.addDebtlabel}>Должник</label>
-        <AvatarsList
-          users={users}
-          loading={loading}
-          error={error}
-          onUserSelected={setSender}
-          blockedUserIds={undefined}
-        />
-        {!isSenderSelected && <p>Выберите Должника</p>}
-
+    <Container maxWidth="md">
+      <Grid container spacing={2} direction="column">
+        <Grid item xs={12}>
+          <AvatarsList
+            users={users}
+            loading={loading}
+            error={error}
+            onUserSelected={setSender}
+            blockedUserIds={undefined}
+          />
+          {!isSenderSelected && <p>Выберите Должника</p>}
+        </Grid>
         {sender.length > 0 && (
-          <>
-            <label className={classes.addDebtlabel}>Получатель</label>
+          <Grid item xs={12}>
             <AvatarsList
               users={users}
               loading={loading}
@@ -133,84 +135,197 @@ const DebtForm = () => {
               onUserSelected={setReceiver}
               blockedUserIds={sender}
             />
-          </>
+            {!isReceiverSelected && <p>Выберите Получателя</p>}
+          </Grid>
         )}
-        {!isReceiverSelected && <p>Выберите Получателя</p>}
-      </div>
-      <div className={classes.container}>
-        <form className={classes.form} onSubmit={submissionOfDebtHandler}>
-          <div className={classes.control}>
-            <label htmlFor="currency">Валюта</label>
-            {currencySelector}
-          </div>
-          <div className={classes.control}>
-            <label htmlFor="sum">Сумма</label>
-            <input
-              value={enteredSum}
-              type="text"
-              id="sum"
-              onChange={sumInputChangeHandler}
-              pattern="(?:0|[1-9]\d*)(?:\.\d{1,2})?"
-              title="Введеная сумма должна быть в формате xxx.xx и не начинаться с 0 если это не дробь вида 0.хх"
-              required
-            />
-          </div>
-          {sender.length > 1 && (
-            <div className={classes.actions}>
-              <button type="button" onClick={shareSum} className={classes.sum}>
-                Поделить поровну
-              </button>
-            </div>
-          )}
-          {sender.length > 1 &&
-            sender.map((id) => {
-              const user = users.find((item) => item.id === id);
-              return (
-                <div className={classes.control} key={`sum ${user.id}`}>
-                  <label htmlFor="sum">Сумма {user.name}</label>
-                  <input
-                    value={enteredUsersSum[user.id] ?? ""}
+        <Grid item xs={12}>
+          <form onSubmit={submissionOfDebtHandler}>
+            <Grid container spacing={2} direction="column">
+              <Grid item xs={12}>
+                <FormControl fullWidth required>
+                  <InputLabel id="currency">Валюта</InputLabel>
+                  <Select
+                    labelId="currencyLabel"
+                    id="currency"
+                    value={enteredCurrency}
+                    label="Валюта"
+                    onChange={currencyInputChangeHandler}
+                    required
+                    className={enteredCurrency ? classes.valid : undefined}
+                  >
+                    {currencies.map((currency) => (
+                      <MenuItem key={currency.id} value={currency.id}>
+                        {currency.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  <FormHelperText>
+                    {enteredCurrency ? undefined : "Выберите валюту"}
+                  </FormHelperText>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12}>
+                <FormControl fullWidth required>
+                  <TextField
+                    variant="outlined"
+                    label="Сумма"
+                    value={enteredSum}
                     type="text"
-                    id={`sum ${user.id}`}
-                    onChange={(event) =>
-                      usersSumInputChangeHandler(event, user)
+                    id="sum"
+                    onChange={sumInputChangeHandler}
+                    inputProps={{
+                      inputMode: "numeric",
+                      pattern: validationProps.sum.inputPropsPattern,
+                      title: validationProps.sum.errorTitle,
+                    }}
+                    helperText={
+                      enteredSum
+                        ? validationProps.sum.testSum(enteredSum)
+                          ? validationProps.sum.errorTitle
+                          : undefined
+                        : validationProps.sum.title
                     }
-                    pattern="(?:0|[1-9]\d*)(?:\.\d{1,2})?"
-                    title="Введеная сумма должна быть в формате xxx.xx и не начинаться с 0 если это не дробь вида 0.хх"
+                    error={
+                      !!(enteredSum && validationProps.sum.testSum(enteredSum))
+                    }
+                    style={{ whiteSpace: "pre-wrap" }}
+                    className={enteredSum ? classes.valid : undefined}
+                    required={sender.length < 2 ? true : false}
+                  />
+                </FormControl>
+              </Grid>
+
+              {sender.length > 1 && (
+                <Grid item xs={12}>
+                  <Stack direction="row" spacing={2}>
+                    <Button
+                      variant="contained"
+                      onClick={shareSum}
+                      endIcon={<SafetyDividerIcon />}
+                    >
+                      Поделить поровну
+                    </Button>
+                  </Stack>
+                </Grid>
+              )}
+              {sender.length > 1 &&
+                sender.map((id) => {
+                  const user = users.find((item) => item.id === id);
+                  return (
+                    <Grid item xs={12}>
+                      <FormControl fullWidth required>
+                        <TextField
+                          variant="outlined"
+                          label={`Сумма ${user.name}`}
+                          value={enteredUsersSum[user.id] ?? ""}
+                          type="text"
+                          id={`sum ${user.id}`}
+                          onChange={(event) =>
+                            usersSumInputChangeHandler(event, user)
+                          }
+                          inputProps={{
+                            inputMode: "numeric",
+                            pattern: validationProps.sum.inputPropsPattern,
+                            title: validationProps.sum.errorTitle,
+                          }}
+                          helperText={
+                            enteredUsersSum[user.id]
+                              ? validationProps.sum.testSum(
+                                  enteredUsersSum[user.id]
+                                )
+                                ? validationProps.sum.errorTitle
+                                : undefined
+                              : validationProps.sum.title
+                          }
+                          error={
+                            !!(
+                              enteredUsersSum[user.id] &&
+                              validationProps.sum.testSum(
+                                enteredUsersSum[user.id]
+                              )
+                            )
+                          }
+                          style={{ whiteSpace: "pre-wrap" }}
+                          className={
+                            enteredUsersSum[user.id] ? classes.valid : undefined
+                          }
+                          required
+                        />
+                      </FormControl>
+                    </Grid>
+                  );
+                })}
+              <Grid item xs={12}>
+                <FormControl fullWidth required>
+                  <TextField
+                    variant="outlined"
+                    label="Описание"
+                    value={enteredDescription}
+                    type="text"
+                    id="description"
+                    onChange={descriptionInputChangeHandler}
+                    helperText={
+                      enteredDescription
+                        ? undefined
+                        : validationProps.description.title
+                    }
+                    style={{ whiteSpace: "pre-wrap" }}
+                    className={enteredDescription ? classes.valid : undefined}
                     required
                   />
-                </div>
-              );
-            })}
-          <div className={classes.control}>
-            <label htmlFor="description">Описание</label>
-            <input
-              value={enteredDescription}
-              type="text"
-              id="description"
-              onChange={descriptionInputChangeHandler}
-              required
-            />
-          </div>
-          <div className={classes.control}>
-            <label htmlFor="date">Дата</label>
-            <input
-              value={enteredDate}
-              type="date"
-              id="date"
-              onChange={dateInputChangeHandler}
-              required
-            />
-          </div>
-          <div className={classes.actions}>
-            <button type="button" onClick={cancelingOfDebtHandler}>
-              Cancel
-            </button>
-            <button className={classes.submit}>Confirm</button>
-          </div>
-        </form>
-      </div>
-    </Fragment>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12}>
+                <Grid container spacing={2}>
+                  <Grid item md={4} xs={12}>
+                    <FormControl fullWidth>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                          label="Дата"
+                          value={enteredDate}
+                          id="date"
+                          onChange={dateInputChangeHandler}
+                          closeOnSelect={true}
+                          className={enteredDate ? classes.valid : undefined}
+                          slotProps={{
+                            textField: {
+                              required: true,
+                              helperText: enteredDate
+                                ? undefined
+                                : validationProps.date.title,
+                            },
+                          }}
+                        />
+                      </LocalizationProvider>
+                    </FormControl>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item xs={12}>
+                <Stack direction="row" spacing={2}>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={cancelingOfDebtHandler}
+                    endIcon={<ClearIcon />}
+                  >
+                    Отмена
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="success"
+                    type="submit"
+                    endIcon={<CheckIcon />}
+                  >
+                    Отправить
+                  </Button>
+                </Stack>
+              </Grid>
+            </Grid>
+          </form>
+        </Grid>
+      </Grid>
+    </Container>
   );
 };
 
