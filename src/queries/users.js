@@ -1,4 +1,4 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { defaultQueryFn } from ".";
 
 const useGetUsers = () => {
@@ -17,6 +17,8 @@ const useGetUsers = () => {
 };
 
 const useUpdateUserAvatar = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: ({ encodedImage, fileName }) =>
       defaultQueryFn({
@@ -26,10 +28,13 @@ const useUpdateUserAvatar = () => {
           method: "POST",
         },
       }),
+    onSuccess: async () => await queryClient.invalidateQueries(["users"]),
   });
 };
 
 const useUpdateUser = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: ({ name, avatar }) =>
       defaultQueryFn({
@@ -39,11 +44,8 @@ const useUpdateUser = () => {
           method: "PUT",
         },
       }),
+    onSuccess: async () => await queryClient.invalidateQueries(["users"]),
   });
 };
 
-export {
-  useGetUsers,
-  useUpdateUser,
-  useUpdateUserAvatar,
-};
+export { useGetUsers, useUpdateUser, useUpdateUserAvatar };
