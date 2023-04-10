@@ -212,7 +212,7 @@ const DebtForm = () => {
                 sender.map((id) => {
                   const user = users.find((item) => item.id === id);
                   return (
-                    <Grid item xs={12}>
+                    <Grid item xs={12} key={id}>
                       <FormControl fullWidth required>
                         <TextField
                           variant="outlined"
