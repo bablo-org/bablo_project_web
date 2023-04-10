@@ -82,40 +82,6 @@ const AvatarsList = ({
     onUserSelected(selectedIds);
   }, [selectedIds]);
 
-  const addSelectedId = (id) => {
-    setSelectedIds([...selectedIds, id]);
-  };
-
-  const removeSelectedId = (id) => {
-    const index = selectedIds.indexOf(id);
-    if (index === -1) return;
-    const newSelectedIds = [...selectedIds];
-    newSelectedIds.splice(index, 1);
-    setSelectedIds(newSelectedIds);
-  };
-
-  const nameList = users.map((user) => (
-    <UserAvatar
-      key={user.id}
-      name={user.name}
-      id={user.id}
-      addSelectedId={addSelectedId}
-      removeSelectedId={removeSelectedId}
-      isActive={selectedIds.indexOf(user.id) !== -1}
-      isBlocked={
-        (blockedUserIds &&
-          (blockedUserIds.includes(currentUserId)
-            ? user.id == currentUserId ||
-              (selectedIds.length > 0 && user.id !== selectedIds[0])
-            : user.id !== currentUserId)) ||
-        (selectedIds.includes(currentUserId)
-          ? user.id !== currentUserId
-          : selectedIds.length > 0 && user.id == currentUserId)
-      }
-      avatarUrl={user.avatar}
-    />
-  ));
-
   return (
     <Stack direction="row" justifyContent="center">
       {loading ? <Spinner /> : users.map((user) => renderAvatar(user))}
