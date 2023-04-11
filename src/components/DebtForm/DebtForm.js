@@ -13,9 +13,9 @@ import {
   Stack,
   Button,
   Grid,
-} from "@mui/material";
-import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+} from '@mui/material';
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import {
   Check as CheckIcon,
   Clear as ClearIcon,
@@ -155,7 +155,7 @@ const DebtForm = () => {
                     ))}
                   </Select>
                   <FormHelperText>
-                    {enteredCurrency ? undefined : "Выберите валюту"}
+                    {enteredCurrency ? undefined : 'Выберите валюту'}
                   </FormHelperText>
                 </FormControl>
               </Grid>
@@ -169,7 +169,7 @@ const DebtForm = () => {
                     id="sum"
                     onChange={sumInputChangeHandler}
                     inputProps={{
-                      inputMode: "numeric",
+                      inputMode: 'numeric',
                       pattern: validationProps.sum.inputPropsPattern,
                       title: validationProps.sum.errorTitle,
                     }}
@@ -183,7 +183,7 @@ const DebtForm = () => {
                     error={
                       !!(enteredSum && validationProps.sum.testSum(enteredSum))
                     }
-                    style={{ whiteSpace: "pre-wrap" }}
+                    style={{ whiteSpace: 'pre-wrap' }}
                     className={enteredSum ? classes.valid : undefined}
                     required={sender.length < 2 ? true : false}
                   />
@@ -212,14 +212,14 @@ const DebtForm = () => {
                         <TextField
                           variant="outlined"
                           label={`Сумма ${user.name}`}
-                          value={enteredUsersSum[user.id] ?? ""}
+                          value={enteredUsersSum[user.id] ?? ''}
                           type="text"
                           id={`sum ${user.id}`}
                           onChange={(event) =>
                             usersSumInputChangeHandler(event, user)
                           }
                           inputProps={{
-                            inputMode: "numeric",
+                            inputMode: 'numeric',
                             pattern: validationProps.sum.inputPropsPattern,
                             title: validationProps.sum.errorTitle,
                           }}
@@ -240,7 +240,7 @@ const DebtForm = () => {
                               )
                             )
                           }
-                          style={{ whiteSpace: "pre-wrap" }}
+                          style={{ whiteSpace: 'pre-wrap' }}
                           className={
                             enteredUsersSum[user.id] ? classes.valid : undefined
                           }
@@ -264,7 +264,7 @@ const DebtForm = () => {
                         ? undefined
                         : validationProps.description.title
                     }
-                    style={{ whiteSpace: "pre-wrap" }}
+                    style={{ whiteSpace: 'pre-wrap' }}
                     className={enteredDescription ? classes.valid : undefined}
                     required
                   />

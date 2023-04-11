@@ -12,8 +12,14 @@
     },
     date: {
         title: "Выберите дату"
+    },
+    email: {
+      testEmail: (email) => 
+      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email),
+      inputPropsPattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
+      title: "Введите Ваш e-mail",
+      errorTitle: 'Адрес электронной почты должен содержать символ "@"'
     }
-    
   };
 
 

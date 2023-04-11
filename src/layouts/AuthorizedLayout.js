@@ -1,31 +1,32 @@
-import * as React from "react";
-import PropTypes from "prop-types";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import CssBaseline from "@mui/material/CssBaseline";
-import Divider from "@mui/material/Divider";
-import Drawer from "@mui/material/Drawer";
-import IconButton from "@mui/material/IconButton";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import MenuIcon from "@mui/icons-material/Menu";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import ReceiptIcon from "@mui/icons-material/Receipt";
-import HistoryIcon from "@mui/icons-material/History";
-import SummarizeIcon from "@mui/icons-material/Summarize";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import LogoutIcon from "@mui/icons-material/Logout";
-import { Outlet } from "react-router-dom";
-import { auth, signOut } from "../services/firebase";
-import { useContext } from "react";
-import { AuthContext } from "../context/Auth";
-import { useNavigate } from "react-router-dom";
-import { PATHES } from "../routes";
-import { useMemo } from "react";
+import * as React from 'react';
+import {
+  AppBar,
+  Box,
+  CssBaseline,
+  Divider,
+  Drawer,
+  IconButton,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Toolbar,
+  Typography,
+} from '@mui/material/';
+import {
+  Menu as MenuIcon,
+  Receipt as ReceiptIcon,
+  History as HistoryIcon,
+  Summarize as SummarizeIcon,
+  AccountCircle as AccountCircleIcon,
+  Logout as LogoutIcon,
+} from '@mui/icons-material/';
+import { auth, signOut } from '../services/firebase';
+import { useContext, useMemo } from 'react';
+import { AuthContext } from '../context/Auth';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { PATHES } from '../routes';
 
 const drawerWidth = 240;
 
@@ -33,26 +34,27 @@ function AuthorizedLayout(props) {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
-
+  const location = useLocation();
+  const isCurrentLocation = (item) => location.pathname === item.path;
   const listItemButtons = useMemo(
     () => [
       {
-        name: "Добавить транзакцию",
+        name: 'Добавить транзакцию',
         path: PATHES.ADD_TRANSACTION,
         icon: <ReceiptIcon />,
       },
       {
-        name: "История",
+        name: 'История',
         path: PATHES.HISTORY,
         icon: <HistoryIcon />,
       },
       {
-        name: "Итоги",
+        name: 'Итоги',
         path: PATHES.SUMMARY,
         icon: <SummarizeIcon />,
       },
       {
-        name: "Профиль",
+        name: 'Профиль',
         path: PATHES.PROFILE,
         icon: <AccountCircleIcon />,
       },
@@ -63,6 +65,18 @@ function AuthorizedLayout(props) {
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
+
+  const pageHeader = useMemo(() => {
+    if (location.pathname === `/add`) {
+      return `Bablo Project: Создать транзакцию`;
+    } else if (location.pathname === `/history`) {
+      return `Bablo Project: История`;
+    } else if (location.pathname === `/summary`) {
+      return `Bablo Project: Итоги`;
+    } else if (location.pathname === `/profile`) {
+      return `Bablo Project: Профиль`;
+    }
+  }, [location.pathname]);
 
   const drawer = (
     <div>
@@ -76,8 +90,13 @@ function AuthorizedLayout(props) {
                 navigate(item.path);
                 mobileOpen && setMobileOpen(false);
               }}
+              selected={isCurrentLocation(item)}
             >
-              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemIcon
+                sx={{ color: isCurrentLocation(item) && '#1976d2' }}
+              >
+                {item.icon}
+              </ListItemIcon>
               <ListItemText primary={item.name} />
             </ListItemButton>
           </ListItem>
@@ -85,7 +104,7 @@ function AuthorizedLayout(props) {
       </List>
       <Divider />
       <List>
-        <ListItem key={"Выйти"} disablePadding>
+        <ListItem key={'Выйти'} disablePadding>
           <ListItemButton
             onClick={() =>
               signOut(auth).then(() => {
@@ -96,7 +115,7 @@ function AuthorizedLayout(props) {
             <ListItemIcon>
               <LogoutIcon />
             </ListItemIcon>
-            <ListItemText primary={"Выйти"} />
+            <ListItemText primary={'Выйти'} />
           </ListItemButton>
         </ListItem>
       </List>
@@ -104,7 +123,7 @@ function AuthorizedLayout(props) {
   );
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <AppBar
         position="fixed"
@@ -119,12 +138,12 @@ function AuthorizedLayout(props) {
             aria-label="open drawer"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: "none" } }}
+            sx={{ mr: 2, display: { sm: 'none' } }}
           >
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div">
-            Bablo project
+            {pageHeader}
           </Typography>
         </Toolbar>
       </AppBar>
@@ -142,9 +161,9 @@ function AuthorizedLayout(props) {
             keepMounted: true, // Better open performance on mobile.
           }}
           sx={{
-            display: { xs: "block", sm: "none" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
+            display: { xs: 'block', sm: 'none' },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
               width: drawerWidth,
             },
           }}
@@ -154,9 +173,9 @@ function AuthorizedLayout(props) {
         <Drawer
           variant="permanent"
           sx={{
-            display: { xs: "none", sm: "block" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
+            display: { xs: 'none', sm: 'block' },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
               width: drawerWidth,
             },
           }}
