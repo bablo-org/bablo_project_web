@@ -58,7 +58,7 @@ const useApproveTransation = () => {
       defaultQueryFn({
         queryKey: ["transactions/approve"],
         requestOptions: {
-          body: transactionIds,
+          body: JSON.stringify(transactionIds),
           method: "PUT",
         },
       }),
@@ -75,7 +75,7 @@ const useDeclineTransation = () => {
       defaultQueryFn({
         queryKey: ["transactions/decline"],
         requestOptions: {
-          body: transactionIds,
+          body: JSON.stringify(transactionIds),
           method: "PUT",
         },
       }),
@@ -92,7 +92,7 @@ const useCompleteTransation = () => {
       defaultQueryFn({
         queryKey: ["transactions/complete"],
         requestOptions: {
-          body: transactionIds,
+          body: JSON.stringify(transactionIds),
           method: "PUT",
         },
       }),
