@@ -23,7 +23,7 @@ export const defaultQueryFn = async ({ queryKey, requestOptions = {} }) => {
   }
 };
 
-export { useGetCurrencues } from "./currencies";
+export { useGetCurrencies } from "./currencies";
 export {
   useApproveTransation,
   useCompleteTransation,

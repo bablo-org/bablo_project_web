@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
-const useGetCurrencues = () => {
+const useGetCurrencies = () => {
   return useQuery({
     queryKey: ["currencies"],
     placeholderData: [],
@@ -14,4 +14,4 @@ const useGetCurrencues = () => {
   });
 };
 
-export { useGetCurrencues };
+export { useGetCurrencies };
