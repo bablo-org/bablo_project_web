@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 import {
   AppBar,
   Box,
@@ -13,7 +13,7 @@ import {
   ListItemText,
   Toolbar,
   Typography,
-} from "@mui/material/";
+} from '@mui/material/';
 import {
   Menu as MenuIcon,
   Receipt as ReceiptIcon,
@@ -21,12 +21,12 @@ import {
   Summarize as SummarizeIcon,
   AccountCircle as AccountCircleIcon,
   Logout as LogoutIcon,
-} from "@mui/icons-material/";
-import { auth, signOut } from "../services/firebase";
-import { useContext, useMemo } from "react";
-import { AuthContext } from "../context/Auth";
-import { Outlet, useNavigate, useLocation } from "react-router-dom";
-import { PATHES } from "../routes";
+} from '@mui/icons-material/';
+import { auth, signOut } from '../services/firebase';
+import { useContext, useMemo } from 'react';
+import { AuthContext } from '../context/Auth';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { PATHES } from '../routes';
 
 const drawerWidth = 240;
 
@@ -35,27 +35,26 @@ function AuthorizedLayout(props) {
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
-
   const isCurrentLocation = (item) => location.pathname === item.path;
   const listItemButtons = useMemo(
     () => [
       {
-        name: "Добавить транзакцию",
+        name: 'Добавить транзакцию',
         path: PATHES.ADD_TRANSACTION,
         icon: <ReceiptIcon />,
       },
       {
-        name: "История",
+        name: 'История',
         path: PATHES.HISTORY,
         icon: <HistoryIcon />,
       },
       {
-        name: "Итоги",
+        name: 'Итоги',
         path: PATHES.SUMMARY,
         icon: <SummarizeIcon />,
       },
       {
-        name: "Профиль",
+        name: 'Профиль',
         path: PATHES.PROFILE,
         icon: <AccountCircleIcon />,
       },
@@ -66,6 +65,18 @@ function AuthorizedLayout(props) {
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
+
+  const pageHeader = useMemo(() => {
+    if (location.pathname === `/add`) {
+      return `Bablo Project: Создать транзакцию`;
+    } else if (location.pathname === `/history`) {
+      return `Bablo Project: История`;
+    } else if (location.pathname === `/summary`) {
+      return `Bablo Project: Итоги`;
+    } else if (location.pathname === `/profile`) {
+      return `Bablo Project: Профиль`;
+    }
+  }, [location.pathname]);
 
   const drawer = (
     <div>
@@ -82,7 +93,7 @@ function AuthorizedLayout(props) {
               selected={isCurrentLocation(item)}
             >
               <ListItemIcon
-                sx={{ color: isCurrentLocation(item) && "#1976d2" }}
+                sx={{ color: isCurrentLocation(item) && '#1976d2' }}
               >
                 {item.icon}
               </ListItemIcon>
@@ -93,7 +104,7 @@ function AuthorizedLayout(props) {
       </List>
       <Divider />
       <List>
-        <ListItem key={"Выйти"} disablePadding>
+        <ListItem key={'Выйти'} disablePadding>
           <ListItemButton
             onClick={() =>
               signOut(auth).then(() => {
@@ -104,7 +115,7 @@ function AuthorizedLayout(props) {
             <ListItemIcon>
               <LogoutIcon />
             </ListItemIcon>
-            <ListItemText primary={"Выйти"} />
+            <ListItemText primary={'Выйти'} />
           </ListItemButton>
         </ListItem>
       </List>
@@ -112,7 +123,7 @@ function AuthorizedLayout(props) {
   );
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <AppBar
         position="fixed"
@@ -127,12 +138,12 @@ function AuthorizedLayout(props) {
             aria-label="open drawer"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: "none" } }}
+            sx={{ mr: 2, display: { sm: 'none' } }}
           >
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div">
-            Bablo project
+            {pageHeader}
           </Typography>
         </Toolbar>
       </AppBar>
@@ -150,9 +161,9 @@ function AuthorizedLayout(props) {
             keepMounted: true, // Better open performance on mobile.
           }}
           sx={{
-            display: { xs: "block", sm: "none" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
+            display: { xs: 'block', sm: 'none' },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
               width: drawerWidth,
             },
           }}
@@ -162,9 +173,9 @@ function AuthorizedLayout(props) {
         <Drawer
           variant="permanent"
           sx={{
-            display: { xs: "none", sm: "block" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
+            display: { xs: 'none', sm: 'block' },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
               width: drawerWidth,
             },
           }}
