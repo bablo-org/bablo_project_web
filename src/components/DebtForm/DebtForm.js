@@ -1,7 +1,6 @@
-import { Fragment, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import classes from "./DebtForm.module.css";
 import AvatarsList from "../AvatarsList/AvatarsList";
-import useHomeApi from "../../hooks/useHomeApi";
 import { validationProps } from "../../utils/validationForm";
 import {
   TextField,
@@ -22,9 +21,9 @@ import {
   Clear as ClearIcon,
   SafetyDivider as SafetyDividerIcon,
 } from "@mui/icons-material";
+import { useGetCurrencies, useGetUsers, usePostTransaction } from "../../queries";
 
 const DebtForm = () => {
-  const [users, setUsers] = useState([]);
   const [sender, setSender] = useState([]);
   const [isSenderSelected, setIsSenderSelected] = useState(true);
   const [receiver, setReceiver] = useState([]);
@@ -34,14 +33,10 @@ const DebtForm = () => {
   const [enteredUsersSum, setEnteredUsersSum] = useState({});
   const [enteredDescription, setEnteredDescription] = useState(``);
   const [enteredDate, setEnteredDate] = useState(null);
-  const [currencies, setCurrencies] = useState([]);
-  const { getCurrencies, postTransactions, loading, error, getUsers } =
-    useHomeApi();
 
-  useEffect(() => {
-    getCurrencies().then(setCurrencies);
-    getUsers().then(setUsers);
-  }, []);
+  const { data: users, isLoading: isUsersLoading, isError: isUserLoadingError } = useGetUsers();
+  const { data: currencies } = useGetCurrencies();
+  const { mutateAsync: postTransactions } = usePostTransaction();
 
   useEffect(() => {
     sender.length > 0 && setIsSenderSelected(true);
@@ -99,7 +94,7 @@ const DebtForm = () => {
           date: enteredDate ? new Date(enteredDate).toISOString() : undefined,
         };
       });
-      postTransactions(debtData);
+      postTransactions({transactions: debtData});
       clearForm();
     }
   };
@@ -119,8 +114,8 @@ const DebtForm = () => {
         <Grid item xs={12}>
           <AvatarsList
             users={users}
-            loading={loading}
-            error={error}
+            loading={isUsersLoading}
+            error={isUserLoadingError}
             onUserSelected={setSender}
             blockedUserIds={undefined}
           />
@@ -130,8 +125,8 @@ const DebtForm = () => {
           <Grid item xs={12}>
             <AvatarsList
               users={users}
-              loading={loading}
-              error={error}
+              loading={isUsersLoading}
+              error={isUserLoadingError}
               onUserSelected={setReceiver}
               blockedUserIds={sender}
             />

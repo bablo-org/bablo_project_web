@@ -1,5 +1,4 @@
 import { auth } from "../../services/firebase";
-import useHomeApi from "../../hooks/useHomeApi";
 import { useState } from "react";
 import * as React from "react";
 import { formatDate } from "../../utils/formatDate";
@@ -17,8 +16,13 @@ import {
   ButtonGroup,
   Button,
 } from "@mui/material";
-import { ExpandMore, ArrowForward} from '@mui/icons-material'
+import { ExpandMore, ArrowForward } from "@mui/icons-material";
 import { auto } from "@popperjs/core";
+import {
+  useApproveTransation,
+  useCompleteTransation,
+  useDeclineTransation,
+} from "../../queries";
 
 const ExpandMoreIcon = styled((props) => {
   const { expand, ...other } = props;
@@ -44,38 +48,41 @@ const TransactionItem = ({
   id,
   senderId,
   recieverId,
-  reFetchTransactions,
 }) => {
   const currentUserId = auth.currentUser.uid;
-  const [isLoading, setIsLoading] = useState(false);
+
   const {
-    putTransactionsApprove,
-    putTransactionsComplete,
-    putTransactionsDecline,
-  } = useHomeApi();
+    mutateAsync: putTransactionsApprove,
+    isLoading: isApproveInProgress,
+  } = useApproveTransation();
+  const {
+    mutateAsync: putTransactionsComplete,
+    isLoading: isCompleteInProgress,
+  } = useCompleteTransation();
+  const {
+    mutateAsync: putTransactionsDecline,
+    isLoading: isDeclineeInProgress,
+  } = useDeclineTransation();
   const [expanded, setExpanded] = useState(false);
+
+  const isLoading = React.useMemo(
+    () => isApproveInProgress || isCompleteInProgress || isDeclineeInProgress,
+    [isApproveInProgress, isCompleteInProgress, isDeclineeInProgress]
+  );
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
 
   const putTransactionsDeclineHandler = () => {
-    setIsLoading(true);
-    putTransactionsDecline(JSON.stringify([id]))
-      .then(() => reFetchTransactions())
-      .finally(() => setIsLoading(false));
+    putTransactionsDecline([id]);
   };
 
   const putTransactionsCompleteHandler = () => {
-    setIsLoading(true);
-    putTransactionsComplete(JSON.stringify([id]))
-      .then(() => reFetchTransactions())
-      .finally(() => setIsLoading(false));
+    putTransactionsComplete([id]);
   };
 
   const putTransactionsApproveHandler = () => {
-    putTransactionsApprove(JSON.stringify([id]))
-      .then(() => reFetchTransactions())
-      .finally(() => setIsLoading(false));
+    putTransactionsApprove([id]);
   };
 
   return (

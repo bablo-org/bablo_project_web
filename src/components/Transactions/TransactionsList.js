@@ -1,23 +1,14 @@
-import useHomeApi from "../../hooks/useHomeApi";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import TransactionItem from "./TransactionItem";
 import classes from "./TransactionsList.module.css";
 import Spinner from "../Spinner/Spinner";
 import { Grid, Box } from "@mui/material";
+import { useGetTransactions, useGetUsers } from "../../queries";
 
 const TransactionsList = () => {
-  const [transactions, setTransactions] = useState([]);
-  const [users, setUsers] = useState([]);
-  const { getTransactions, getUsers, loading } = useHomeApi();
-
-  useEffect(() => {
-    getTransactions().then(setTransactions);
-    getUsers().then(setUsers);
-  }, []);
-
-  const reFetchTransactions = () => {
-    getTransactions().then(setTransactions);
-  };
+  const { data: users } = useGetUsers();
+  const { data: transactions, isLoading: isTransactionsLoading } =
+    useGetTransactions();
 
   const formatUserName = (incomingId) => {
     const idToName = users.find((user) => user.id === incomingId)?.name;
@@ -29,9 +20,8 @@ const TransactionsList = () => {
       (obj1, obj2) => new Date(obj2.date) - new Date(obj1.date)
     );
     return sortedTransactions.map((transaction) => (
-      <Grid item xs={12} md={6} lg={4}>
+      <Grid item xs={12} md={6} lg={4} key={transaction.id}>
         <TransactionItem
-          key={transaction.id}
           id={transaction.id}
           sender={formatUserName(transaction.sender)}
           receiver={formatUserName(transaction.receiver)}
@@ -44,15 +34,14 @@ const TransactionsList = () => {
           updated={transaction.updated}
           senderId={transaction.sender}
           recieverId={transaction.receiver}
-          reFetchTransactions={reFetchTransactions}
         />
       </Grid>
     ));
   }, [transactions]);
 
-  if (loading || users === undefined) {
+  if (isTransactionsLoading || users === undefined) {
     return <Spinner />;
-  } else if (!loading && transactions.length === 0) {
+  } else if (!isTransactionsLoading && transactions.length === 0) {
     return <p className={classes.noTransactionsAvailable}>Суй ананас в жопу</p>;
   }
 
