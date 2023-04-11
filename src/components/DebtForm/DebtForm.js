@@ -34,7 +34,7 @@ const DebtForm = () => {
   const [enteredDescription, setEnteredDescription] = useState(``);
   const [enteredDate, setEnteredDate] = useState(null);
 
-  const { data: users, isLoading: isUsersLoading, isError: isUserLoadingError } = useGetUsers();
+  const { data: users, isFetching: isUsersLoading, isError: isUserLoadingError } = useGetUsers();
   const { data: currencies } = useGetCurrencies();
   const { mutateAsync: postTransactions } = usePostTransaction();
 
