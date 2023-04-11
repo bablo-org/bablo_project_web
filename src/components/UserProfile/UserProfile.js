@@ -1,8 +1,8 @@
-import useHomeApi from "../../hooks/useHomeApi";
 import classes from "./UserProfile.module.css";
 import { useState, useRef } from "react";
 import { getDownloadURL, storage, ref } from "../../services/firebase";
 import Spinner from "../Spinner/Spinner";
+import { useUpdateUser, useUpdateUserAvatar } from "../../queries";
 
 const IMAGE_ERRORS = {
   WRONG_TYPE:
@@ -11,7 +11,8 @@ const IMAGE_ERRORS = {
 };
 
 const UserProfile = () => {
-  const { putUser, postUserAvatar } = useHomeApi();
+  const { mutateAsync: putUser } = useUpdateUser();
+  const { mutateAsync: postUserAvatar } = useUpdateUserAvatar();
   const [imageError, setImageError] = useState();
   const [isProfileUpdated, setIsProfileUpdate] = useState();
   const [loading, setLoading] = useState();
@@ -74,16 +75,16 @@ const UserProfile = () => {
     try {
       if (encodedImageCode) {
         setLoading(true);
-        const response = await postUserAvatar(
-          encodedImageCode,
-          encodedImageName
-        );
+        const response = await postUserAvatar({
+          encodedImage: encodedImageCode,
+          fileName: encodedImageName
+        });
         const avatar = await getDownloadURL(ref(storage, response.path));
-        await putUser(JSON.stringify({ name, avatar }));
+        await putUser({ name, avatar });
         setIsProfileUpdate(true);
       } else if (name) {
         setLoading(true);
-        await putUser(JSON.stringify({ name }));
+        await putUser({ name });
         setIsProfileUpdate(true);
         setError(false);
       }

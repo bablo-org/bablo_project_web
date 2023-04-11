@@ -8,8 +8,21 @@ import { useEffect, useState } from "react";
 import { AuthContext } from "./context/Auth";
 import router from "./routes";
 import { RouterProvider } from "react-router-dom";
+import {
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
+import { defaultQueryFn } from "./queries";
 
 initializeFirebase();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      queryFn: defaultQueryFn,
+      staleTime: 60 * 1000,
+    }
+  }
+})
 
 function App() {
   const [user, setUser] = useState();
@@ -37,9 +50,11 @@ function App() {
 
   return (
     <div className="App">
-      <AuthContext.Provider value={{user, setUser}}>
-        <RouterProvider router={router} />
-      </AuthContext.Provider>
+      <QueryClientProvider client={queryClient} >
+        <AuthContext.Provider value={{ user, setUser }}>
+          <RouterProvider router={router} />
+        </AuthContext.Provider>
+      </QueryClientProvider>
     </div>
   );
 }
