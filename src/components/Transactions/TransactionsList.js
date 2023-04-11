@@ -29,9 +29,8 @@ const TransactionsList = () => {
       (obj1, obj2) => new Date(obj2.date) - new Date(obj1.date)
     );
     return sortedTransactions.map((transaction) => (
-      <Grid item xs={12} md={6} lg={4}>
+      <Grid item xs={12} md={6} lg={4} key={transaction.id}>
         <TransactionItem
-          key={transaction.id}
           id={transaction.id}
           sender={formatUserName(transaction.sender)}
           receiver={formatUserName(transaction.receiver)}
