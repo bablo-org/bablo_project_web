@@ -1,21 +1,22 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { defaultQueryFn } from ".";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { defaultQueryFn } from '.';
 
 const useGetUsers = () => {
   return useQuery({
-    queryKey: ["users"],
+    queryKey: ['users'],
     placeholderData: [],
-    refetchOnReconnect: "always",
-    refetchOnWindowFocus: "always",
+    refetchOnReconnect: 'always',
+    refetchOnWindowFocus: 'always',
     retryOnMount: true,
-    select: (data) =>
-      data.map((user) => ({
+    select: (data) => {
+      return data.map((user) => ({
         id: user.id,
         name: user.name,
         email: user.email,
         created: user.created,
         avatar: user.avatar,
-      })),
+      }));
+    },
   });
 };
 
@@ -23,15 +24,16 @@ const useUpdateUserAvatar = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ encodedImage, fileName }) =>
-      defaultQueryFn({
+    mutationFn: ({ encodedImage, fileName }) => {
+      return defaultQueryFn({
         queryKey: [`users/uploadAvatar?fileName=${fileName}`],
         requestOptions: {
           body: encodedImage,
-          method: "POST",
+          method: 'POST',
         },
-      }),
-    onSuccess: async () => await queryClient.invalidateQueries(["users"]),
+      });
+    },
+    onSuccess: () => queryClient.invalidateQueries(['users']),
   });
 };
 
@@ -39,15 +41,16 @@ const useUpdateUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ name, avatar }) =>
-      defaultQueryFn({
-        queryKey: ["users/updateProfile"],
+    mutationFn: ({ name, avatar }) => {
+      return defaultQueryFn({
+        queryKey: ['users/updateProfile'],
         requestOptions: {
           body: JSON.stringify({ name, avatar }),
-          method: "PUT",
+          method: 'PUT',
         },
-      }),
-    onSuccess: async () => await queryClient.invalidateQueries(["users"]),
+      });
+    },
+    onSuccess: () => queryClient.invalidateQueries(['users']),
   });
 };
 

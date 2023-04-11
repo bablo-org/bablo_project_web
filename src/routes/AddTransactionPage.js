@@ -1,13 +1,7 @@
-import { Fragment } from 'react';
 import DebtForm from '../components/DebtForm/DebtForm';
 
-
-const AddTransactionPage = (props) => {
-  return (
-    <Fragment>
-        <DebtForm/>
-    </Fragment>
-  );
-};
+function AddTransactionPage() {
+  return <DebtForm />;
+}
 
 export default AddTransactionPage;

@@ -2,12 +2,12 @@ export const formatDate = (ISOStringDate) => {
   const readableDate = new Date(ISOStringDate);
   let day = readableDate.getDate();
   let month = readableDate.getMonth() + 1;
-  let year = readableDate.getFullYear();
+  const year = readableDate.getFullYear();
   if (day < 10) {
-    day = `0` + day;
+    day = `0${day}`;
   }
   if (month < 10) {
-    month = `0` + month;
+    month = `0${month}`;
   }
-  return day + `/` + month + `/` + year;
+  return `${day}/${month}/${year}`;
 };

@@ -1,12 +1,12 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { defaultQueryFn } from ".";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { defaultQueryFn } from '.';
 
 const useGetTransactions = () => {
   return useQuery({
-    queryKey: ["transactions"],
+    queryKey: ['transactions'],
     placeholderData: [],
-    select: (data) =>
-      data.map((transaction) => ({
+    select: (data) => {
+      return data.map((transaction) => ({
         id: transaction.id,
         sender: transaction.sender,
         receiver: transaction.receiver,
@@ -17,7 +17,8 @@ const useGetTransactions = () => {
         status: transaction.status,
         created: transaction.created,
         updated: transaction.updated,
-      })),
+      }));
+    },
   });
 };
 
@@ -37,16 +38,16 @@ const usePostTransaction = () => {
      *  date: string
      * }>}
      */
-    mutationFn: ({ transactions }) =>
-      defaultQueryFn({
-        queryKey: ["transactions"],
+    mutationFn: ({ transactions }) => {
+      return defaultQueryFn({
+        queryKey: ['transactions'],
         requestOptions: {
           body: JSON.stringify(transactions),
-          method: "POST",
+          method: 'POST',
         },
-      }),
-    onSuccess: async () =>
-      await queryClient.invalidateQueries(["transactions"]),
+      });
+    },
+    onSuccess: () => queryClient.invalidateQueries(['transactions']),
   });
 };
 
@@ -54,16 +55,16 @@ const useApproveTransation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (transactionIds) =>
-      defaultQueryFn({
-        queryKey: ["transactions/approve"],
+    mutationFn: (transactionIds) => {
+      return defaultQueryFn({
+        queryKey: ['transactions/approve'],
         requestOptions: {
           body: JSON.stringify(transactionIds),
-          method: "PUT",
+          method: 'PUT',
         },
-      }),
-    onSuccess: async () =>
-      await queryClient.invalidateQueries(["transactions"]),
+      });
+    },
+    onSuccess: () => queryClient.invalidateQueries(['transactions']),
   });
 };
 
@@ -71,16 +72,16 @@ const useDeclineTransation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (transactionIds) =>
-      defaultQueryFn({
-        queryKey: ["transactions/decline"],
+    mutationFn: (transactionIds) => {
+      return defaultQueryFn({
+        queryKey: ['transactions/decline'],
         requestOptions: {
           body: JSON.stringify(transactionIds),
-          method: "PUT",
+          method: 'PUT',
         },
-      }),
-    onSuccess: async () =>
-      await queryClient.invalidateQueries(["transactions"]),
+      });
+    },
+    onSuccess: () => queryClient.invalidateQueries(['transactions']),
   });
 };
 
@@ -88,16 +89,16 @@ const useCompleteTransation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (transactionIds) =>
-      defaultQueryFn({
-        queryKey: ["transactions/complete"],
+    mutationFn: (transactionIds) => {
+      return defaultQueryFn({
+        queryKey: ['transactions/complete'],
         requestOptions: {
           body: JSON.stringify(transactionIds),
-          method: "PUT",
+          method: 'PUT',
         },
-      }),
-    onSuccess: async () =>
-      await queryClient.invalidateQueries(["transactions"]),
+      });
+    },
+    onSuccess: () => queryClient.invalidateQueries(['transactions']),
   });
 };
 
