@@ -44,7 +44,7 @@ const InputForm = () => {
       return email.errorTitle;
     }
   }, [enteredEmail]);
-console.log(error);
+
   const onLoginPress = (e) => {
     e.preventDefault();
     setLoading(true);
