@@ -67,14 +67,19 @@ function AuthorizedLayout(props) {
   };
 
   const pageHeader = useMemo(() => {
-    if (location.pathname === `/add`) {
-      return `Bablo Project: Создать транзакцию`;
-    } else if (location.pathname === `/history`) {
-      return `Bablo Project: История`;
-    } else if (location.pathname === `/summary`) {
-      return `Bablo Project: Итоги`;
-    } else if (location.pathname === `/profile`) {
-      return `Bablo Project: Профиль`;
+    const title = "Bablo Project"
+    switch (location.pathname) {
+      case '/':
+      case PATHES.ADD_TRANSACTION:
+        return title.concat(": Создать транзакцию");
+      case PATHES.HISTORY:
+        return title.concat(": История")
+      case PATHES.SUMMARY:
+        return title.concat(": Итоги")
+      case PATHES.PROFILE:
+        return title.concat(": Профиль")
+      default:
+        return title;
     }
   }, [location.pathname]);
 
