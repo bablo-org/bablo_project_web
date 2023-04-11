@@ -1,31 +1,32 @@
 import * as React from "react";
-import PropTypes from "prop-types";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import CssBaseline from "@mui/material/CssBaseline";
-import Divider from "@mui/material/Divider";
-import Drawer from "@mui/material/Drawer";
-import IconButton from "@mui/material/IconButton";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import MenuIcon from "@mui/icons-material/Menu";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import ReceiptIcon from "@mui/icons-material/Receipt";
-import HistoryIcon from "@mui/icons-material/History";
-import SummarizeIcon from "@mui/icons-material/Summarize";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import LogoutIcon from "@mui/icons-material/Logout";
-import { Outlet } from "react-router-dom";
+import {
+  AppBar,
+  Box,
+  CssBaseline,
+  Divider,
+  Drawer,
+  IconButton,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Toolbar,
+  Typography,
+} from "@mui/material/";
+import {
+  Menu as MenuIcon,
+  Receipt as ReceiptIcon,
+  History as HistoryIcon,
+  Summarize as SummarizeIcon,
+  AccountCircle as AccountCircleIcon,
+  Logout as LogoutIcon,
+} from "@mui/icons-material/";
 import { auth, signOut } from "../services/firebase";
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import { AuthContext } from "../context/Auth";
-import { useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { PATHES } from "../routes";
-import { useMemo } from "react";
 
 const drawerWidth = 240;
 
@@ -33,7 +34,9 @@ function AuthorizedLayout(props) {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
 
+  const isCurrentLocation = (item) => location.pathname === item.path;
   const listItemButtons = useMemo(
     () => [
       {
@@ -76,8 +79,13 @@ function AuthorizedLayout(props) {
                 navigate(item.path);
                 mobileOpen && setMobileOpen(false);
               }}
+              selected={isCurrentLocation(item)}
             >
-              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemIcon
+                sx={{ color: isCurrentLocation(item) && "#1976d2" }}
+              >
+                {item.icon}
+              </ListItemIcon>
               <ListItemText primary={item.name} />
             </ListItemButton>
           </ListItem>
