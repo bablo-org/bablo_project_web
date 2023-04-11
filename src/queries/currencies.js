@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 const useGetCurrencues = () => {
   return useQuery({
     queryKey: ["currencies"],
-    initialData: [],
+    placeholderData: [],
     select: (data) =>
       data.map((currency) => ({
         id: currency.id,

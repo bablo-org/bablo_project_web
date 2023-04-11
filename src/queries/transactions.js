@@ -4,7 +4,7 @@ import { defaultQueryFn } from ".";
 const useGetTransactions = () => {
   return useQuery({
     queryKey: ["transactions"],
-    initialData: [],
+    placeholderData: [],
     select: (data) =>
       data.map((transaction) => ({
         id: transaction.id,

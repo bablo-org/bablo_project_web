@@ -4,7 +4,10 @@ import { defaultQueryFn } from ".";
 const useGetUsers = () => {
   return useQuery({
     queryKey: ["users"],
-    initialData: [],
+    placeholderData: [],
+    refetchOnReconnect: "always",
+    refetchOnWindowFocus: "always",
+    retryOnMount: true,
     select: (data) =>
       data.map((user) => ({
         id: user.id,
