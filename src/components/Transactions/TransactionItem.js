@@ -52,15 +52,15 @@ function TransactionItem({
 
   const {
     mutateAsync: putTransactionsApprove,
-    isLoading: isApproveInProgress,
+    isFetching: isApproveInProgress,
   } = useApproveTransation();
   const {
     mutateAsync: putTransactionsComplete,
-    isLoading: isCompleteInProgress,
+    isFetching: isCompleteInProgress,
   } = useCompleteTransation();
   const {
     mutateAsync: putTransactionsDecline,
-    isLoading: isDeclineeInProgress,
+    isFetching: isDeclineeInProgress,
   } = useDeclineTransation();
   const [expanded, setExpanded] = useState(false);
 

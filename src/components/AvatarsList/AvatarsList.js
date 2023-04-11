@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import Stack from '@mui/material/Stack';
+import { Stack, Skeleton, Box } from '@mui/material';
 import { auth } from '../../services/firebase';
 import UserAvatar from '../UserAvatar/UserAvatar';
-import Spinner from '../Spinner/Spinner';
 
 function AvatarsList({
   onUserSelected,
@@ -83,7 +82,22 @@ function AvatarsList({
 
   return (
     <Stack direction="row" justifyContent="center">
-      {loading ? <Spinner /> : users.map((user) => renderAvatar(user))}
+      {loading
+        ? Array.from(Array(5)).map(() => (
+            <Box>
+              <Skeleton
+                variant="rounded"
+                sx={{
+                  width: { xs: 50, sm: 70, md: 100 },
+                  height: { xs: 50, sm: 70, md: 100 },
+                  marginLeft: { xs: 0.8, sm: 1.3, md: 4 },
+                  marginRight: { xs: 0.8, sm: 1.3, md: 4 },
+                }}
+                animation="wave"
+              />
+            </Box>
+          ))
+        : users.map((user) => renderAvatar(user))}
       {error && <div>Дрюс что-то сломал.</div>}
     </Stack>
   );

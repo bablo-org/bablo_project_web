@@ -40,7 +40,7 @@ function DebtForm() {
 
   const {
     data: users,
-    isLoading: isUsersLoading,
+    isFetching: isUsersLoading,
     isError: isUserLoadingError,
   } = useGetUsers();
   const { data: currencies } = useGetCurrencies();

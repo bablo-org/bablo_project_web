@@ -7,7 +7,7 @@ import { useGetTransactions, useGetUsers } from '../../queries';
 
 function TransactionsList() {
   const { data: users } = useGetUsers();
-  const { data: transactions, isLoading: isTransactionsLoading } =
+  const { data: transactions, isFetching: isTransactionsLoading } =
     useGetTransactions();
 
   const formatUserName = (incomingId) => {
