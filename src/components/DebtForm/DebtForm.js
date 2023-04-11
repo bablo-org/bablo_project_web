@@ -1,7 +1,4 @@
-import { useState, useEffect } from "react";
-import classes from "./DebtForm.module.css";
-import AvatarsList from "../AvatarsList/AvatarsList";
-import { validationProps } from "../../utils/validationForm";
+import { useState, useEffect } from 'react';
 import {
   TextField,
   InputLabel,
@@ -20,21 +17,32 @@ import {
   Check as CheckIcon,
   Clear as ClearIcon,
   SafetyDivider as SafetyDividerIcon,
-} from "@mui/icons-material";
-import { useGetCurrencies, useGetUsers, usePostTransaction } from "../../queries";
+} from '@mui/icons-material';
+import { validationProps } from '../../utils/validationForm';
+import AvatarsList from '../AvatarsList/AvatarsList';
+import classes from './DebtForm.module.css';
+import {
+  useGetCurrencies,
+  useGetUsers,
+  usePostTransaction,
+} from '../../queries';
 
-const DebtForm = () => {
+function DebtForm() {
   const [sender, setSender] = useState([]);
   const [isSenderSelected, setIsSenderSelected] = useState(true);
   const [receiver, setReceiver] = useState([]);
   const [isReceiverSelected, setIsReceiverSelected] = useState(true);
-  const [enteredCurrency, setEnteredCurrency] = useState(``);
-  const [enteredSum, setEnteredSum] = useState(``);
+  const [enteredCurrency, setEnteredCurrency] = useState('');
+  const [enteredSum, setEnteredSum] = useState('');
   const [enteredUsersSum, setEnteredUsersSum] = useState({});
-  const [enteredDescription, setEnteredDescription] = useState(``);
+  const [enteredDescription, setEnteredDescription] = useState('');
   const [enteredDate, setEnteredDate] = useState(null);
 
-  const { data: users, isLoading: isUsersLoading, isError: isUserLoadingError } = useGetUsers();
+  const {
+    data: users,
+    isLoading: isUsersLoading,
+    isError: isUserLoadingError,
+  } = useGetUsers();
   const { data: currencies } = useGetCurrencies();
   const { mutateAsync: postTransactions } = usePostTransaction();
 
@@ -64,9 +72,9 @@ const DebtForm = () => {
   };
 
   const clearForm = () => {
-    setEnteredCurrency(``);
-    setEnteredSum(``);
-    setEnteredDescription(``);
+    setEnteredCurrency('');
+    setEnteredSum('');
+    setEnteredDescription('');
     setEnteredDate(null);
     setEnteredUsersSum({});
   };
@@ -88,13 +96,13 @@ const DebtForm = () => {
           receiver: receiver[0],
           currency: enteredCurrency,
           amount: parseFloat(
-            sender.length === 1 ? enteredSum : enteredUsersSum[id]
+            sender.length === 1 ? enteredSum : enteredUsersSum[id],
           ),
           description: enteredDescription,
           date: enteredDate ? new Date(enteredDate).toISOString() : undefined,
         };
       });
-      postTransactions({transactions: debtData});
+      postTransactions({ transactions: debtData });
       clearForm();
     }
   };
@@ -185,7 +193,7 @@ const DebtForm = () => {
                     }
                     style={{ whiteSpace: 'pre-wrap' }}
                     className={enteredSum ? classes.valid : undefined}
-                    required={sender.length < 2 ? true : false}
+                    required={sender.length < 2}
                   />
                 </FormControl>
               </Grid>
@@ -215,9 +223,9 @@ const DebtForm = () => {
                           value={enteredUsersSum[user.id] ?? ''}
                           type="text"
                           id={`sum ${user.id}`}
-                          onChange={(event) =>
-                            usersSumInputChangeHandler(event, user)
-                          }
+                          onChange={(event) => {
+                            usersSumInputChangeHandler(event, user);
+                          }}
                           inputProps={{
                             inputMode: 'numeric',
                             pattern: validationProps.sum.inputPropsPattern,
@@ -226,7 +234,7 @@ const DebtForm = () => {
                           helperText={
                             enteredUsersSum[user.id]
                               ? validationProps.sum.testSum(
-                                  enteredUsersSum[user.id]
+                                  enteredUsersSum[user.id],
                                 )
                                 ? validationProps.sum.errorTitle
                                 : undefined
@@ -236,7 +244,7 @@ const DebtForm = () => {
                             !!(
                               enteredUsersSum[user.id] &&
                               validationProps.sum.testSum(
-                                enteredUsersSum[user.id]
+                                enteredUsersSum[user.id],
                               )
                             )
                           }
@@ -280,7 +288,7 @@ const DebtForm = () => {
                           value={enteredDate}
                           id="date"
                           onChange={dateInputChangeHandler}
-                          closeOnSelect={true}
+                          closeOnSelect
                           className={enteredDate ? classes.valid : undefined}
                           slotProps={{
                             textField: {
@@ -322,6 +330,6 @@ const DebtForm = () => {
       </Grid>
     </Container>
   );
-};
+}
 
 export default DebtForm;

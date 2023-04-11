@@ -22,20 +22,21 @@ import {
   AccountCircle as AccountCircleIcon,
   Logout as LogoutIcon,
 } from '@mui/icons-material/';
-import { auth, signOut } from '../services/firebase';
 import { useContext, useMemo } from 'react';
-import { AuthContext } from '../context/Auth';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { auth, signOut } from '../services/firebase';
+import { AuthContext } from '../context/Auth';
 import { PATHES } from '../routes';
 
 const drawerWidth = 240;
 
-function AuthorizedLayout(props) {
+function AuthorizedLayout() {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
   const isCurrentLocation = (item) => location.pathname === item.path;
+  const { setUser } = authContext;
   const listItemButtons = useMemo(
     () => [
       {
@@ -59,7 +60,7 @@ function AuthorizedLayout(props) {
         icon: <AccountCircleIcon />,
       },
     ],
-    []
+    [],
   );
 
   const handleDrawerToggle = () => {
@@ -67,14 +68,17 @@ function AuthorizedLayout(props) {
   };
 
   const pageHeader = useMemo(() => {
-    if (location.pathname === `/add`) {
-      return `Bablo Project: Создать транзакцию`;
-    } else if (location.pathname === `/history`) {
-      return `Bablo Project: История`;
-    } else if (location.pathname === `/summary`) {
-      return `Bablo Project: Итоги`;
-    } else if (location.pathname === `/profile`) {
-      return `Bablo Project: Профиль`;
+    if (location.pathname === '/add') {
+      return 'Bablo Project: Создать транзакцию';
+    }
+    if (location.pathname === '/history') {
+      return 'Bablo Project: История';
+    }
+    if (location.pathname === '/summary') {
+      return 'Bablo Project: Итоги';
+    }
+    if (location.pathname === '/profile') {
+      return 'Bablo Project: Профиль';
     }
   }, [location.pathname]);
 
@@ -104,18 +108,18 @@ function AuthorizedLayout(props) {
       </List>
       <Divider />
       <List>
-        <ListItem key={'Выйти'} disablePadding>
+        <ListItem key="Выйти" disablePadding>
           <ListItemButton
-            onClick={() =>
+            onClick={() => {
               signOut(auth).then(() => {
-                authContext.setUser(null);
-              })
-            }
+                setUser(null);
+              });
+            }}
           >
             <ListItemIcon>
               <LogoutIcon />
             </ListItemIcon>
-            <ListItemText primary={'Выйти'} />
+            <ListItemText primary="Выйти" />
           </ListItemButton>
         </ListItem>
       </List>

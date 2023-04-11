@@ -1,11 +1,11 @@
-import { useMemo } from "react";
-import TransactionItem from "./TransactionItem";
-import classes from "./TransactionsList.module.css";
-import Spinner from "../Spinner/Spinner";
-import { Grid, Box } from "@mui/material";
-import { useGetTransactions, useGetUsers } from "../../queries";
+import { useMemo } from 'react';
+import { Grid, Box } from '@mui/material';
+import TransactionItem from './TransactionItem';
+import classes from './TransactionsList.module.css';
+import Spinner from '../Spinner/Spinner';
+import { useGetTransactions, useGetUsers } from '../../queries';
 
-const TransactionsList = () => {
+function TransactionsList() {
   const { data: users } = useGetUsers();
   const { data: transactions, isLoading: isTransactionsLoading } =
     useGetTransactions();
@@ -17,7 +17,7 @@ const TransactionsList = () => {
 
   const transformedTransactions = useMemo(() => {
     const sortedTransactions = transactions.sort(
-      (obj1, obj2) => new Date(obj2.date) - new Date(obj1.date)
+      (obj1, obj2) => new Date(obj2.date) - new Date(obj1.date),
     );
     return sortedTransactions.map((transaction) => (
       <Grid item xs={12} md={6} lg={4} key={transaction.id}>
@@ -41,7 +41,8 @@ const TransactionsList = () => {
 
   if (isTransactionsLoading || users === undefined) {
     return <Spinner />;
-  } else if (!isTransactionsLoading && transactions.length === 0) {
+  }
+  if (!isTransactionsLoading && transactions.length === 0) {
     return <p className={classes.noTransactionsAvailable}>Суй ананас в жопу</p>;
   }
 
@@ -52,6 +53,6 @@ const TransactionsList = () => {
       </Grid>
     </Box>
   );
-};
+}
 
 export default TransactionsList;

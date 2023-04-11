@@ -1,16 +1,16 @@
-import { useCallback, useEffect, useState } from "react";
-import { auth } from "../../services/firebase";
-import UserAvatar from "../UserAvatar/UserAvatar";
-import Spinner from "../Spinner/Spinner";
-import Stack from "@mui/material/Stack";
+import { useCallback, useEffect, useState } from 'react';
+import Stack from '@mui/material/Stack';
+import { auth } from '../../services/firebase';
+import UserAvatar from '../UserAvatar/UserAvatar';
+import Spinner from '../Spinner/Spinner';
 
-const AvatarsList = ({
+function AvatarsList({
   onUserSelected,
   blockedUserIds,
   users,
   loading,
   error,
-}) => {
+}) {
   const currentUserId = auth.currentUser.uid;
   const [selectedIds, setSelectedIds] = useState([]);
 
@@ -22,42 +22,41 @@ const AvatarsList = ({
         setSelectedIds([...selectedIds, id]);
       }
     },
-    [selectedIds]
+    [selectedIds],
   );
 
   const isUserBlocked = useCallback(
     (userId) => {
       if (!blockedUserIds) return false;
-        if (blockedUserIds.includes(currentUserId)) {
-          if (
-            userId === currentUserId ||
-            (selectedIds.length > 0 && userId !== selectedIds[0])
-          ) {
-            return true;
-          }
-        } else {
-          if (userId !== currentUserId) {
-            return true;
-          }
+      if (blockedUserIds.includes(currentUserId)) {
+        if (
+          userId === currentUserId ||
+          (selectedIds.length > 0 && userId !== selectedIds[0])
+        ) {
+          return true;
         }
+      } else if (userId !== currentUserId) {
+        return true;
+      }
       return false;
     },
-    [blockedUserIds, currentUserId, selectedIds]
+    [blockedUserIds, currentUserId, selectedIds],
   );
 
-  const isUserSelected = useCallback((userId) => {
-    let isSelected = false;
-    if (selectedIds.includes(currentUserId)) {
-      if (userId !== currentUserId) {
+  const isUserSelected = useCallback(
+    (userId) => {
+      let isSelected = false;
+      if (selectedIds.includes(currentUserId)) {
+        if (userId !== currentUserId) {
+          isSelected = true;
+        }
+      } else if (selectedIds.length > 0 && userId === currentUserId) {
         isSelected = true;
       }
-    } else {
-      if (selectedIds.length > 0 && userId === currentUserId) {
-        isSelected = true;
-      }
-    }
-    return isSelected
-  }, [currentUserId, selectedIds]);
+      return isSelected;
+    },
+    [currentUserId, selectedIds],
+  );
 
   const renderAvatar = useCallback(
     (user) => {
@@ -75,7 +74,7 @@ const AvatarsList = ({
         />
       );
     },
-    [isUserBlocked, isUserSelected, selectedIds, toggleSelectedId]
+    [isUserBlocked, isUserSelected, selectedIds, toggleSelectedId],
   );
 
   useEffect(() => {
@@ -88,6 +87,6 @@ const AvatarsList = ({
       {error && <div>Дрюс что-то сломал.</div>}
     </Stack>
   );
-};
+}
 
 export default AvatarsList;
