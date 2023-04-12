@@ -99,7 +99,7 @@ function TransactionItem({
             >
               {sender}
             </Avatar>
-            <ArrowForward fontSize="large" color="action" />
+            <ArrowForward fontSize='large' color='action' />
             <Avatar
               sx={{
                 bgcolor: colors.deepPurple[500],
@@ -121,26 +121,26 @@ function TransactionItem({
           {status}
         </Typography>
         <Typography
-          variant="body3"
-          fontWeight="bold"
-          color="#ad5502"
-          fontSize="large"
+          variant='body3'
+          fontWeight='bold'
+          color='#ad5502'
+          fontSize='large'
         >
           Сумма: {`${amount} ${currency}`}
         </Typography>
       </CardContent>
       <CardActions disableSpacing>
         <ButtonGroup
-          size="small"
-          variant="contained"
-          aria-label="outlined primary button group"
+          size='small'
+          variant='contained'
+          aria-label='outlined primary button group'
         >
           {currentUserId === senderId && status === 'PENDING' && !isLoading && (
             <>
-              <Button onClick={putTransactionsApproveHandler} color="success">
+              <Button onClick={putTransactionsApproveHandler} color='success'>
                 Подтвердить
               </Button>
-              <Button onClick={putTransactionsDeclineHandler} color="error">
+              <Button onClick={putTransactionsDeclineHandler} color='error'>
                 Отклонить
               </Button>
             </>
@@ -157,12 +157,12 @@ function TransactionItem({
           expand={expanded}
           onClick={handleExpandClick}
           aria-expanded={expanded}
-          aria-label="show more"
+          aria-label='show more'
         >
           <ExpandMore />
         </ExpandMoreIcon>
       </CardActions>
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
+      <Collapse in={expanded} timeout='auto' unmountOnExit>
         <CardContent>
           {[
             `Описание: ${description}`,

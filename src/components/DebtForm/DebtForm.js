@@ -117,8 +117,8 @@ function DebtForm() {
   };
 
   return (
-    <Container maxWidth="md">
-      <Grid container spacing={2} direction="column">
+    <Container maxWidth='md'>
+      <Grid container spacing={2} direction='column'>
         <Grid item xs={12}>
           <AvatarsList
             users={users}
@@ -143,15 +143,15 @@ function DebtForm() {
         )}
         <Grid item xs={12}>
           <form onSubmit={submissionOfDebtHandler}>
-            <Grid container spacing={2} direction="column">
+            <Grid container spacing={2} direction='column'>
               <Grid item xs={12}>
                 <FormControl fullWidth required>
-                  <InputLabel id="currency">Валюта</InputLabel>
+                  <InputLabel id='currency'>Валюта</InputLabel>
                   <Select
-                    labelId="currencyLabel"
-                    id="currency"
+                    labelId='currencyLabel'
+                    id='currency'
                     value={enteredCurrency}
-                    label="Валюта"
+                    label='Валюта'
                     onChange={currencyInputChangeHandler}
                     required
                     className={enteredCurrency ? classes.valid : undefined}
@@ -170,11 +170,11 @@ function DebtForm() {
               <Grid item xs={12}>
                 <FormControl fullWidth required>
                   <TextField
-                    variant="outlined"
-                    label="Сумма"
+                    variant='outlined'
+                    label='Сумма'
                     value={enteredSum}
-                    type="text"
-                    id="sum"
+                    type='text'
+                    id='sum'
                     onChange={sumInputChangeHandler}
                     inputProps={{
                       inputMode: 'numeric',
@@ -200,9 +200,9 @@ function DebtForm() {
 
               {sender.length > 1 && (
                 <Grid item xs={12}>
-                  <Stack direction="row" spacing={2}>
+                  <Stack direction='row' spacing={2}>
                     <Button
-                      variant="contained"
+                      variant='contained'
                       onClick={shareSum}
                       endIcon={<SafetyDividerIcon />}
                     >
@@ -218,10 +218,10 @@ function DebtForm() {
                     <Grid item xs={12} key={id}>
                       <FormControl fullWidth required>
                         <TextField
-                          variant="outlined"
+                          variant='outlined'
                           label={`Сумма ${user.name}`}
                           value={enteredUsersSum[user.id] ?? ''}
-                          type="text"
+                          type='text'
                           id={`sum ${user.id}`}
                           onChange={(event) => {
                             usersSumInputChangeHandler(event, user);
@@ -261,11 +261,11 @@ function DebtForm() {
               <Grid item xs={12}>
                 <FormControl fullWidth required>
                   <TextField
-                    variant="outlined"
-                    label="Описание"
+                    variant='outlined'
+                    label='Описание'
                     value={enteredDescription}
-                    type="text"
-                    id="description"
+                    type='text'
+                    id='description'
                     onChange={descriptionInputChangeHandler}
                     helperText={
                       enteredDescription
@@ -284,9 +284,9 @@ function DebtForm() {
                     <FormControl fullWidth>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
-                          label="Дата"
+                          label='Дата'
                           value={enteredDate}
-                          id="date"
+                          id='date'
                           onChange={dateInputChangeHandler}
                           closeOnSelect
                           className={enteredDate ? classes.valid : undefined}
@@ -305,19 +305,19 @@ function DebtForm() {
                 </Grid>
               </Grid>
               <Grid item xs={12}>
-                <Stack direction="row" spacing={2}>
+                <Stack direction='row' spacing={2}>
                   <Button
-                    variant="outlined"
-                    color="error"
+                    variant='outlined'
+                    color='error'
                     onClick={cancelingOfDebtHandler}
                     endIcon={<ClearIcon />}
                   >
                     Отмена
                   </Button>
                   <Button
-                    variant="contained"
-                    color="success"
-                    type="submit"
+                    variant='contained'
+                    color='success'
+                    type='submit'
                     endIcon={<CheckIcon />}
                   >
                     Отправить

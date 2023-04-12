@@ -1,35 +1,66 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import {
+  TextField,
+  FormControl,
+  Container,
+  Stack,
+  Button,
+  Grid,
+  Typography,
+  Badge,
+} from '@mui/material';
+import LoadingButton from '@mui/lab/LoadingButton';
+import {
+  Check as CheckIcon,
+  Clear as ClearIcon,
+  DisabledByDefault as DisabledByDefaultIcon,
+} from '@mui/icons-material';
+import { useUpdateUser, useUpdateUserAvatar, useGetUsers } from '../../queries';
+import { getDownloadURL, storage, ref, auth } from '../../services/firebase';
 import classes from './UserProfile.module.css';
-import { getDownloadURL, storage, ref } from '../../services/firebase';
-import Spinner from '../Spinner/Spinner';
-import { useUpdateUser, useUpdateUserAvatar } from '../../queries';
+import { validationProps } from '../../utils/validationForm';
 
-const IMAGE_ERRORS = {
-  WRONG_TYPE:
-    "Расширение выбранного файла должно быть 'jpeg', 'bmp', 'png' или 'gif'",
-  WRONG_SIZE: 'Размер выбранного файла должен быть не более 1 Mbyte',
-};
+import UserAvatar from '../UserAvatar/UserAvatar';
 
 function UserProfile() {
   const { mutateAsync: putUser } = useUpdateUser();
   const { mutateAsync: postUserAvatar } = useUpdateUserAvatar();
-  const [imageError, setImageError] = useState();
-  const [isProfileUpdated, setIsProfileUpdate] = useState();
-  const [loading, setLoading] = useState();
-  const [error, setError] = useState();
+  const [imageError, setImageError] = useState(false);
   const [encodedImageName, setEncodedImageName] = useState();
   const [encodedImageCode, setEncodedImageCode] = useState();
-  const [name, setName] = useState();
-  const [avatar, setAvatar] = useState();
+  const [name, setName] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState();
+  const [currentUser, setCurrentUser] = useState();
+  const [loading, setLoading] = useState(false);
   const inputFileValue = useRef();
-  const [isSelected, setIsSelected] = useState();
+
+  const { avatar } = validationProps;
+  const { data: users } = useGetUsers();
+  const currentUserId = auth.currentUser.uid;
+  const User = users.find((user) => user.id === currentUserId);
+
+  const clearForm = () => {
+    setName('');
+    setAvatarUrl();
+    inputFileValue.current.value = '';
+    setCurrentUser(User);
+  };
+
+  const deleteAvatar = () => {
+    setAvatarUrl('');
+    setEncodedImageCode();
+    setEncodedImageName();
+    inputFileValue.current.value = '';
+    const deleteUserAvatar = { ...currentUser };
+    deleteUserAvatar.avatar = '';
+    setCurrentUser(deleteUserAvatar);
+  };
 
   const changeUserName = (e) => {
-    if (e.target.value && e.target.value !== '') {
-      setName(e.target.value);
-      setIsProfileUpdate(false);
-      setError(false);
-    }
+    const updateUserName = { ...currentUser };
+    updateUserName.name = e.target.value;
+    setName(e.target.value);
+    setCurrentUser(updateUserName);
   };
 
   const trasformString = (string) => {
@@ -38,18 +69,18 @@ function UserProfile() {
   };
 
   const encodeImageFileAsURL = (element) => {
-    setAvatar(undefined);
+    setAvatarUrl();
     const file = element.target.files[0];
     const fileSize = element.target.files[0].size;
     const fileType = element.target.files[0].type.split('/')[1];
 
     if (fileSize > 1024001) {
-      setImageError(IMAGE_ERRORS.WRONG_SIZE);
+      setImageError(avatar.errorSizeTitle);
       return;
     }
 
     if (!['jpeg', 'bmp', 'png', 'gif'].includes(fileType)) {
-      setImageError(IMAGE_ERRORS.WRONG_TYPE);
+      setImageError(avatar.errorTypeTitle);
       return;
     }
 
@@ -58,46 +89,50 @@ function UserProfile() {
     reader.onload = () => {
       setEncodedImageName(encodeURIComponent(element.target.files[0].name));
       trasformString(reader.result);
-      setAvatar(reader.result);
+      setAvatarUrl(reader.result);
+
+      const updateUserAvatar = { ...currentUser };
+      updateUserAvatar.avatar = reader.result;
+      setCurrentUser(updateUserAvatar);
     };
   };
 
   const changeUserAvatar = (e) => {
-    if (e.target.files[0]) {
-      setError(false);
-      setIsProfileUpdate(false);
-      setImageError();
-      encodeImageFileAsURL(e);
-    }
+    setImageError();
+    encodeImageFileAsURL(e);
   };
 
   const updateUser = async () => {
     try {
+      setLoading(true);
+      const userUpdates = {};
       if (encodedImageCode) {
-        setLoading(true);
         const response = await postUserAvatar({
           encodedImage: encodedImageCode,
           fileName: encodedImageName,
         });
-        const avatarUrl = await getDownloadURL(ref(storage, response.path));
-        await putUser({ name, avatar: avatarUrl });
-        setIsProfileUpdate(true);
-      } else if (name) {
-        setLoading(true);
-        await putUser({ name });
-        setIsProfileUpdate(true);
-        setError(false);
+        const avatarDownloadURL = await getDownloadURL(
+          ref(storage, response.path),
+        );
+        userUpdates.avatar = avatarDownloadURL;
+      } else if (avatarUrl === '') {
+        userUpdates.avatar = '';
+      }
+      if (name) {
+        userUpdates.name = name;
+      }
+      if (userUpdates) {
+        await putUser(userUpdates);
       }
     } finally {
       setLoading(false);
-      setAvatar(false);
+      clearForm();
     }
   };
 
   const validateAndSubmit = (e) => {
     e.preventDefault();
-    if (!name && !encodedImageName) {
-      setError(true);
+    if (!name && !encodedImageName && avatarUrl !== '') {
       return;
     }
     if (imageError) {
@@ -106,65 +141,103 @@ function UserProfile() {
     updateUser();
   };
 
-  const toggleSelect = () => {
-    setIsSelected(!isSelected);
-  };
-
-  const resetAvatar = () => {
-    setAvatar(undefined);
-    inputFileValue.current.value = '';
-    toggleSelect();
-  };
+  useEffect(() => {
+    setCurrentUser(User);
+  }, [users]);
 
   return (
-    <div className={classes.container}>
-      <form onSubmit={validateAndSubmit} className={classes.form}>
-        <h1>Изменение данных пользователя</h1>
-        <div className={classes.control}>
-          <label htmlFor="user-name">Введите имя пользователя</label>
-          <input id="user-name" type="text" onChange={changeUserName} />
-        </div>
-        <div className={classes.control}>
-          <label>Выберите файл аватара</label>
-          {avatar && (
-            <div
-              className={classes.circle}
-              style={{
-                backgroundImage: `url(${avatar})`,
-                color: isSelected && '#aa0b20',
-              }}
-            >
-              <div
-                onClick={resetAvatar}
-                className={classes.reset}
-                onMouseOver={toggleSelect}
-                onMouseOut={toggleSelect}
-              >
-                X
-              </div>
-            </div>
-          )}
-          <input type="file" onChange={changeUserAvatar} ref={inputFileValue} />
-          {imageError && <div style={{ color: '#a70000' }}>{imageError}</div>}
-          {error && !imageError && (
-            <div style={{ color: '#a70000' }}>Введите данные</div>
-          )}
-        </div>
-        <div className={classes.actions}>
-          {loading && <Spinner width="100px" height="100px" />}
-          {!isProfileUpdated && !loading && (
-            <button type="submit" className={classes.submit}>
-              Подтвердить
-            </button>
-          )}
-        </div>
-        {isProfileUpdated && (
-          <div style={{ color: 'green', fontWeight: 'bold', fontSize: '22px' }}>
-            Внесенные данные успешно изменены
-          </div>
-        )}
-      </form>
-    </div>
+    <Container maxWidth='md'>
+      <Grid container spacing={2} direction='column'>
+        <Grid item xs={12}>
+          <form onSubmit={validateAndSubmit} className={classes.form}>
+            <Grid container spacing={2} direction='column'>
+              <Grid item xs={12}>
+                <Typography variant='h4' gutterBottom>
+                  Изменение данных пользователя
+                </Typography>
+              </Grid>
+              <Grid item xs={12}>
+                {currentUser && (
+                  <Badge
+                    invisible={!currentUser.avatar}
+                    onClick={deleteAvatar}
+                    badgeContent={
+                      <DisabledByDefaultIcon
+                        color='error'
+                        sx={{
+                          cursor: 'pointer',
+                          fontSize: '24px',
+                          '@media (max-width: 600px)': {
+                            fontSize: 'small',
+                          },
+                        }}
+                      />
+                    }
+                  >
+                    <UserAvatar
+                      key={currentUser.id}
+                      name={currentUser.name}
+                      id={currentUser.id}
+                      avatarUrl={currentUser.avatar}
+                    />
+                  </Badge>
+                )}
+              </Grid>
+              <Grid item xs={12}>
+                <FormControl fullWidth required>
+                  <TextField
+                    variant='outlined'
+                    label='Имя'
+                    value={name}
+                    type='text'
+                    id='name'
+                    onChange={changeUserName}
+                    helperText={!name && 'Введите имя пользователя'}
+                    className={name && classes.valid}
+                  />
+                </FormControl>
+              </Grid>
+              <Grid item xs={12}>
+                <FormControl fullWidth required>
+                  <TextField
+                    variant='outlined'
+                    label={avatarUrl && 'Аватар'}
+                    type='file'
+                    id='avatar'
+                    onChange={changeUserAvatar}
+                    helperText={imageError || avatar.title}
+                    error={imageError}
+                    inputProps={{ ref: inputFileValue }}
+                  />
+                </FormControl>
+              </Grid>
+              <Grid item xs={12}>
+                <Stack direction='row' spacing={2}>
+                  <Button
+                    variant='outlined'
+                    color='error'
+                    onClick={clearForm}
+                    endIcon={<ClearIcon />}
+                  >
+                    Очистить
+                  </Button>
+                  <LoadingButton
+                    loading={loading}
+                    variant='contained'
+                    color='success'
+                    type='submit'
+                    endIcon={<CheckIcon />}
+                    onSubmit={validateAndSubmit}
+                  >
+                    Сохранить
+                  </LoadingButton>
+                </Stack>
+              </Grid>
+            </Grid>
+          </form>
+        </Grid>
+      </Grid>
+    </Container>
   );
 }
 

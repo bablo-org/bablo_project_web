@@ -16,8 +16,25 @@ export const validationProps = {
     testEmail: (email) => {
       return !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
     },
-    inputPropsPattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$',
-    title: 'Введите Ваш e-mail',
-    errorTitle: 'Адрес электронной почты должен содержать символ "@"',
+    description: {
+      title: 'Введите описание',
+    },
+    date: {
+      title: 'Выберите дату',
+    },
+    email: {
+      testEmail: (email) => {
+        return !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+      },
+      inputPropsPattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$',
+      title: 'Введите Ваш e-mail',
+      errorTitle: 'Адрес электронной почты должен содержать символ "@"',
+    },
+  },
+  avatar: {
+    title: 'Загрузите аватар',
+    errorTypeTitle:
+      "Расширение выбранного файла должно быть 'jpeg', 'bmp', 'png' или 'gif'",
+    errorSizeTitle: 'Размер выбранного файла должен быть не более 1 Mbyte',
   },
 };

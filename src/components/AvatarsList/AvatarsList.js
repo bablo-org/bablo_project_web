@@ -81,19 +81,19 @@ function AvatarsList({
   }, [selectedIds]);
 
   return (
-    <Stack direction="row" justifyContent="center">
+    <Stack direction='row' justifyContent='center'>
       {loading
         ? Array.from(Array(5)).map(() => (
             <Box>
               <Skeleton
-                variant="rounded"
+                variant='rounded'
                 sx={{
                   width: { xs: 50, sm: 70, md: 100 },
                   height: { xs: 50, sm: 70, md: 100 },
                   marginLeft: { xs: 0.8, sm: 1.3, md: 4 },
                   marginRight: { xs: 0.8, sm: 1.3, md: 4 },
                 }}
-                animation="wave"
+                animation='wave'
               />
             </Box>
           ))
