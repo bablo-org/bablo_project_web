@@ -48,7 +48,7 @@ function App() {
   }
 
   return (
-    <div className="App">
+    <div className='App'>
       <QueryClientProvider client={queryClient}>
         <AuthContext.Provider value={authContext}>
           <RouterProvider router={router} />
