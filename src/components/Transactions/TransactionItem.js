@@ -99,7 +99,11 @@ function TransactionItem({
             >
               {sender}
             </Avatar>
-            <ArrowForward fontSize='large' color='action' />
+            <ArrowForward
+              fontSize='large'
+              color='action'
+              sx={{ margin: 'auto' }}
+            />
             <Avatar
               sx={{
                 bgcolor: colors.deepPurple[500],
