@@ -19,7 +19,7 @@
     "rules": {
         "react/react-in-jsx-scope": "off",
         "quotes": ["error", "single", { "avoidEscape": true }],
-        "prettier/prettier": ["error", { "singleQuote": true, "trailingComma": "all" }],
+        "prettier/prettier": ["error", { "singleQuote": true, "trailingComma": "all", "endOfLine": "auto" }],
         "import/no-cycle": "off",
         "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
         "implicit-arrow-linebreak": ["error", "beside"],
