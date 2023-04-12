@@ -75,7 +75,7 @@ function InputForm() {
         backgroundColor: 'white',
         marginTop: '5%',
       }}
-      maxWidth="sm"
+      maxWidth='sm'
     >
       <Box
         sx={{
@@ -86,16 +86,16 @@ function InputForm() {
           margin: 'auto',
         }}
       />
-      <Grid container spacing={2} direction="column">
+      <Grid container spacing={2} direction='column'>
         <Grid item xs={12}>
           <form onSubmit={(e) => onLoginPress(e)}>
-            <Grid container spacing={2} direction="column">
+            <Grid container spacing={2} direction='column'>
               <Grid item xs={12}>
                 <FormControl fullWidth>
                   <TextField
-                    label="Почта"
-                    type="email"
-                    id="email"
+                    label='Почта'
+                    type='email'
+                    id='email'
                     value={enteredEmail}
                     onChange={(e) => setEnteredEmail(e.target.value)}
                     required
@@ -114,9 +114,9 @@ function InputForm() {
               <Grid item xs={12}>
                 <FormControl fullWidth>
                   <TextField
-                    label="Пароль"
-                    type="password"
-                    id="password"
+                    label='Пароль'
+                    type='password'
+                    id='password'
                     value={enteredPassword}
                     onChange={(e) => setEnteredPassword(e.target.value)}
                     required
@@ -133,11 +133,11 @@ function InputForm() {
               <Grid item xs={12}>
                 <LoadingButton
                   loading={loading}
-                  variant="contained"
-                  color="success"
-                  type="submit"
+                  variant='contained'
+                  color='success'
+                  type='submit'
                   endIcon={<LoginIcon />}
-                  size="large"
+                  size='large'
                 >
                   Войти
                 </LoadingButton>

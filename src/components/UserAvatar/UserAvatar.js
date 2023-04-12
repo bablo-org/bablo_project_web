@@ -18,7 +18,7 @@ function UserAvatar({
       invisible={!isActive}
       badgeContent={
         <CheckCircleIcon
-          color="success"
+          color='success'
           sx={{
             fontSize: '24px',
             '@media (max-width: 600px)': {
@@ -30,8 +30,8 @@ function UserAvatar({
     >
       <Avatar
         alt={name}
-        size="responsive"
-        variant="rounded"
+        size='responsive'
+        variant='rounded'
         sx={{
           backgroundColor: isBlocked ? 'grey' : '#1976d2',
           backgroundImage: `url(${avatarUrl})`,
