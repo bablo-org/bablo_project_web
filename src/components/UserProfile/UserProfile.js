@@ -186,6 +186,8 @@ function UserProfile() {
               <Grid item xs={12}>
                 <FormControl fullWidth required>
                   <TextField
+                    placeholder={currentUser?.name || 'Имя пользователя'}
+                    focused
                     variant='outlined'
                     label='Имя'
                     value={name}
