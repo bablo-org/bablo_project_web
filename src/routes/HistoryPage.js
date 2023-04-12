@@ -1,10 +1,11 @@
 import TransactionsList from '../components/Transactions/TransactionsList';
-const HistoryPage = () => {
+
+function HistoryPage() {
   return (
     <div>
-      <TransactionsList/>
+      <TransactionsList />
     </div>
   );
-};
+}
 
 export default HistoryPage;

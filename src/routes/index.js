@@ -1,18 +1,18 @@
-import { createBrowserRouter } from "react-router-dom";
-import ProtectedRoute from "../utils/ProtectedRoute";
-import AddTransactionPage from "./AddTransactionPage";
-import HistoryPage from "./HistoryPage";
-import SummaryPage from "./SummaryPage";
-import LoginPage from "./LoginPage";
-import AuthorizedLayout from "../layouts/AuthorizedLayout";
-import UserProfilePage from "./UserProfilePage";
+import { createBrowserRouter } from 'react-router-dom';
+import ProtectedRoute from '../utils/ProtectedRoute';
+import AddTransactionPage from './AddTransactionPage';
+import HistoryPage from './HistoryPage';
+import SummaryPage from './SummaryPage';
+import LoginPage from './LoginPage';
+import AuthorizedLayout from '../layouts/AuthorizedLayout';
+import UserProfilePage from './UserProfilePage';
 
 export const PATHES = {
-  LOGIN: "/login",
-  ADD_TRANSACTION: "/add",
-  HISTORY: "/history",
-  SUMMARY: "/summary",
-  PROFILE: "/profile"
+  LOGIN: '/login',
+  ADD_TRANSACTION: '/add',
+  HISTORY: '/history',
+  SUMMARY: '/summary',
+  PROFILE: '/profile',
 };
 export default createBrowserRouter([
   {
@@ -45,8 +45,8 @@ export default createBrowserRouter([
       },
       {
         path: PATHES.PROFILE,
-        element: <UserProfilePage />
-      }
+        element: <UserProfilePage />,
+      },
     ],
   },
 ]);

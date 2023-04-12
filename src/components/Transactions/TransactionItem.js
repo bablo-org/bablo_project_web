@@ -1,8 +1,6 @@
-import { auth } from "../../services/firebase";
-import { useState } from "react";
-import * as React from "react";
-import { formatDate } from "../../utils/formatDate";
-import { styled } from "@mui/material/styles";
+import { useState } from 'react';
+import * as React from 'react';
+import { styled } from '@mui/material/styles';
 import {
   Card,
   CardHeader,
@@ -15,27 +13,28 @@ import {
   colors,
   ButtonGroup,
   Button,
-} from "@mui/material";
-import { ExpandMore, ArrowForward } from "@mui/icons-material";
-import { auto } from "@popperjs/core";
+} from '@mui/material';
+import { ExpandMore, ArrowForward } from '@mui/icons-material';
+import { formatDate } from '../../utils/formatDate';
+import { auth } from '../../services/firebase';
 import {
   useApproveTransation,
   useCompleteTransation,
   useDeclineTransation,
-} from "../../queries";
+} from '../../queries';
 
 const ExpandMoreIcon = styled((props) => {
   const { expand, ...other } = props;
   return <IconButton {...other} />;
 })(({ theme, expand }) => ({
-  transform: !expand ? "rotate(0deg)" : "rotate(180deg)",
-  marginLeft: "auto",
-  transition: theme.transitions.create("transform", {
+  transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
+  marginLeft: 'auto',
+  transition: theme.transitions.create('transform', {
     duration: theme.transitions.duration.shortest,
   }),
 }));
 
-const TransactionItem = ({
+function TransactionItem({
   sender,
   receiver,
   description,
@@ -48,7 +47,7 @@ const TransactionItem = ({
   id,
   senderId,
   recieverId,
-}) => {
+}) {
   const currentUserId = auth.currentUser.uid;
 
   const {
@@ -67,7 +66,7 @@ const TransactionItem = ({
 
   const isLoading = React.useMemo(
     () => isApproveInProgress || isCompleteInProgress || isDeclineeInProgress,
-    [isApproveInProgress, isCompleteInProgress, isDeclineeInProgress]
+    [isApproveInProgress, isCompleteInProgress, isDeclineeInProgress],
   );
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -86,9 +85,8 @@ const TransactionItem = ({
   };
 
   return (
-    <Card sx={{ marginBottom: 2, fontSize: "small" }}>
+    <Card sx={{ marginBottom: 2, fontSize: 'small' }}>
       <CardHeader
-        sx={{ margin: auto }}
         avatar={
           <>
             <Avatar
@@ -101,11 +99,7 @@ const TransactionItem = ({
             >
               {sender}
             </Avatar>
-            <ArrowForward
-              sx={{ margin: auto }}
-              fontSize="large"
-              color="action"
-            />
+            <ArrowForward fontSize="large" color="action" />
             <Avatar
               sx={{
                 bgcolor: colors.deepPurple[500],
@@ -122,14 +116,17 @@ const TransactionItem = ({
         subheader={<Typography>{JSON.stringify(formatDate(date))}</Typography>}
       />
       <CardContent>
-        <Typography>Статус: {status}</Typography>
+        <Typography>
+          Статус:
+          {status}
+        </Typography>
         <Typography
           variant="body3"
           fontWeight="bold"
           color="#ad5502"
           fontSize="large"
         >
-          Сумма: {amount + ` ` + currency}
+          Сумма: {`${amount} ${currency}`}
         </Typography>
       </CardContent>
       <CardActions disableSpacing>
@@ -138,7 +135,7 @@ const TransactionItem = ({
           variant="contained"
           aria-label="outlined primary button group"
         >
-          {currentUserId === senderId && status === `PENDING` && !isLoading && (
+          {currentUserId === senderId && status === 'PENDING' && !isLoading && (
             <>
               <Button onClick={putTransactionsApproveHandler} color="success">
                 Подтвердить
@@ -148,7 +145,7 @@ const TransactionItem = ({
               </Button>
             </>
           )}
-          {status === `APPROVED` &&
+          {status === 'APPROVED' &&
             recieverId === currentUserId &&
             !isLoading && (
               <Button onClick={putTransactionsCompleteHandler}>
@@ -168,9 +165,9 @@ const TransactionItem = ({
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
           {[
-            `Описание: ` + description,
-            `Создана: ` + JSON.stringify(formatDate(created)),
-            `Обновлена: ` + JSON.stringify(formatDate(updated)),
+            `Описание: ${description}`,
+            `Создана: ${JSON.stringify(formatDate(created))}`,
+            `Обновлена: ${JSON.stringify(formatDate(updated))}`,
           ].map((text) => (
             <Typography key={text}>{text}</Typography>
           ))}
@@ -178,6 +175,6 @@ const TransactionItem = ({
       </Collapse>
     </Card>
   );
-};
+}
 
 export default TransactionItem;

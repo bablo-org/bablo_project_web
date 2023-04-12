@@ -1,16 +1,16 @@
+/* eslint-disable import/no-mutable-exports */
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { 
+import { initializeApp } from 'firebase/app';
+import {
   getAuth,
   onAuthStateChanged,
   signInWithEmailAndPassword,
   setPersistence,
   browserLocalPersistence,
-  signOut
-} from "firebase/auth";
-import { firebaseConfig } from "../env";
-import { getStorage, getDownloadURL, ref} from "firebase/storage";
+  signOut,
+} from 'firebase/auth';
+import { getStorage, getDownloadURL, ref } from 'firebase/storage';
+import { firebaseConfig } from '../env';
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -27,7 +27,7 @@ export const initializeFirebase = () => {
   auth = getAuth(app);
   storage = getStorage(app, 'gs://bablo-project.appspot.com');
   // Do NOT sign out user in current browser
-  setPersistence(auth, browserLocalPersistence)
+  setPersistence(auth, browserLocalPersistence);
 };
 
 // export services for future usage
@@ -39,5 +39,5 @@ export {
   getDownloadURL,
   onAuthStateChanged,
   signInWithEmailAndPassword,
-  signOut
+  signOut,
 };

@@ -1,16 +1,15 @@
-import { useCallback, useEffect, useState } from "react";
-import { auth } from "../../services/firebase";
-import UserAvatar from "../UserAvatar/UserAvatar";
-import Spinner from "../Spinner/Spinner";
-import { Stack, Skeleton, Box } from "@mui/material";
+import { useCallback, useEffect, useState } from 'react';
+import { Stack, Skeleton, Box } from '@mui/material';
+import { auth } from '../../services/firebase';
+import UserAvatar from '../UserAvatar/UserAvatar';
 
-const AvatarsList = ({
+function AvatarsList({
   onUserSelected,
   blockedUserIds,
   users,
   loading,
   error,
-}) => {
+}) {
   const currentUserId = auth.currentUser.uid;
   const [selectedIds, setSelectedIds] = useState([]);
 
@@ -22,7 +21,7 @@ const AvatarsList = ({
         setSelectedIds([...selectedIds, id]);
       }
     },
-    [selectedIds]
+    [selectedIds],
   );
 
   const isUserBlocked = useCallback(
@@ -35,14 +34,12 @@ const AvatarsList = ({
         ) {
           return true;
         }
-      } else {
-        if (userId !== currentUserId) {
-          return true;
-        }
+      } else if (userId !== currentUserId) {
+        return true;
       }
       return false;
     },
-    [blockedUserIds, currentUserId, selectedIds]
+    [blockedUserIds, currentUserId, selectedIds],
   );
 
   const isUserSelected = useCallback(
@@ -52,14 +49,12 @@ const AvatarsList = ({
         if (userId !== currentUserId) {
           isSelected = true;
         }
-      } else {
-        if (selectedIds.length > 0 && userId === currentUserId) {
-          isSelected = true;
-        }
+      } else if (selectedIds.length > 0 && userId === currentUserId) {
+        isSelected = true;
       }
       return isSelected;
     },
-    [currentUserId, selectedIds]
+    [currentUserId, selectedIds],
   );
 
   const renderAvatar = useCallback(
@@ -78,7 +73,7 @@ const AvatarsList = ({
         />
       );
     },
-    [isUserBlocked, isUserSelected, selectedIds, toggleSelectedId]
+    [isUserBlocked, isUserSelected, selectedIds, toggleSelectedId],
   );
 
   useEffect(() => {
@@ -106,6 +101,6 @@ const AvatarsList = ({
       {error && <div>Дрюс что-то сломал.</div>}
     </Stack>
   );
-};
+}
 
 export default AvatarsList;
