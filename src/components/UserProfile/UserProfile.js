@@ -14,27 +14,41 @@ import {
   Check as CheckIcon,
   Clear as ClearIcon,
   DisabledByDefault as DisabledByDefaultIcon,
+  Telegram as TelegramIcon,
+  FactCheck as FactCheckIcon,
+  Error as ErrorIcon,
 } from '@mui/icons-material';
-import { useUpdateUser, useUpdateUserAvatar, useGetUsers } from '../../queries';
+import {
+  useUpdateUser,
+  useUpdateUserAvatar,
+  useGetUsers,
+  useUpdateTgUserName,
+} from '../../queries';
 import { getDownloadURL, storage, ref, auth } from '../../services/firebase';
 import classes from './UserProfile.module.css';
 import { validationProps } from '../../utils/validationForm';
-
 import UserAvatar from '../UserAvatar/UserAvatar';
+import TransitionsModal from '../modal/modal';
 
 function UserProfile() {
   const { mutateAsync: putUser } = useUpdateUser();
   const { mutateAsync: postUserAvatar } = useUpdateUserAvatar();
+  const { mutateAsync: putTgUsername, isLoading: loadingTgUsername } =
+    useUpdateTgUserName();
   const [imageError, setImageError] = useState(false);
   const [encodedImageName, setEncodedImageName] = useState();
   const [encodedImageCode, setEncodedImageCode] = useState();
   const [name, setName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState();
   const [currentUser, setCurrentUser] = useState();
-  const [loading, setLoading] = useState(false);
+  const [loadingUserInfo, setLoadingUserInfo] = useState(false);
+  const [enteredTgName, setEnteredTgName] = useState('');
+  const [isTgError, setIsTgError] = useState(false);
+  const [openSuccessModal, setOpenSuccessModal] = useState(false);
+  const [openErrorModal, setOpenErrorModal] = useState(false);
   const inputFileValue = useRef();
 
-  const { avatar } = validationProps;
+  const { avatar, tgName } = validationProps;
   const { data: users } = useGetUsers();
   const currentUserId = auth.currentUser.uid;
   const User = users.find((user) => user.id === currentUserId);
@@ -104,7 +118,7 @@ function UserProfile() {
 
   const updateUser = async () => {
     try {
-      setLoading(true);
+      setLoadingUserInfo(true);
       const userUpdates = {};
       if (encodedImageCode) {
         const response = await postUserAvatar({
@@ -123,9 +137,12 @@ function UserProfile() {
       }
       if (userUpdates) {
         await putUser(userUpdates);
+        setOpenSuccessModal(true);
       }
+    } catch {
+      setOpenErrorModal(true);
     } finally {
-      setLoading(false);
+      setLoadingUserInfo(false);
       clearForm();
     }
   };
@@ -141,18 +158,59 @@ function UserProfile() {
     updateUser();
   };
 
+  const updateTg = async () => {
+    try {
+      await putTgUsername(enteredTgName);
+      setOpenSuccessModal(true);
+    } catch (e) {
+      if (e.message === '500') {
+        setIsTgError(true);
+      } else {
+        setOpenErrorModal(true);
+      }
+    }
+  };
+
+  const updateTgUserName = (e) => {
+    e.preventDefault();
+    if (enteredTgName) {
+      updateTg();
+    }
+  };
+
   useEffect(() => {
     setCurrentUser(User);
   }, [users]);
 
   return (
     <Container maxWidth='md'>
+      {openSuccessModal && (
+        <TransitionsModal
+          isOpen={openSuccessModal}
+          title='Изменения успешно сохранены'
+          handleClose={() => {
+            setOpenSuccessModal(false);
+          }}
+          icon={<FactCheckIcon color='success' />}
+        />
+      )}
+      {openErrorModal && (
+        <TransitionsModal
+          isOpen={openErrorModal}
+          title='Что-то пошло не так...'
+          body='попробуйте презагрузить страницу'
+          handleClose={() => {
+            setOpenErrorModal(false);
+          }}
+          icon={<ErrorIcon color='error' />}
+        />
+      )}
       <Grid container spacing={2} direction='column'>
         <Grid item xs={12}>
-          <form onSubmit={validateAndSubmit} className={classes.form}>
+          <form onSubmit={validateAndSubmit}>
             <Grid container spacing={2} direction='column'>
               <Grid item xs={12}>
-                <Typography variant='h4' gutterBottom>
+                <Typography variant='h5' gutterBottom>
                   Изменение данных пользователя
                 </Typography>
               </Grid>
@@ -187,7 +245,6 @@ function UserProfile() {
                 <FormControl fullWidth required>
                   <TextField
                     placeholder={currentUser?.name || 'Имя пользователя'}
-                    focused
                     variant='outlined'
                     label='Имя'
                     value={name}
@@ -210,6 +267,7 @@ function UserProfile() {
                     helperText={imageError || avatar.title}
                     error={imageError}
                     inputProps={{ ref: inputFileValue }}
+                    className={avatarUrl && classes.valid}
                   />
                 </FormControl>
               </Grid>
@@ -224,12 +282,80 @@ function UserProfile() {
                     Очистить
                   </Button>
                   <LoadingButton
-                    loading={loading}
+                    loading={loadingUserInfo}
                     variant='contained'
                     color='success'
                     type='submit'
                     endIcon={<CheckIcon />}
                     onSubmit={validateAndSubmit}
+                  >
+                    Сохранить
+                  </LoadingButton>
+                </Stack>
+              </Grid>
+            </Grid>
+          </form>
+        </Grid>
+        <Grid item xs={12}>
+          <form onSubmit={updateTgUserName}>
+            <Grid container spacing={2} direction='column'>
+              <Grid item xs={12} sx={{ marginTop: '15px' }}>
+                <Typography variant='h5'>Привязать Telergamm</Typography>
+              </Grid>
+              <Grid item xs={12} sx={{ marginTop: '15px' }}>
+                <Typography
+                  variant='body1'
+                  gutterBottom
+                  sx={{ textAlign: 'left' }}
+                >
+                  Для привязки аккаунта, введите Имя пользователя tg и напишите
+                  любое сообщение нашему чат боту.
+                </Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <FormControl fullWidth required>
+                  <TextField
+                    variant='outlined'
+                    label='Имя пользователя'
+                    value={enteredTgName}
+                    type='text'
+                    onChange={(e) => {
+                      setIsTgError(false);
+                      setEnteredTgName(e.target.value);
+                    }}
+                    id='enteredTgName'
+                    required
+                    helperText={
+                      (!enteredTgName && tgName.title) ||
+                      (isTgError && tgName.errorTitle)
+                    }
+                    className={enteredTgName && classes.valid}
+                    error={isTgError}
+                  />
+                </FormControl>
+              </Grid>
+              <Grid item xs={12}>
+                <Stack
+                  direction='row'
+                  spacing={2}
+                  sx={{ alignItems: 'center' }}
+                >
+                  <Button
+                    variant='outlined'
+                    onClick={() => {
+                      window.open('https://t.me/bablo_project_bot', '_blank');
+                    }}
+                    endIcon={<TelegramIcon />}
+                  >
+                    Telegram - bot
+                  </Button>
+                  <LoadingButton
+                    loading={loadingTgUsername}
+                    variant='contained'
+                    color='success'
+                    type='submit'
+                    endIcon={<CheckIcon />}
+                    onSubmit={updateTgUserName}
                   >
                     Сохранить
                   </LoadingButton>

@@ -54,4 +54,20 @@ const useUpdateUser = () => {
   });
 };
 
-export { useGetUsers, useUpdateUser, useUpdateUserAvatar };
+const useUpdateTgUserName = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (name) => {
+      return defaultQueryFn({
+        queryKey: [`users/connectTelegram/${name}`],
+        requestOptions: {
+          method: 'PUT',
+        },
+      });
+    },
+    onSuccess: () => queryClient.invalidateQueries(['users']),
+  });
+};
+
+export { useGetUsers, useUpdateUser, useUpdateUserAvatar, useUpdateTgUserName };
