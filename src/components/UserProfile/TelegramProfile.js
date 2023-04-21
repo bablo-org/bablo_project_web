@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   TextField,
   FormControl,
@@ -35,9 +35,7 @@ function TelegramProfile({
   const [isTgError, setIsTgError] = useState(false);
   const { tgName } = validationProps;
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
-  const [isNotificationOn, setIsNotificationOn] = useState(
-    enableTgNotifications,
-  );
+  const [isNotificationOn, setIsNotificationOn] = useState(true);
   const [tgCollapseOff, setTgCollapseOff] = useState(false);
 
   const updateTg = async () => {
@@ -64,7 +62,6 @@ function TelegramProfile({
     try {
       const settings = { enableTelegramNotifications: !isNotificationOn };
       await putUserSettings(settings);
-      setIsNotificationOn(!isNotificationOn);
       setOpenSuccessModal(true);
     } catch {
       setOpenErrorModal(true);
@@ -72,6 +69,18 @@ function TelegramProfile({
       setConfirmModalOpen(false);
     }
   };
+
+  const toogleNotifications = () => {
+    if (isNotificationOn) {
+      setConfirmModalOpen(true);
+    } else {
+      updateUserSettings();
+    }
+  };
+
+  useEffect(() => {
+    setIsNotificationOn(enableTgNotifications);
+  }, [enableTgNotifications]);
 
   return (
     <form onSubmit={updateTgUserName}>
@@ -81,74 +90,70 @@ function TelegramProfile({
         direction='column'
         sx={{ textAlign: 'left', marginTop: '5px' }}
       >
-        {confirmModalOpen && (
-          <TransitionsModal
-            isOpen={confirmModalOpen}
-            title={
-              isNotificationOn
-                ? 'Выключить уведомления?'
-                : 'Включить уведомления?'
-            }
-            handleClose={() => {
-              setConfirmModalOpen(false);
-            }}
-            body={
+        <TransitionsModal
+          isOpen={confirmModalOpen}
+          title='Выключить уведомления?'
+          handleClose={() => {
+            setConfirmModalOpen(false);
+          }}
+          body={
+            <Stack
+              direction='row'
+              spacing={2}
+              sx={{ alignItems: 'center', marginTop: '10px' }}
+            >
+              <LoadingButton
+                loading={loadingUserSettings}
+                variant='contained'
+                color='success'
+                type='submit'
+                endIcon={<CheckIcon />}
+                onClick={() => updateUserSettings()}
+              >
+                Да
+              </LoadingButton>
+              <Button
+                variant='outlined'
+                color='error'
+                onClick={() => {
+                  setConfirmModalOpen(false);
+                }}
+                endIcon={<ClearIcon />}
+              >
+                Нет
+              </Button>
+            </Stack>
+          }
+        />
+        {telegramUser && (
+          <>
+            <Grid item xs={12}>
+              <Typography
+                variant='body1'
+                sx={{ width: '200px', fontWeight: 'bold' }}
+              >
+                {`@${telegramUser}`}
+              </Typography>
+            </Grid>
+            <Grid item xs={12}>
               <Stack
                 direction='row'
                 spacing={2}
-                sx={{ alignItems: 'center', marginTop: '10px' }}
+                sx={{ alignItems: 'center' }}
+                divider={<Divider orientation='vertical' flexItem />}
               >
-                <LoadingButton
-                  loading={loadingUserSettings}
-                  variant='contained'
-                  color='success'
-                  type='submit'
-                  endIcon={<CheckIcon />}
-                  onClick={() => updateUserSettings()}
-                >
-                  Да
-                </LoadingButton>
-                <Button
-                  variant='outlined'
-                  color='error'
-                  onClick={() => {
-                    setConfirmModalOpen(false);
-                  }}
-                  endIcon={<ClearIcon />}
-                >
-                  Нет
-                </Button>
+                <Typography variant='body1' sx={{ width: '200px' }}>
+                  Уведомления
+                </Typography>
+                <Switch
+                  checked={isNotificationOn}
+                  onChange={toogleNotifications}
+                  inputProps={{ 'aria-label': 'controlled' }}
+                />
               </Stack>
-            }
-          />
+            </Grid>
+          </>
         )}
-        {telegramUser && (
-          <Grid item xs={12}>
-            <Typography
-              variant='body1'
-              sx={{ width: '200px', fontWeight: 'bold' }}
-            >
-              {`@${telegramUser}`}
-            </Typography>
-          </Grid>
-        )}
-        <Grid item xs={12}>
-          <Stack
-            direction='row'
-            spacing={2}
-            sx={{ alignItems: 'center' }}
-            divider={<Divider orientation='vertical' flexItem />}
-          >
-            <Typography variant='body1' sx={{ width: '200px' }}>
-              Уведомления
-            </Typography>
-            <Switch
-              checked={isNotificationOn}
-              onChange={() => setConfirmModalOpen(true)}
-              inputProps={{ 'aria-label': 'controlled' }}
-            />
-          </Stack>
-        </Grid>
         <Grid item xs={12}>
           <Stack
             direction='row'

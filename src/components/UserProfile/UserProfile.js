@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import {
   TextField,
   FormControl,
@@ -43,15 +43,18 @@ function UserProfile() {
   const inputFileValue = useRef();
 
   const { avatar } = validationProps;
-  const { data: users, isFetching: UsersLoading } = useGetUsers();
+  const { data: users, isFetching: usersLoading } = useGetUsers();
   const currentUserId = auth.currentUser.uid;
-  const User = users.find((user) => user.id === currentUserId);
+  const user = useMemo(
+    () => users.find((u) => u.id === currentUserId),
+    [users, currentUserId],
+  );
 
   const clearForm = () => {
     setName('');
     setAvatarUrl();
     inputFileValue.current.value = '';
-    setCurrentUser(User);
+    setCurrentUser(user);
   };
 
   const deleteAvatar = () => {
@@ -152,33 +155,65 @@ function UserProfile() {
     updateUser();
   };
 
-  useMemo(() => {
-    setCurrentUser(User);
+  const showSkeleton = useMemo(
+    () => usersLoading || !currentUser,
+    [usersLoading, currentUser],
+  );
+
+  useEffect(() => {
+    setCurrentUser(user);
   }, [users]);
 
   return (
     <Container maxWidth='md'>
-      {openSuccessModal && (
-        <TransitionsModal
-          isOpen={openSuccessModal}
-          title='Изменения успешно сохранены'
-          handleClose={() => {
-            setOpenSuccessModal(false);
-          }}
-          icon={<FactCheckIcon color='success' />}
-        />
-      )}
-      {openErrorModal && (
-        <TransitionsModal
-          isOpen={openErrorModal}
-          title='Что-то пошло не так...'
-          body='попробуйте презагрузить страницу'
-          handleClose={() => {
-            setOpenErrorModal(false);
-          }}
-          icon={<ErrorIcon color='error' />}
-        />
-      )}
+      <TransitionsModal
+        isOpen={openSuccessModal}
+        title='Изменения успешно сохранены'
+        handleClose={() => {
+          setOpenSuccessModal(false);
+        }}
+        icon={<FactCheckIcon color='success' />}
+        body={
+          <Stack
+            direction='row'
+            spacing={2}
+            sx={{ alignItems: 'center', marginTop: '10px' }}
+          >
+            <Button
+              variant='outlined'
+              onClick={() => {
+                setOpenSuccessModal(false);
+              }}
+            >
+              Ок
+            </Button>
+          </Stack>
+        }
+      />
+      <TransitionsModal
+        isOpen={openErrorModal}
+        title='Что-то пошло не так...'
+        handleClose={() => {
+          setOpenErrorModal(false);
+        }}
+        icon={<ErrorIcon color='error' />}
+        body={
+          <Stack
+            direction='row'
+            spacing={2}
+            sx={{ alignItems: 'center', marginTop: '10px' }}
+          >
+            <Button
+              variant='outlined'
+              onClick={() => {
+                setOpenSuccessModal(false);
+              }}
+            >
+              Ок
+            </Button>
+          </Stack>
+        }
+      />
       <Grid container spacing={2} direction='column'>
         <Grid item xs={12}>
           <form onSubmit={validateAndSubmit}>
@@ -194,47 +229,14 @@ function UserProfile() {
                 <Divider />
               </Grid>
               <Grid item xs={12}>
-                {(UsersLoading && (
-                  <Badge>
-                    <Skeleton
-                      variant='rectangular'
-                      sx={{
-                        boxShadow: '3px 3px 15px rgba(0, 0, 0, 0.5)',
-                        width: { xs: 50, sm: 70, md: 100 },
-                        height: { xs: 50, sm: 70, md: 100 },
-                      }}
-                    />
-                  </Badge>
-                )) ||
-                  (currentUser && (
-                    <Badge
-                      invisible={!currentUser.avatar}
-                      onClick={(event) => {
-                        if (!event.target.closest('.MuiAvatar-root')) {
-                          deleteAvatar();
-                        }
-                      }}
-                      badgeContent={
-                        <DisabledByDefaultIcon
-                          color='error'
-                          sx={{
-                            cursor: 'pointer !important',
-                            fontSize: '24px',
-                            '@media (max-width: 600px)': {
-                              fontSize: 'small',
-                            },
-                          }}
-                        />
-                      }
-                    >
-                      <UserAvatar
-                        key={currentUser.id}
-                        name={currentUser.name}
-                        id={currentUser.id}
-                        avatarUrl={currentUser.avatar}
-                      />
-                    </Badge>
-                  ))}
+                {showSkeleton ? (
+                  <AvatarSkeleton />
+                ) : (
+                  <UserProfileAvatar
+                    currentUser={currentUser}
+                    deleteAvatar={deleteAvatar}
+                  />
+                )}
               </Grid>
               <Grid item xs={12}>
                 <FormControl fullWidth required>
@@ -300,30 +302,82 @@ function UserProfile() {
             Telergam
           </Typography>
           <Divider />
-          {(UsersLoading && (
-            <Grid
-              container
-              spacing={2}
-              direction='column'
-              sx={{ textAlign: 'left', marginTop: '5px' }}
-            >
-              <Grid item xs={12}>
-                <CircularProgress />
-              </Grid>
-            </Grid>
-          )) ||
-            (currentUser && (
-              <TelegramProfile
-                setOpenSuccessModal={setOpenSuccessModal}
-                setOpenErrorModal={setOpenErrorModal}
-                enableTgNotifications={currentUser.enableTgNotifications}
-                telegramUser={currentUser.telegramUser}
-                UsersLoading={UsersLoading}
-              />
-            ))}
+          {showSkeleton ? (
+            <TelegramSkeleton />
+          ) : (
+            <TelegramProfile
+              setOpenSuccessModal={setOpenSuccessModal}
+              setOpenErrorModal={setOpenErrorModal}
+              enableTgNotifications={currentUser.enableTgNotifications}
+              telegramUser={currentUser.telegramUser}
+              UsersLoading={usersLoading}
+            />
+          )}
         </Grid>
       </Grid>
     </Container>
+  );
+}
+
+function AvatarSkeleton() {
+  return (
+    <Badge>
+      <Skeleton
+        variant='rectangular'
+        sx={{
+          boxShadow: '3px 3px 15px rgba(0, 0, 0, 0.5)',
+          width: { xs: 50, sm: 70, md: 100 },
+          height: { xs: 50, sm: 70, md: 100 },
+        }}
+      />
+    </Badge>
+  );
+}
+
+function TelegramSkeleton() {
+  return (
+    <Grid
+      container
+      spacing={2}
+      direction='column'
+      sx={{ textAlign: 'left', marginTop: '5px' }}
+    >
+      <Grid item xs={12}>
+        <CircularProgress />
+      </Grid>
+    </Grid>
+  );
+}
+
+function UserProfileAvatar({ currentUser, deleteAvatar }) {
+  return (
+    <Badge
+      invisible={!currentUser.avatar}
+      onClick={(event) => {
+        if (!event.target.closest('.MuiAvatar-root')) {
+          deleteAvatar();
+        }
+      }}
+      badgeContent={
+        <DisabledByDefaultIcon
+          color='error'
+          sx={{
+            cursor: 'pointer !important',
+            fontSize: '24px',
+            '@media (max-width: 600px)': {
+              fontSize: 'small',
+            },
+          }}
+        />
+      }
+    >
+      <UserAvatar
+        key={currentUser.id}
+        name={currentUser.name}
+        id={currentUser.id}
+        avatarUrl={currentUser.avatar}
+      />
+    </Badge>
   );
 }
 
