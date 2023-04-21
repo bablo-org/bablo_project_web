@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import {
   TextField,
   FormControl,
@@ -8,33 +8,29 @@ import {
   Grid,
   Typography,
   Badge,
+  Divider,
+  Skeleton,
+  CircularProgress,
 } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import {
   Check as CheckIcon,
   Clear as ClearIcon,
   DisabledByDefault as DisabledByDefaultIcon,
-  Telegram as TelegramIcon,
   FactCheck as FactCheckIcon,
   Error as ErrorIcon,
 } from '@mui/icons-material';
-import {
-  useUpdateUser,
-  useUpdateUserAvatar,
-  useGetUsers,
-  useUpdateTgUserName,
-} from '../../queries';
+import { useUpdateUser, useUpdateUserAvatar, useGetUsers } from '../../queries';
 import { getDownloadURL, storage, ref, auth } from '../../services/firebase';
 import classes from './UserProfile.module.css';
 import { validationProps } from '../../utils/validationForm';
 import UserAvatar from '../UserAvatar/UserAvatar';
 import TransitionsModal from '../modal/modal';
+import TelegramProfile from './TelegramProfile';
 
 function UserProfile() {
   const { mutateAsync: putUser } = useUpdateUser();
   const { mutateAsync: postUserAvatar } = useUpdateUserAvatar();
-  const { mutateAsync: putTgUsername, isLoading: loadingTgUsername } =
-    useUpdateTgUserName();
   const [imageError, setImageError] = useState(false);
   const [encodedImageName, setEncodedImageName] = useState();
   const [encodedImageCode, setEncodedImageCode] = useState();
@@ -42,14 +38,12 @@ function UserProfile() {
   const [avatarUrl, setAvatarUrl] = useState();
   const [currentUser, setCurrentUser] = useState();
   const [loadingUserInfo, setLoadingUserInfo] = useState(false);
-  const [enteredTgName, setEnteredTgName] = useState('');
-  const [isTgError, setIsTgError] = useState(false);
   const [openSuccessModal, setOpenSuccessModal] = useState(false);
   const [openErrorModal, setOpenErrorModal] = useState(false);
   const inputFileValue = useRef();
 
-  const { avatar, tgName } = validationProps;
-  const { data: users } = useGetUsers();
+  const { avatar } = validationProps;
+  const { data: users, isFetching: UsersLoading } = useGetUsers();
   const currentUserId = auth.currentUser.uid;
   const User = users.find((user) => user.id === currentUserId);
 
@@ -158,27 +152,7 @@ function UserProfile() {
     updateUser();
   };
 
-  const updateTg = async () => {
-    try {
-      await putTgUsername(enteredTgName);
-      setOpenSuccessModal(true);
-    } catch (e) {
-      if (e.message === '500') {
-        setIsTgError(true);
-      } else {
-        setOpenErrorModal(true);
-      }
-    }
-  };
-
-  const updateTgUserName = (e) => {
-    e.preventDefault();
-    if (enteredTgName) {
-      updateTg();
-    }
-  };
-
-  useEffect(() => {
+  useMemo(() => {
     setCurrentUser(User);
   }, [users]);
 
@@ -210,36 +184,57 @@ function UserProfile() {
           <form onSubmit={validateAndSubmit}>
             <Grid container spacing={2} direction='column'>
               <Grid item xs={12}>
-                <Typography variant='h5' gutterBottom>
-                  Изменение данных пользователя
+                <Typography
+                  variant='h6'
+                  gutterBottom
+                  sx={{ textAlign: 'left' }}
+                >
+                  Имя и Аватар
                 </Typography>
+                <Divider />
               </Grid>
               <Grid item xs={12}>
-                {currentUser && (
-                  <Badge
-                    invisible={!currentUser.avatar}
-                    onClick={deleteAvatar}
-                    badgeContent={
-                      <DisabledByDefaultIcon
-                        color='error'
-                        sx={{
-                          cursor: 'pointer',
-                          fontSize: '24px',
-                          '@media (max-width: 600px)': {
-                            fontSize: 'small',
-                          },
-                        }}
-                      />
-                    }
-                  >
-                    <UserAvatar
-                      key={currentUser.id}
-                      name={currentUser.name}
-                      id={currentUser.id}
-                      avatarUrl={currentUser.avatar}
+                {(UsersLoading && (
+                  <Badge>
+                    <Skeleton
+                      variant='rectangular'
+                      sx={{
+                        boxShadow: '3px 3px 15px rgba(0, 0, 0, 0.5)',
+                        width: { xs: 50, sm: 70, md: 100 },
+                        height: { xs: 50, sm: 70, md: 100 },
+                      }}
                     />
                   </Badge>
-                )}
+                )) ||
+                  (currentUser && (
+                    <Badge
+                      invisible={!currentUser.avatar}
+                      onClick={(event) => {
+                        if (!event.target.closest('.MuiAvatar-root')) {
+                          deleteAvatar();
+                        }
+                      }}
+                      badgeContent={
+                        <DisabledByDefaultIcon
+                          color='error'
+                          sx={{
+                            cursor: 'pointer !important',
+                            fontSize: '24px',
+                            '@media (max-width: 600px)': {
+                              fontSize: 'small',
+                            },
+                          }}
+                        />
+                      }
+                    >
+                      <UserAvatar
+                        key={currentUser.id}
+                        name={currentUser.name}
+                        id={currentUser.id}
+                        avatarUrl={currentUser.avatar}
+                      />
+                    </Badge>
+                  ))}
               </Grid>
               <Grid item xs={12}>
                 <FormControl fullWidth required>
@@ -297,72 +292,35 @@ function UserProfile() {
           </form>
         </Grid>
         <Grid item xs={12}>
-          <form onSubmit={updateTgUserName}>
-            <Grid container spacing={2} direction='column'>
-              <Grid item xs={12} sx={{ marginTop: '15px' }}>
-                <Typography variant='h5'>Привязать Telergamm</Typography>
-              </Grid>
-              <Grid item xs={12} sx={{ marginTop: '15px' }}>
-                <Typography
-                  variant='body1'
-                  gutterBottom
-                  sx={{ textAlign: 'left' }}
-                >
-                  Для привязки аккаунта, введите Имя пользователя tg и напишите
-                  любое сообщение нашему чат боту.
-                </Typography>
-              </Grid>
+          <Typography
+            variant='h6'
+            sx={{ marginTop: '15px', textAlign: 'left' }}
+            gutterBottom
+          >
+            Telergam
+          </Typography>
+          <Divider />
+          {(UsersLoading && (
+            <Grid
+              container
+              spacing={2}
+              direction='column'
+              sx={{ textAlign: 'left', marginTop: '5px' }}
+            >
               <Grid item xs={12}>
-                <FormControl fullWidth required>
-                  <TextField
-                    variant='outlined'
-                    label='Имя пользователя'
-                    value={enteredTgName}
-                    type='text'
-                    onChange={(e) => {
-                      setIsTgError(false);
-                      setEnteredTgName(e.target.value);
-                    }}
-                    id='enteredTgName'
-                    required
-                    helperText={
-                      (!enteredTgName && tgName.title) ||
-                      (isTgError && tgName.errorTitle)
-                    }
-                    className={enteredTgName && classes.valid}
-                    error={isTgError}
-                  />
-                </FormControl>
-              </Grid>
-              <Grid item xs={12}>
-                <Stack
-                  direction='row'
-                  spacing={2}
-                  sx={{ alignItems: 'center' }}
-                >
-                  <Button
-                    variant='outlined'
-                    onClick={() => {
-                      window.open('https://t.me/bablo_project_bot', '_blank');
-                    }}
-                    endIcon={<TelegramIcon />}
-                  >
-                    Telegram - bot
-                  </Button>
-                  <LoadingButton
-                    loading={loadingTgUsername}
-                    variant='contained'
-                    color='success'
-                    type='submit'
-                    endIcon={<CheckIcon />}
-                    onSubmit={updateTgUserName}
-                  >
-                    Сохранить
-                  </LoadingButton>
-                </Stack>
+                <CircularProgress />
               </Grid>
             </Grid>
-          </form>
+          )) ||
+            (currentUser && (
+              <TelegramProfile
+                setOpenSuccessModal={setOpenSuccessModal}
+                setOpenErrorModal={setOpenErrorModal}
+                enableTgNotifications={currentUser.enableTgNotifications}
+                telegramUser={currentUser.telegramUser}
+                UsersLoading={UsersLoading}
+              />
+            ))}
         </Grid>
       </Grid>
     </Container>

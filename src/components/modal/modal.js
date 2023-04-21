@@ -41,9 +41,7 @@ function TransitionsModal({ isOpen, title, body, handleClose, icon }) {
               </Typography>
               {icon}
             </Stack>
-            <Typography id='transition-modal-subtitle' variant='subtitle1'>
-              {body}
-            </Typography>
+            {body}
           </Box>
         </Fade>
       </Modal>

@@ -43,4 +43,5 @@ export {
   useUpdateUser,
   useUpdateUserAvatar,
   useUpdateTgUserName,
+  useUpdateUserSettings,
 } from './users';
