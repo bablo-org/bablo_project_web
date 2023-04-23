@@ -7,16 +7,12 @@ import {
   Button,
   Grid,
   Typography,
-  Badge,
   Divider,
-  Skeleton,
-  CircularProgress,
 } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import {
   Check as CheckIcon,
   Clear as ClearIcon,
-  DisabledByDefault as DisabledByDefaultIcon,
   FactCheck as FactCheckIcon,
   Error as ErrorIcon,
 } from '@mui/icons-material';
@@ -24,9 +20,11 @@ import { useUpdateUser, useUpdateUserAvatar, useGetUsers } from '../../queries';
 import { getDownloadURL, storage, ref, auth } from '../../services/firebase';
 import classes from './UserProfile.module.css';
 import { validationProps } from '../../utils/validationForm';
-import UserAvatar from '../UserAvatar/UserAvatar';
 import TransitionsModal from '../modal/modal';
 import TelegramProfile from './TelegramProfile';
+import UserProfileAvatar from './UserProfileAvatar';
+import AvatarSkeleton from './Skeleton/AvatarSkeleton';
+import TelegramSkeleton from './Skeleton/TelegramSkeleton';
 
 function UserProfile() {
   const { mutateAsync: putUser } = useUpdateUser();
@@ -316,68 +314,6 @@ function UserProfile() {
         </Grid>
       </Grid>
     </Container>
-  );
-}
-
-function AvatarSkeleton() {
-  return (
-    <Badge>
-      <Skeleton
-        variant='rectangular'
-        sx={{
-          boxShadow: '3px 3px 15px rgba(0, 0, 0, 0.5)',
-          width: { xs: 50, sm: 70, md: 100 },
-          height: { xs: 50, sm: 70, md: 100 },
-        }}
-      />
-    </Badge>
-  );
-}
-
-function TelegramSkeleton() {
-  return (
-    <Grid
-      container
-      spacing={2}
-      direction='column'
-      sx={{ textAlign: 'left', marginTop: '5px' }}
-    >
-      <Grid item xs={12}>
-        <CircularProgress />
-      </Grid>
-    </Grid>
-  );
-}
-
-function UserProfileAvatar({ currentUser, deleteAvatar }) {
-  return (
-    <Badge
-      invisible={!currentUser.avatar}
-      onClick={(event) => {
-        if (!event.target.closest('.MuiAvatar-root')) {
-          deleteAvatar();
-        }
-      }}
-      badgeContent={
-        <DisabledByDefaultIcon
-          color='error'
-          sx={{
-            cursor: 'pointer !important',
-            fontSize: '24px',
-            '@media (max-width: 600px)': {
-              fontSize: 'small',
-            },
-          }}
-        />
-      }
-    >
-      <UserAvatar
-        key={currentUser.id}
-        name={currentUser.name}
-        id={currentUser.id}
-        avatarUrl={currentUser.avatar}
-      />
-    </Badge>
   );
 }
 
