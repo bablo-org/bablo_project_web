@@ -15,6 +15,8 @@ const useGetUsers = () => {
         email: user.email,
         created: user.created,
         avatar: user.avatar,
+        telegramUser: user.telegramUser,
+        enableTgNotifications: user.settings.enableTelegramNotifications,
       }));
     },
   });
@@ -54,4 +56,43 @@ const useUpdateUser = () => {
   });
 };
 
-export { useGetUsers, useUpdateUser, useUpdateUserAvatar };
+const useUpdateTgUserName = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (name) => {
+      return defaultQueryFn({
+        queryKey: [`users/connectTelegram/${name}`],
+        requestOptions: {
+          method: 'PUT',
+        },
+      });
+    },
+    onSuccess: () => queryClient.invalidateQueries(['users']),
+  });
+};
+
+const useUpdateUserSettings = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (settings) => {
+      return defaultQueryFn({
+        queryKey: ['users/updateSettings'],
+        requestOptions: {
+          body: JSON.stringify(settings),
+          method: 'PUT',
+        },
+      });
+    },
+    onSuccess: () => queryClient.invalidateQueries(['users']),
+  });
+};
+
+export {
+  useGetUsers,
+  useUpdateUser,
+  useUpdateUserAvatar,
+  useUpdateTgUserName,
+  useUpdateUserSettings,
+};

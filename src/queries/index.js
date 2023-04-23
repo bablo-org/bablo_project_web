@@ -38,4 +38,10 @@ export {
   useGetTransactions,
   usePostTransaction,
 } from './transactions';
-export { useGetUsers, useUpdateUser, useUpdateUserAvatar } from './users';
+export {
+  useGetUsers,
+  useUpdateUser,
+  useUpdateUserAvatar,
+  useUpdateTgUserName,
+  useUpdateUserSettings,
+} from './users';

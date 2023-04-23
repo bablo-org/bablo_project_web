@@ -67,7 +67,7 @@ function UserAvatar({
         }}
         onClick={!isBlocked ? onAvatarClicked : undefined}
       >
-        {name}
+        <div style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }}>{name}</div>
       </Avatar>
     </Badge>
   );
