@@ -27,7 +27,7 @@ function TelegramProfile({
   enableTgNotifications,
   telegramUser,
 }) {
-  const { mutateAsync: putTgUsername, isLoading: loadingTgUsername } =
+  const { mutateAsync: putTgUserName, isLoading: loadingTgUsername } =
     useUpdateTgUserName();
   const { mutateAsync: putUserSettings, isLoading: loadingUserSettings } =
     useUpdateUserSettings();
@@ -38,9 +38,9 @@ function TelegramProfile({
   const [isNotificationOn, setIsNotificationOn] = useState(true);
   const [tgCollapseOff, setTgCollapseOff] = useState(false);
 
-  const updateTg = async () => {
+  const updateTg = async (Name) => {
     try {
-      await putTgUsername(enteredTgName);
+      await putTgUserName(Name);
       setOpenSuccessModal(true);
     } catch (e) {
       if (e.message === '500') {
@@ -53,8 +53,10 @@ function TelegramProfile({
 
   const updateTgUserName = (e) => {
     e.preventDefault();
-    if (enteredTgName) {
-      updateTg();
+    if (enteredTgName.includes('@')) {
+      updateTg(enteredTgName.slice(1));
+    } else {
+      updateTg(enteredTgName);
     }
   };
 
@@ -76,6 +78,16 @@ function TelegramProfile({
     } else {
       updateUserSettings();
     }
+  };
+
+  const choseTgNameTextHelper = () => {
+    if (isTgError) {
+      return tgName.errorTitle;
+    }
+    if (enteredTgName) {
+      return undefined;
+    }
+    return tgName.title;
   };
 
   useEffect(() => {
@@ -204,12 +216,15 @@ function TelegramProfile({
                     }}
                     id='enteredTgName'
                     required
-                    helperText={
-                      (!enteredTgName && tgName.title) ||
-                      (isTgError && tgName.errorTitle)
-                    }
+                    helperText={choseTgNameTextHelper()}
                     className={enteredTgName && classes.valid}
                     error={isTgError}
+                    onFocus={() => setEnteredTgName('@')}
+                    inputProps={{
+                      inputMode: 'text',
+                      pattern: tgName.inputPropsPattern,
+                      title: tgName.errorPatternTitle,
+                    }}
                   />
                 </FormControl>
               </Grid>
@@ -234,7 +249,6 @@ function TelegramProfile({
                     color='success'
                     type='submit'
                     endIcon={<CheckIcon />}
-                    onSubmit={updateTgUserName}
                   >
                     Сохранить
                   </LoadingButton>
