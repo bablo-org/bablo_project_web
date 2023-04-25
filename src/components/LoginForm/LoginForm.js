@@ -44,15 +44,15 @@ function InputForm() {
     () => !!(enteredEmail && email.testEmail(enteredEmail)),
     [enteredEmail],
   );
-  const choseEmailTextHelper = useMemo(() => {
-    if (!enteredEmail) {
-      return email.title;
+  const choseEmailTextHelper = () => {
+    if (enteredEmail) {
+      return undefined;
     }
     if (isEmailError) {
       return email.errorTitle;
     }
-    return undefined;
-  }, [enteredEmail]);
+    return email.title;
+  };
 
   const onLoginPress = (e) => {
     e.preventDefault();
@@ -106,7 +106,7 @@ function InputForm() {
                       pattern: email.inputPropsPattern,
                       title: email.errorTitle,
                     }}
-                    helperText={choseEmailTextHelper}
+                    helperText={choseEmailTextHelper()}
                     error={isEmailError}
                   />
                 </FormControl>

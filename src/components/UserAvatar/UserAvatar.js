@@ -37,16 +37,10 @@ function UserAvatar({
           backgroundImage: `url(${avatarUrl})`,
           opacity: isBlocked && '0.3',
           backgroundSize: 'cover',
-          fontSize:
-            name.length < 6
-              ? {
-                  xs: 'clamp(12px, 1.5vw, 16px)',
-                  md: 'clamp(14px, 2.5vw, 18px)',
-                }
-              : {
-                  xs: 'clamp(10px, 1.5vw, 14px)',
-                  md: 'clamp(12px, 2.5vw, 16px)',
-                },
+          fontSize: {
+            xs: 'clamp(10px, 1.5vw, 14px)',
+            md: 'clamp(12px, 2.5vw, 16px)',
+          },
           width: { xs: 50, sm: 70, md: 100 },
           height: { xs: 50, sm: 70, md: 100 },
           marginLeft: { xs: 0.8, sm: 1.3, md: 4 },
@@ -67,7 +61,16 @@ function UserAvatar({
         }}
         onClick={!isBlocked ? onAvatarClicked : undefined}
       >
-        <div style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }}>{name}</div>
+        <div
+          style={{
+            backgroundColor: 'rgba(0, 0, 0, 0.4)',
+            width: '90%',
+            borderRadius: '4px',
+            padding: '4px',
+          }}
+        >
+          {name}
+        </div>
       </Avatar>
     </Badge>
   );
