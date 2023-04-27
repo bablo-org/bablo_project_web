@@ -1,6 +1,6 @@
 import { Grid, CircularProgress } from '@mui/material';
 
-function TelegramSkeleton() {
+function UserProfileLoader() {
   return (
     <Grid
       container
@@ -15,4 +15,4 @@ function TelegramSkeleton() {
   );
 }
 
-export default TelegramSkeleton;
+export default UserProfileLoader;

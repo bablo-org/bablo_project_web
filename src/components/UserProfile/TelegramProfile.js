@@ -84,9 +84,6 @@ function TelegramProfile({
     if (isTgError) {
       return tgName.errorTitle;
     }
-    if (enteredTgName) {
-      return undefined;
-    }
     return tgName.title;
   };
 
