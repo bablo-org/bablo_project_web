@@ -18,6 +18,7 @@ import {
   AddCircleOutline as AddCircleOutlineIcon,
 } from '@mui/icons-material';
 import { useState, useMemo, useEffect } from 'react';
+import TransitionsModal from '../modal/modal';
 import { useGetCurrencies, useUpdateUserSettings } from '../../queries';
 
 function UserCurrancy({ currentUser, setOpenSuccessModal, setOpenErrorModal }) {
@@ -25,6 +26,7 @@ function UserCurrancy({ currentUser, setOpenSuccessModal, setOpenErrorModal }) {
   const [favoriteCurrenciesId, setFavoriteCurrenciesId] = useState([]);
   const [isCurrenciesUpdated, setIsCurrenciesUpdated] = useState(false);
   const [addCurrienseOff, setAddCurrienseOff] = useState(false);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const { data: currencies } = useGetCurrencies();
   const { mutateAsync: putUserSettings, isLoading: loadingSetSettings } =
     useUpdateUserSettings();
@@ -79,7 +81,7 @@ function UserCurrancy({ currentUser, setOpenSuccessModal, setOpenErrorModal }) {
     } catch {
       setOpenErrorModal(true);
     } finally {
-      // setConfirmModalOpen(false);
+      setConfirmModalOpen(false);
     }
   };
 
@@ -97,10 +99,45 @@ function UserCurrancy({ currentUser, setOpenSuccessModal, setOpenErrorModal }) {
   const favoriteCurrenciesList = renderFavoriteCurrenciesList();
   return (
     <>
+      <TransitionsModal
+        isOpen={confirmModalOpen}
+        title='Вы уверены?'
+        handleClose={() => {
+          setConfirmModalOpen(false);
+        }}
+        body={
+          <Stack
+            direction='row'
+            spacing={2}
+            sx={{ alignItems: 'center', marginTop: '10px' }}
+          >
+            <LoadingButton
+              loading={loadingSetSettings}
+              variant='contained'
+              color='success'
+              type='submit'
+              endIcon={<CheckIcon />}
+              onClick={() => updateUserSettings(favoriteCurrenciesId)}
+            >
+              Да
+            </LoadingButton>
+            <Button
+              variant='outlined'
+              color='error'
+              onClick={() => {
+                setConfirmModalOpen(false);
+              }}
+              endIcon={<ClearIcon />}
+            >
+              Нет
+            </Button>
+          </Stack>
+        }
+      />
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          updateUserSettings(favoriteCurrenciesId);
+          setConfirmModalOpen(true);
         }}
       >
         <Grid
