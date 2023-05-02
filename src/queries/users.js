@@ -17,6 +17,7 @@ const useGetUsers = () => {
         avatar: user.avatar,
         telegramUser: user.telegramUser,
         enableTgNotifications: user.settings.enableTelegramNotifications,
+        favoriteCurrencies: user.settings.favoriteCurrencies,
       }));
     },
   });

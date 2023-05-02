@@ -10,6 +10,7 @@ const useGetCurrencies = () => {
         name: currency.name,
         rate: currency.rate,
         updated: currency.updated,
+        symbol: currency.symbol,
       }));
     },
   });
