@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import {
   Container,
   Stack,
@@ -20,13 +20,12 @@ import UserCurrancy from './UserCurrancy';
 import UserNameAndAvatar from './UserNameAndAvatar';
 
 function UserProfile() {
-  const [currentUser, setCurrentUser] = useState();
   const [openSuccessModal, setOpenSuccessModal] = useState(false);
   const [openErrorModal, setOpenErrorModal] = useState(false);
 
   const { data: users, isFetching: usersLoading } = useGetUsers();
   const currentUserId = auth.currentUser.uid;
-  const user = useMemo(
+  const currentUser = useMemo(
     () => users.find((u) => u.id === currentUserId),
     [users, currentUserId],
   );
@@ -35,10 +34,6 @@ function UserProfile() {
     () => usersLoading || !currentUser,
     [usersLoading, currentUser],
   );
-
-  useEffect(() => {
-    setCurrentUser(user);
-  }, [users]);
 
   return (
     <Container maxWidth='md'>
@@ -92,9 +87,7 @@ function UserProfile() {
       />
       <Grid container spacing={2} direction='column'>
         <UserNameAndAvatar
-          user={user}
           currentUser={currentUser}
-          setCurrentUser={setCurrentUser}
           setOpenSuccessModal={setOpenSuccessModal}
           setOpenErrorModal={setOpenErrorModal}
           showSkeleton={showSkeleton}

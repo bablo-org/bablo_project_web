@@ -50,7 +50,7 @@ function UserCurrancy({ currentUser, setOpenSuccessModal, setOpenErrorModal }) {
   const renderFavoriteCurrenciesList = () => {
     if (favoriteCurrencies && favoriteCurrenciesId.length > 0) {
       return favoriteCurrencies.map((item) => {
-        const symbol = item.symbol ? item.symbol : '¤';
+        const { symbol } = item;
         return (
           <Tooltip title={item.name} key={item.name}>
             <Chip
@@ -96,7 +96,6 @@ function UserCurrancy({ currentUser, setOpenSuccessModal, setOpenErrorModal }) {
     setFavoriteCurrenciesId(currentUser.favoriteCurrencies);
   }, [currentUser]);
 
-  const favoriteCurrenciesList = renderFavoriteCurrenciesList();
   return (
     <>
       <TransitionsModal
@@ -157,7 +156,7 @@ function UserCurrancy({ currentUser, setOpenSuccessModal, setOpenErrorModal }) {
               useFlexGap
               flexWrap='wrap'
             >
-              {favoriteCurrenciesList}
+              {renderFavoriteCurrenciesList()}
             </Stack>
           </Grid>
           {isCurrenciesUpdated && (
@@ -277,6 +276,7 @@ function UserCurrancy({ currentUser, setOpenSuccessModal, setOpenErrorModal }) {
                   onClick={() => setSelectedCurrencis([])}
                   color='error'
                   endIcon={<ClearIcon />}
+                  disabled={selectedCurrencies.length < 1}
                 >
                   Очистить
                 </Button>
@@ -286,6 +286,7 @@ function UserCurrancy({ currentUser, setOpenSuccessModal, setOpenErrorModal }) {
                   color='success'
                   type='submit'
                   endIcon={<CheckIcon />}
+                  disabled={selectedCurrencies.length < 1}
                 >
                   Добавить
                 </LoadingButton>

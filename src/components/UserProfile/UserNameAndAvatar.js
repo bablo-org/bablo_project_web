@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import {
   TextField,
   FormControl,
@@ -18,20 +18,21 @@ import UserProfileAvatar from './UserProfileAvatar';
 import AvatarSkeleton from './Skeleton/AvatarSkeleton';
 
 function UserNameAndAvatar({
-  user,
   currentUser,
-  setCurrentUser,
   setOpenSuccessModal,
   setOpenErrorModal,
   showSkeleton,
 }) {
   const { mutateAsync: putUser } = useUpdateUser();
   const { mutateAsync: postUserAvatar } = useUpdateUserAvatar();
+  const [showAvatarSkeleton, setShowAvatarSkeleton] = useState(showSkeleton);
   const [imageError, setImageError] = useState(false);
   const [encodedImageName, setEncodedImageName] = useState();
   const [encodedImageCode, setEncodedImageCode] = useState();
+  const [updatedUser, setUpdatedUser] = useState({});
   const [name, setName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState();
+  const [isAvatarDeleted, setIsAvatarDeleted] = useState(false);
   const [loadingUserInfo, setLoadingUserInfo] = useState(false);
   const inputFileValue = useRef();
   const { avatar } = validationProps;
@@ -40,7 +41,8 @@ function UserNameAndAvatar({
     setName('');
     setAvatarUrl();
     inputFileValue.current.value = '';
-    setCurrentUser(user);
+    setUpdatedUser(currentUser);
+    setIsAvatarDeleted(false);
   };
 
   const deleteAvatar = () => {
@@ -48,16 +50,22 @@ function UserNameAndAvatar({
     setEncodedImageCode();
     setEncodedImageName();
     inputFileValue.current.value = '';
-    const deleteUserAvatar = { ...currentUser };
+    const deleteUserAvatar = { ...updatedUser };
     deleteUserAvatar.avatar = '';
-    setCurrentUser(deleteUserAvatar);
+    setUpdatedUser(deleteUserAvatar);
+    setIsAvatarDeleted(true);
   };
 
   const changeUserName = (e) => {
-    const updateUserName = { ...currentUser };
-    updateUserName.name = e.target.value;
-    setName(e.target.value);
-    setCurrentUser(updateUserName);
+    const updateUserName = { ...updatedUser };
+    if (e.target.value !== '') {
+      updateUserName.name = e.target.value;
+      setName(e.target.value);
+    } else {
+      updateUserName.name = currentUser.name;
+      setName('');
+    }
+    setUpdatedUser(updateUserName);
   };
 
   const trasformString = (string) => {
@@ -88,15 +96,16 @@ function UserNameAndAvatar({
       trasformString(reader.result);
       setAvatarUrl(reader.result);
 
-      const updateUserAvatar = { ...currentUser };
+      const updateUserAvatar = { ...updatedUser };
       updateUserAvatar.avatar = reader.result;
-      setCurrentUser(updateUserAvatar);
+      setUpdatedUser(updateUserAvatar);
     };
   };
 
   const changeUserAvatar = (e) => {
     setImageError();
     encodeImageFileAsURL(e);
+    setIsAvatarDeleted(false);
   };
 
   const updateUser = async () => {
@@ -141,6 +150,18 @@ function UserNameAndAvatar({
     updateUser();
   };
 
+  const isDisabledButton = useMemo(
+    () => !name && !avatarUrl && !isAvatarDeleted,
+    [name, avatarUrl, isAvatarDeleted],
+  );
+
+  useEffect(() => {
+    setUpdatedUser(currentUser);
+    if (!showSkeleton) {
+      setShowAvatarSkeleton(false);
+    }
+  }, [currentUser]);
+
   return (
     <Grid item xs={12}>
       <form onSubmit={validateAndSubmit}>
@@ -152,11 +173,11 @@ function UserNameAndAvatar({
             <Divider />
           </Grid>
           <Grid item xs={12}>
-            {showSkeleton ? (
+            {showAvatarSkeleton ? (
               <AvatarSkeleton />
             ) : (
               <UserProfileAvatar
-                currentUser={currentUser}
+                currentUser={updatedUser}
                 deleteAvatar={deleteAvatar}
               />
             )}
@@ -164,7 +185,7 @@ function UserNameAndAvatar({
           <Grid item xs={12}>
             <FormControl fullWidth required>
               <TextField
-                placeholder={currentUser?.name || 'Имя пользователя'}
+                placeholder={updatedUser?.name || 'Имя пользователя'}
                 variant='outlined'
                 label='Имя'
                 value={name}
@@ -198,6 +219,7 @@ function UserNameAndAvatar({
                 color='error'
                 onClick={clearForm}
                 endIcon={<ClearIcon />}
+                disabled={isDisabledButton}
               >
                 Очистить
               </Button>
@@ -208,6 +230,7 @@ function UserNameAndAvatar({
                 type='submit'
                 endIcon={<CheckIcon />}
                 onSubmit={validateAndSubmit}
+                disabled={isDisabledButton}
               >
                 Сохранить
               </LoadingButton>
