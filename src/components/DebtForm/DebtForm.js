@@ -16,6 +16,7 @@ import {
   Clear as ClearIcon,
   SafetyDivider as SafetyDividerIcon,
 } from '@mui/icons-material';
+import { LoadingButton } from '@mui/lab';
 import { auth } from '../../services/firebase';
 import { validationProps } from '../../utils/validationForm';
 import AvatarsList from '../AvatarsList/AvatarsList';
@@ -25,18 +26,20 @@ import {
   useGetUsers,
   usePostTransaction,
 } from '../../queries';
+import SnackbarMessage from '../SnackbarMessage/SnackbarMessage';
 
 function DebtForm() {
   const [sender, setSender] = useState([]);
   const [isSenderSelected, setIsSenderSelected] = useState(true);
   const [receiver, setReceiver] = useState([]);
   const [isReceiverSelected, setIsReceiverSelected] = useState(true);
-  const [enteredCurrency, setEnteredCurrency] = useState();
+  const [enteredCurrency, setEnteredCurrency] = useState(null);
   const [enteredSum, setEnteredSum] = useState('');
   const [enteredUsersSum, setEnteredUsersSum] = useState({});
   const [enteredDescription, setEnteredDescription] = useState('');
   const [enteredDate, setEnteredDate] = useState(null);
   const [currenciesOptions, setCurrenciesOptions] = useState([]);
+  const [snackbarType, setSnackbarType] = useState('close');
 
   const {
     data: users,
@@ -45,11 +48,9 @@ function DebtForm() {
   } = useGetUsers();
   const { data: currencies, isFetching: loadingCurrencies } =
     useGetCurrencies();
-  const { mutateAsync: postTransactions } = usePostTransaction();
+  const { mutateAsync: postTransactions, isLoading: fetchingNewTransaction } =
+    usePostTransaction();
 
-  const currencyInputChangeHandler = (event) => {
-    setEnteredCurrency(event.target.value);
-  };
   const sumInputChangeHandler = (event) => {
     setEnteredSum(event.target.value);
   };
@@ -65,7 +66,7 @@ function DebtForm() {
   };
 
   const clearForm = () => {
-    setEnteredCurrency('');
+    setEnteredCurrency(null);
     setEnteredSum('');
     setEnteredDescription('');
     setEnteredDate(null);
@@ -76,6 +77,29 @@ function DebtForm() {
     clearForm();
   };
 
+  const putTransaction = async () => {
+    const debtData = sender.map((id) => {
+      return {
+        sender: id,
+        receiver: receiver[0],
+        currency: enteredCurrency.id,
+        amount: parseFloat(
+          sender.length === 1 ? enteredSum : enteredUsersSum[id],
+        ),
+        description: enteredDescription,
+        date: enteredDate ? new Date(enteredDate).toISOString() : undefined,
+      };
+    });
+    try {
+      await postTransactions({ transactions: debtData });
+      setSnackbarType('success');
+    } catch {
+      setSnackbarType('error');
+    } finally {
+      clearForm();
+    }
+  };
+
   const submissionOfDebtHandler = (event) => {
     event.preventDefault();
     if (sender.length === 0) {
@@ -83,20 +107,7 @@ function DebtForm() {
     } else if (receiver.length === 0) {
       setIsReceiverSelected(false);
     } else {
-      const debtData = sender.map((id) => {
-        return {
-          sender: id,
-          receiver: receiver[0],
-          currency: enteredCurrency,
-          amount: parseFloat(
-            sender.length === 1 ? enteredSum : enteredUsersSum[id],
-          ),
-          description: enteredDescription,
-          date: enteredDate ? new Date(enteredDate).toISOString() : undefined,
-        };
-      });
-      postTransactions({ transactions: debtData });
-      clearForm();
+      putTransaction();
     }
   };
 
@@ -160,6 +171,7 @@ function DebtForm() {
 
   return (
     <Container maxWidth='md'>
+      <SnackbarMessage type={snackbarType} setSnackbarType={setSnackbarType} />
       <Grid container spacing={2} direction='column'>
         <Grid item xs={12}>
           <AvatarsList
@@ -196,9 +208,12 @@ function DebtForm() {
                   id='currencyAuto'
                   value={enteredCurrency}
                   options={currenciesOptions}
-                  onChange={currencyInputChangeHandler}
+                  onChange={(event, newValue) => {
+                    setEnteredCurrency(newValue);
+                  }}
                   loading={loadingCurrencies}
                   loadingText='Загрузка...'
+                  noOptionsText='Ничего не найдено'
                   groupBy={(option) => option.group}
                   getOptionLabel={(option) => {
                     const currencyName = `${option.id} - ${option.name}`;
@@ -354,14 +369,16 @@ function DebtForm() {
                   >
                     Отмена
                   </Button>
-                  <Button
+                  <LoadingButton
+                    loading={fetchingNewTransaction}
                     variant='contained'
                     color='success'
                     type='submit'
                     endIcon={<CheckIcon />}
+                    onSubmit={submissionOfDebtHandler}
                   >
                     Отправить
-                  </Button>
+                  </LoadingButton>
                 </Stack>
               </Grid>
             </Grid>
