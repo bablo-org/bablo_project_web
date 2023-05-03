@@ -1,15 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   TextField,
-  InputLabel,
-  MenuItem,
   FormControl,
-  Select,
-  FormHelperText,
   Container,
   Stack,
   Button,
   Grid,
+  Autocomplete,
+  CircularProgress,
 } from '@mui/material';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -18,6 +16,7 @@ import {
   Clear as ClearIcon,
   SafetyDivider as SafetyDividerIcon,
 } from '@mui/icons-material';
+import { auth } from '../../services/firebase';
 import { validationProps } from '../../utils/validationForm';
 import AvatarsList from '../AvatarsList/AvatarsList';
 import classes from './DebtForm.module.css';
@@ -32,27 +31,21 @@ function DebtForm() {
   const [isSenderSelected, setIsSenderSelected] = useState(true);
   const [receiver, setReceiver] = useState([]);
   const [isReceiverSelected, setIsReceiverSelected] = useState(true);
-  const [enteredCurrency, setEnteredCurrency] = useState('');
+  const [enteredCurrency, setEnteredCurrency] = useState();
   const [enteredSum, setEnteredSum] = useState('');
   const [enteredUsersSum, setEnteredUsersSum] = useState({});
   const [enteredDescription, setEnteredDescription] = useState('');
   const [enteredDate, setEnteredDate] = useState(null);
+  const [currenciesOptions, setCurrenciesOptions] = useState([]);
 
   const {
     data: users,
     isFetching: isUsersLoading,
     isError: isUserLoadingError,
   } = useGetUsers();
-  const { data: currencies } = useGetCurrencies();
+  const { data: currencies, isFetching: loadingCurrencies } =
+    useGetCurrencies();
   const { mutateAsync: postTransactions } = usePostTransaction();
-
-  useEffect(() => {
-    sender.length > 0 && setIsSenderSelected(true);
-  }, [sender]);
-
-  useEffect(() => {
-    receiver.length > 0 && setIsReceiverSelected(true);
-  }, [receiver]);
 
   const currencyInputChangeHandler = (event) => {
     setEnteredCurrency(event.target.value);
@@ -116,6 +109,55 @@ function DebtForm() {
     setEnteredUsersSum(newUsersSum);
   };
 
+  const choseSumTextHelper = (sum) => {
+    const isValid = validationProps.sum.testSum(sum);
+    if (!isValid && sum) return validationProps.sum.errorTitle;
+    return validationProps.sum.title;
+  };
+
+  const currentUserId = auth.currentUser.uid;
+
+  const currentUser = useMemo(
+    () => users.find((u) => u.id === currentUserId),
+    [users, currentUserId],
+  );
+
+  const popularCurrencies = ['USD', 'EUR'];
+
+  useEffect(() => {
+    sender.length > 0 && setIsSenderSelected(true);
+  }, [sender]);
+
+  useEffect(() => {
+    receiver.length > 0 && setIsReceiverSelected(true);
+  }, [receiver]);
+
+  useEffect(() => {
+    if (!currentUser || !currencies) {
+      return;
+    }
+    const options = currencies
+      .map((obj) => {
+        if (currentUser.favoriteCurrencies.includes(obj.id)) {
+          return { ...obj, group: 'Избранные валюты' };
+        }
+        if (popularCurrencies.includes(obj.id)) {
+          return { ...obj, group: 'Популярные валюты' };
+        }
+        return { ...obj, group: 'Остальные валюты' };
+      })
+      .sort((a, b) => {
+        const groupOrder = {
+          'Избранные валюты': 1,
+          'Популярные валюты': 2,
+          'Остальные валюты': 3,
+        };
+        return groupOrder[a.group] - groupOrder[b.group];
+      });
+
+    setCurrenciesOptions(options);
+  }, [currentUser, currencies]);
+
   return (
     <Container maxWidth='md'>
       <Grid container spacing={2} direction='column'>
@@ -143,29 +185,46 @@ function DebtForm() {
         )}
         <Grid item xs={12}>
           <form onSubmit={submissionOfDebtHandler}>
-            <Grid container spacing={2} direction='column'>
+            <Grid
+              container
+              spacing={2}
+              direction='column'
+              sx={{ marginTop: '15px' }}
+            >
               <Grid item xs={12}>
-                <FormControl fullWidth required>
-                  <InputLabel id='currency'>Валюта</InputLabel>
-                  <Select
-                    labelId='currencyLabel'
-                    id='currency'
-                    value={enteredCurrency}
-                    label='Валюта'
-                    onChange={currencyInputChangeHandler}
-                    required
-                    className={enteredCurrency ? classes.valid : undefined}
-                  >
-                    {currencies.map((currency) => (
-                      <MenuItem key={currency.id} value={currency.id}>
-                        {currency.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  <FormHelperText>
-                    {enteredCurrency ? undefined : 'Выберите валюту'}
-                  </FormHelperText>
-                </FormControl>
+                <Autocomplete
+                  id='currencyAuto'
+                  value={enteredCurrency}
+                  options={currenciesOptions}
+                  onChange={currencyInputChangeHandler}
+                  loading={loadingCurrencies}
+                  loadingText='Загрузка...'
+                  groupBy={(option) => option.group}
+                  getOptionLabel={(option) => {
+                    const currencyName = `${option.id} - ${option.name}`;
+                    return currencyName;
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label='Валюта'
+                      helperText='Выберите валюту'
+                      required
+                      InputProps={{
+                        ...params.InputProps,
+                        endAdornment: (
+                          <>
+                            {loadingCurrencies ? (
+                              <CircularProgress color='inherit' size={20} />
+                            ) : null}
+                            {params.InputProps.endAdornment}
+                          </>
+                        ),
+                      }}
+                    />
+                  )}
+                  className={enteredCurrency && classes.valid}
+                />
               </Grid>
               <Grid item xs={12}>
                 <FormControl fullWidth required>
@@ -181,18 +240,12 @@ function DebtForm() {
                       pattern: validationProps.sum.inputPropsPattern,
                       title: validationProps.sum.errorTitle,
                     }}
-                    helperText={
-                      enteredSum
-                        ? validationProps.sum.testSum(enteredSum)
-                          ? validationProps.sum.errorTitle
-                          : undefined
-                        : validationProps.sum.title
-                    }
+                    helperText={choseSumTextHelper(enteredSum)}
                     error={
-                      !!(enteredSum && validationProps.sum.testSum(enteredSum))
+                      !!(enteredSum && !validationProps.sum.testSum(enteredSum))
                     }
                     style={{ whiteSpace: 'pre-wrap' }}
-                    className={enteredSum ? classes.valid : undefined}
+                    className={enteredSum && classes.valid}
                     required={sender.length < 2}
                   />
                 </FormControl>
@@ -231,27 +284,19 @@ function DebtForm() {
                             pattern: validationProps.sum.inputPropsPattern,
                             title: validationProps.sum.errorTitle,
                           }}
-                          helperText={
-                            enteredUsersSum[user.id]
-                              ? validationProps.sum.testSum(
-                                  enteredUsersSum[user.id],
-                                )
-                                ? validationProps.sum.errorTitle
-                                : undefined
-                              : validationProps.sum.title
-                          }
+                          helperText={choseSumTextHelper(
+                            enteredUsersSum[user.id],
+                          )}
                           error={
                             !!(
                               enteredUsersSum[user.id] &&
-                              validationProps.sum.testSum(
+                              !validationProps.sum.testSum(
                                 enteredUsersSum[user.id],
                               )
                             )
                           }
                           style={{ whiteSpace: 'pre-wrap' }}
-                          className={
-                            enteredUsersSum[user.id] ? classes.valid : undefined
-                          }
+                          className={enteredUsersSum[user.id] && classes.valid}
                           required
                         />
                       </FormControl>
@@ -267,13 +312,9 @@ function DebtForm() {
                     type='text'
                     id='description'
                     onChange={descriptionInputChangeHandler}
-                    helperText={
-                      enteredDescription
-                        ? undefined
-                        : validationProps.description.title
-                    }
+                    helperText={validationProps.description.title}
                     style={{ whiteSpace: 'pre-wrap' }}
-                    className={enteredDescription ? classes.valid : undefined}
+                    className={enteredDescription && classes.valid}
                     required
                   />
                 </FormControl>
@@ -288,14 +329,13 @@ function DebtForm() {
                           value={enteredDate}
                           id='date'
                           onChange={dateInputChangeHandler}
+                          disableFuture
                           closeOnSelect
                           className={enteredDate ? classes.valid : undefined}
                           slotProps={{
                             textField: {
                               required: true,
-                              helperText: enteredDate
-                                ? undefined
-                                : validationProps.date.title,
+                              helperText: validationProps.date.title,
                             },
                           }}
                         />
