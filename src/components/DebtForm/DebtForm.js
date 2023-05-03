@@ -47,8 +47,6 @@ function DebtForm() {
     useGetCurrencies();
   const { mutateAsync: postTransactions } = usePostTransaction();
 
-  // const loadingCurrencies = false;
-
   const currencyInputChangeHandler = (event) => {
     setEnteredCurrency(event.target.value);
   };
@@ -135,6 +133,9 @@ function DebtForm() {
   }, [receiver]);
 
   useEffect(() => {
+    if (!currentUser || !currencies) {
+      return;
+    }
     const options = currencies
       .map((obj) => {
         if (currentUser.favoriteCurrencies.includes(obj.id)) {
