@@ -127,9 +127,9 @@ function Summary() {
     const updatedSummaryData = users.map((user) => ({
       userId: user.id,
       name: user.name,
-      total: currencies,
-      totalOutcoming: currencies,
-      totalIncoming: currencies,
+      total: { ...currencies },
+      totalOutcoming: { ...currencies },
+      totalIncoming: { ...currencies },
     }));
     approvedTransactions.forEach((transaction) => {
       const senderIndex = updatedSummaryData.findIndex(
@@ -138,36 +138,14 @@ function Summary() {
       const receiverIndex = updatedSummaryData.findIndex(
         (user) => user.userId === transaction.receiver,
       );
-      updatedSummaryData[receiverIndex] = {
-        ...updatedSummaryData[receiverIndex],
-        totalOutcoming: {
-          ...updatedSummaryData[receiverIndex].totalOutcoming,
-          [transaction.currency]: (updatedSummaryData[
-            receiverIndex
-          ].totalOutcoming[transaction.currency] += transaction.amount),
-        },
-        total: {
-          ...updatedSummaryData[receiverIndex].total,
-          [transaction.currency]: (updatedSummaryData[receiverIndex].total[
-            transaction.currency
-          ] -= transaction.amount),
-        },
-      };
-      updatedSummaryData[senderIndex] = {
-        ...updatedSummaryData[senderIndex],
-        totalIncoming: {
-          ...updatedSummaryData[senderIndex].totalIncoming,
-          [transaction.currency]: (updatedSummaryData[
-            senderIndex
-          ].totalIncoming[transaction.currency] += transaction.amount),
-        },
-        total: {
-          ...updatedSummaryData[senderIndex].total,
-          [transaction.currency]: (updatedSummaryData[senderIndex].total[
-            transaction.currency
-          ] += transaction.amount),
-        },
-      };
+      updatedSummaryData[receiverIndex].totalOutcoming[transaction.currency] +=
+        transaction.amount;
+      updatedSummaryData[receiverIndex].total[transaction.currency] -=
+        transaction.amount;
+      updatedSummaryData[senderIndex].totalIncoming[transaction.currency] +=
+        transaction.amount;
+      updatedSummaryData[senderIndex].total[transaction.currency] +=
+        transaction.amount;
     });
     const filteredSummaryData = updatedSummaryData.filter(
       (data) => data.userId !== currentUserId,
