@@ -22,7 +22,7 @@ function snackbarReducer(state, action) {
   }
 }
 
-function SnackbarMessage({ type, setSnackbarType }) {
+function SnackbarMessage({ type, onClose }) {
   const [state, dispatch] = useReducer(snackbarReducer, {
     open: false,
     message: '',
@@ -31,7 +31,7 @@ function SnackbarMessage({ type, setSnackbarType }) {
   const [isClosed, setIsClosed] = useState(false);
 
   const handleClose = () => {
-    setSnackbarType('close');
+    onClose('close');
     setIsClosed(true);
   };
 
