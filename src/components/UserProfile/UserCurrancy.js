@@ -21,7 +21,7 @@ import { useState, useMemo, useEffect } from 'react';
 import TransitionsModal from '../modal/modal';
 import { useGetCurrencies, useUpdateUserSettings } from '../../queries';
 
-function UserCurrancy({ currentUser, setOpenSuccessModal, setOpenErrorModal }) {
+function UserCurrancy({ currentUser, setSnackbarType }) {
   const [selectedCurrencies, setSelectedCurrencis] = useState([]);
   const [favoriteCurrenciesId, setFavoriteCurrenciesId] = useState([]);
   const [isCurrenciesUpdated, setIsCurrenciesUpdated] = useState(false);
@@ -77,9 +77,9 @@ function UserCurrancy({ currentUser, setOpenSuccessModal, setOpenErrorModal }) {
     try {
       const settings = { favoriteCurrencies: updatedCurrencies };
       await putUserSettings(settings);
-      setOpenSuccessModal(true);
+      setSnackbarType('success');
     } catch {
-      setOpenErrorModal(true);
+      setSnackbarType('error');
     } finally {
       setConfirmModalOpen(false);
     }

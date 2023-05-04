@@ -12,7 +12,7 @@ function snackbarReducer(state, action) {
     case 'error':
       return {
         open: true,
-        message: 'Что-то пошлол не так... Попробуйте перезагрузить страницу.',
+        message: 'Что-то пошло не так... Попробуйте перезагрузить страницу.',
         severity: 'error',
       };
     case 'close':
@@ -31,7 +31,7 @@ function SnackbarMessage({ type, onClose }) {
   const [isClosed, setIsClosed] = useState(false);
 
   const handleClose = () => {
-    onClose('close');
+    onClose();
     setIsClosed(true);
   };
 

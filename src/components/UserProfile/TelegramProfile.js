@@ -22,8 +22,7 @@ import { useUpdateTgUserName, useUpdateUserSettings } from '../../queries';
 import TransitionsModal from '../modal/modal';
 
 function TelegramProfile({
-  setOpenSuccessModal,
-  setOpenErrorModal,
+  setSnackbarType,
   enableTgNotifications,
   telegramUser,
 }) {
@@ -41,12 +40,12 @@ function TelegramProfile({
   const updateTg = async (Name) => {
     try {
       await putTgUserName(Name);
-      setOpenSuccessModal(true);
+      setSnackbarType('success');
     } catch (e) {
       if (e.message === '500') {
         setIsTgError(true);
       } else {
-        setOpenErrorModal(true);
+        setSnackbarType('error');
       }
     }
   };
@@ -64,9 +63,9 @@ function TelegramProfile({
     try {
       const settings = { enableTelegramNotifications: !isNotificationOn };
       await putUserSettings(settings);
-      setOpenSuccessModal(true);
+      setSnackbarType('succes');
     } catch {
-      setOpenErrorModal(true);
+      setSnackbarType('error');
     } finally {
       setConfirmModalOpen(false);
     }

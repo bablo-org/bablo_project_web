@@ -1,27 +1,16 @@
 import { useState, useMemo } from 'react';
-import {
-  Container,
-  Stack,
-  Button,
-  Grid,
-  Typography,
-  Divider,
-} from '@mui/material';
-import {
-  FactCheck as FactCheckIcon,
-  Error as ErrorIcon,
-} from '@mui/icons-material';
+import { Container, Grid, Typography, Divider } from '@mui/material';
+import {} from '@mui/icons-material';
 import { useGetUsers } from '../../queries';
 import { auth } from '../../services/firebase';
-import TransitionsModal from '../modal/modal';
 import TelegramProfile from './TelegramProfile';
 import UserProfileLoader from './Skeleton/UserProfileLoader';
 import UserCurrancy from './UserCurrancy';
 import UserNameAndAvatar from './UserNameAndAvatar';
+import SnackbarMessage from '../SnackbarMessage/SnackbarMessage';
 
 function UserProfile() {
-  const [openSuccessModal, setOpenSuccessModal] = useState(false);
-  const [openErrorModal, setOpenErrorModal] = useState(false);
+  const [snackbarType, setSnackbarType] = useState('close');
 
   const { data: users, isFetching: usersLoading } = useGetUsers();
   const currentUserId = auth.currentUser.uid;
@@ -37,59 +26,14 @@ function UserProfile() {
 
   return (
     <Container maxWidth='md'>
-      <TransitionsModal
-        isOpen={openSuccessModal}
-        title='Изменения успешно сохранены'
-        handleClose={() => {
-          setOpenSuccessModal(false);
-        }}
-        icon={<FactCheckIcon color='success' />}
-        body={
-          <Stack
-            direction='row'
-            spacing={2}
-            sx={{ alignItems: 'center', marginTop: '10px' }}
-          >
-            <Button
-              variant='outlined'
-              onClick={() => {
-                setOpenSuccessModal(false);
-              }}
-            >
-              Ок
-            </Button>
-          </Stack>
-        }
-      />
-      <TransitionsModal
-        isOpen={openErrorModal}
-        title='Что-то пошло не так...'
-        handleClose={() => {
-          setOpenErrorModal(false);
-        }}
-        icon={<ErrorIcon color='error' />}
-        body={
-          <Stack
-            direction='row'
-            spacing={2}
-            sx={{ alignItems: 'center', marginTop: '10px' }}
-          >
-            <Button
-              variant='outlined'
-              onClick={() => {
-                setOpenErrorModal(false);
-              }}
-            >
-              Ок
-            </Button>
-          </Stack>
-        }
+      <SnackbarMessage
+        type={snackbarType}
+        onClose={() => setSnackbarType('close')}
       />
       <Grid container spacing={2} direction='column'>
         <UserNameAndAvatar
           currentUser={currentUser}
-          setOpenSuccessModal={setOpenSuccessModal}
-          setOpenErrorModal={setOpenErrorModal}
+          setSnackbarType={setSnackbarType}
           showSkeleton={showSkeleton}
         />
         <Grid item xs={12}>
@@ -105,8 +49,7 @@ function UserProfile() {
             <UserProfileLoader />
           ) : (
             <TelegramProfile
-              setOpenSuccessModal={setOpenSuccessModal}
-              setOpenErrorModal={setOpenErrorModal}
+              setSnackbarType={setSnackbarType}
               enableTgNotifications={currentUser.enableTgNotifications}
               telegramUser={currentUser.telegramUser}
               UsersLoading={usersLoading}
@@ -127,8 +70,7 @@ function UserProfile() {
           ) : (
             <UserCurrancy
               currentUser={currentUser}
-              setOpenSuccessModal={setOpenSuccessModal}
-              setOpenErrorModal={setOpenErrorModal}
+              setSnackbarType={setSnackbarType}
             />
           )}
         </Grid>
