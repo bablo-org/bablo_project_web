@@ -1,5 +1,7 @@
+import Summary from '../components/Summary/Summary';
+
 function SummaryPage() {
-  return <h1>Summary page</h1>;
+  return <Summary />;
 }
 
 export default SummaryPage;
