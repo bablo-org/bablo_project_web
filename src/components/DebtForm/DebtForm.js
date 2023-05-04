@@ -48,7 +48,7 @@ function DebtForm() {
   } = useGetUsers();
   const { data: currencies, isFetching: loadingCurrencies } =
     useGetCurrencies();
-  const { mutateAsync: postTransactions, isLoading: fetchingNewTransaction } =
+  const { mutateAsync: postTransactions, isLoading: isAddingNewTransaction } =
     usePostTransaction();
 
   const sumInputChangeHandler = (event) => {
@@ -171,7 +171,7 @@ function DebtForm() {
 
   return (
     <Container maxWidth='md'>
-      <SnackbarMessage type={snackbarType} setSnackbarType={setSnackbarType} />
+      <SnackbarMessage type={snackbarType} onClose={setSnackbarType} />
       <Grid container spacing={2} direction='column'>
         <Grid item xs={12}>
           <AvatarsList
@@ -370,7 +370,7 @@ function DebtForm() {
                     Отмена
                   </Button>
                   <LoadingButton
-                    loading={fetchingNewTransaction}
+                    loading={isAddingNewTransaction}
                     variant='contained'
                     color='success'
                     type='submit'
