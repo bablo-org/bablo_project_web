@@ -17,12 +17,7 @@ import { validationProps } from '../../utils/validationForm';
 import UserProfileAvatar from './UserProfileAvatar';
 import AvatarSkeleton from './Skeleton/AvatarSkeleton';
 
-function UserNameAndAvatar({
-  currentUser,
-  setOpenSuccessModal,
-  setOpenErrorModal,
-  showSkeleton,
-}) {
+function UserNameAndAvatar({ currentUser, setSnackbarType, showSkeleton }) {
   const { mutateAsync: putUser } = useUpdateUser();
   const { mutateAsync: postUserAvatar } = useUpdateUserAvatar();
   const [showAvatarSkeleton, setShowAvatarSkeleton] = useState(showSkeleton);
@@ -129,10 +124,10 @@ function UserNameAndAvatar({
       }
       if (userUpdates) {
         await putUser(userUpdates);
-        setOpenSuccessModal(true);
+        setSnackbarType('success');
       }
     } catch {
-      setOpenErrorModal(true);
+      setSnackbarType('error');
     } finally {
       setLoadingUserInfo(false);
       clearForm();
