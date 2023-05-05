@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react';
 import { Container, Grid, Typography, Divider } from '@mui/material';
-import {} from '@mui/icons-material';
 import { useGetUsers } from '../../queries';
 import { auth } from '../../services/firebase';
 import TelegramProfile from './TelegramProfile';
