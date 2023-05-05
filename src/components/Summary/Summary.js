@@ -8,29 +8,18 @@ import {
   Paper,
 } from '@mui/material';
 import { useMemo, useState, useEffect } from 'react';
+import { formatDate } from '../../utils/formatDate';
 import SummaryRow from './SummaryRow';
 import { useGetUsers, useGetTransactions } from '../../queries';
 import { auth } from '../../services/firebase';
 
-function createData(name, valueGain, valueLost, total, price) {
+function createData(name, valueGain, valueLost, total, history) {
   return {
     name,
     valueGain,
     valueLost,
     total,
-    price,
-    history: [
-      {
-        date: '2020-01-05',
-        customerId: 'антон педик',
-        amount: 3,
-      },
-      {
-        date: '2020-01-02',
-        customerId: 'Anonymous',
-        amount: 1,
-      },
-    ],
+    history,
   };
 }
 
@@ -58,6 +47,7 @@ function Summary() {
       total: { ...currencies },
       totalOutcoming: { ...currencies },
       totalIncoming: { ...currencies },
+      history: [],
     }));
     approvedTransactions.forEach((transaction) => {
       const senderIndex = updatedSummaryData.findIndex(
@@ -66,6 +56,21 @@ function Summary() {
       const receiverIndex = updatedSummaryData.findIndex(
         (user) => user.userId === transaction.receiver,
       );
+      const updateSummaryHistoryData = (index) => {
+        const historyClone = { date: '', description: '', amount: '' };
+
+        historyClone.description += `${transaction.description}`;
+
+        historyClone.date += formatDate(transaction.date);
+        if (transaction.sender !== currentUserId) {
+          historyClone.amount += `+${transaction.amount} ${transaction.currency}`;
+        } else {
+          historyClone.amount += `-${transaction.amount} ${transaction.currency}`;
+        }
+        updatedSummaryData[index].history.push(historyClone);
+      };
+      updateSummaryHistoryData(senderIndex);
+      updateSummaryHistoryData(receiverIndex);
       updatedSummaryData[receiverIndex].totalOutcoming[transaction.currency] +=
         transaction.amount;
       updatedSummaryData[receiverIndex].total[transaction.currency] -=
@@ -94,7 +99,7 @@ function Summary() {
       displayTotalIncomeData(userSumamryData.totalIncoming),
       displayTotalIncomeData(userSumamryData.totalOutcoming),
       displayTotalIncomeData(userSumamryData.total),
-      123,
+      userSumamryData.history,
     );
   });
 
