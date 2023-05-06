@@ -59,13 +59,13 @@ function Summary() {
       const updateSummaryHistoryData = (index) => {
         const historyClone = { date: '', description: '', amount: '' };
 
-        historyClone.description += `${transaction.description}`;
+        historyClone.description = `${transaction.description}`;
 
-        historyClone.date += formatDate(transaction.date);
+        historyClone.date = formatDate(transaction.date);
         if (transaction.sender !== currentUserId) {
-          historyClone.amount += `+${transaction.amount} ${transaction.currency}`;
+          historyClone.amount = `+${transaction.amount} ${transaction.currency}`;
         } else {
-          historyClone.amount += `-${transaction.amount} ${transaction.currency}`;
+          historyClone.amount = `-${transaction.amount} ${transaction.currency}`;
         }
         updatedSummaryData[index].history.push(historyClone);
       };
