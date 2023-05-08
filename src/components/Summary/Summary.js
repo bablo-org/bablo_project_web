@@ -8,7 +8,6 @@ import {
   Paper,
 } from '@mui/material';
 import { useMemo, useState, useEffect } from 'react';
-import { formatDate } from '../../utils/formatDate';
 import SummaryRow from './SummaryRow';
 import { useGetUsers, useGetTransactions } from '../../queries';
 import { auth } from '../../services/firebase';
@@ -61,7 +60,7 @@ function Summary() {
 
         historyClone.description = `${transaction.description}`;
 
-        historyClone.date = formatDate(transaction.date);
+        historyClone.date = transaction.date;
         if (transaction.sender !== currentUserId) {
           historyClone.amount = `+${transaction.amount} ${transaction.currency}`;
         } else {
@@ -99,7 +98,7 @@ function Summary() {
       displayTotalIncomeData(userSumamryData.totalIncoming),
       displayTotalIncomeData(userSumamryData.totalOutcoming),
       displayTotalIncomeData(userSumamryData.total),
-      userSumamryData.history,
+      userSumamryData.history.sort((obj1, obj2) => obj2.date - obj1.date),
     );
   });
 
