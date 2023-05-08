@@ -40,6 +40,9 @@ function DebtForm() {
   const [enteredDate, setEnteredDate] = useState(null);
   const [currenciesOptions, setCurrenciesOptions] = useState([]);
   const [snackbarType, setSnackbarType] = useState('close');
+  const [sumRemainsError, setSumRemainsError] = useState({});
+  const [sumError, setSumError] = useState({});
+  const [manualInputs, setManualInputs] = useState([]);
 
   const {
     data: users,
@@ -53,24 +56,124 @@ function DebtForm() {
 
   const sumInputChangeHandler = (event) => {
     setEnteredSum(event.target.value);
+    setManualInputs([]);
+    setEnteredUsersSum({});
+    setSumError({});
+    setSumRemainsError({});
   };
+
+  const isSumValid = (sum) => {
+    return validationProps.sum.testSum(sum);
+  };
+
+  const choseSumTextHelper = (sum, userId) => {
+    if (sumRemainsError[userId]) {
+      return validationProps.sum.errorRemainsTitle;
+    }
+    if (!isSumValid(sum) && sum) {
+      return validationProps.sum.errorTitle;
+    }
+    if (sumError[userId]) {
+      return validationProps.sum.errorRemainsSumTitle;
+    }
+    return validationProps.sum.title;
+  };
+
+  const roundSum = (sum, amount) => {
+    return Math.round((sum / amount) * 100) / 100;
+  };
+
+  const isAllManual = (inputs) => {
+    return inputs.length === sender.length;
+  };
+
   const usersSumInputChangeHandler = (event, user) => {
-    const newUsersSum = { ...enteredUsersSum, [user.id]: event.target.value };
-    setEnteredUsersSum(newUsersSum);
+    setSumRemainsError(false);
+    setSumError(false);
+    const newUsersSum = { ...enteredUsersSum };
+    const newSumError = { ...sumError };
+    const newManualInputs = [...manualInputs];
+    newUsersSum[user.id] = event.target.value;
+    newSumError[user.id] = true;
+
+    if (!manualInputs.includes(user.id) && enteredSum) {
+      newManualInputs.push(user.id);
+      setManualInputs(newManualInputs);
+    }
+
+    if (!isSumValid(event.target.value)) {
+      setSumError(newSumError);
+      setEnteredUsersSum(newUsersSum);
+      return;
+    }
+
+    if (
+      enteredSum &&
+      +event.target.value > +enteredSum &&
+      !isAllManual(newManualInputs)
+    ) {
+      const newSumRemainsError = { ...sumRemainsError };
+      newSumRemainsError[user.id] = true;
+      setSumRemainsError(newSumRemainsError);
+      setEnteredUsersSum(newUsersSum);
+      return;
+    }
+
+    if (enteredSum) {
+      let sumRemains = enteredSum - event.target.value;
+
+      manualInputs.forEach((id) => {
+        if (id in enteredUsersSum && id !== user.id) {
+          sumRemains -= enteredUsersSum[id];
+        }
+      });
+
+      if (isAllManual(newManualInputs)) {
+        let sum = +event.target.value;
+        manualInputs.forEach((id) => {
+          if (id in enteredUsersSum && id !== user.id) {
+            sum += +enteredUsersSum[id];
+          }
+        });
+        setEnteredSum(sum);
+      }
+
+      if (isSumValid(roundSum(sumRemains, 1))) {
+        sender.forEach((selectedUser) => {
+          if (
+            selectedUser !== user.id &&
+            !manualInputs.includes(selectedUser)
+          ) {
+            const amount = sender.length - newManualInputs.length;
+            newUsersSum[selectedUser] = roundSum(sumRemains, amount);
+          }
+        });
+      } else if (+sumRemains < 0 && !isAllManual(newManualInputs)) {
+        setSumError(newSumError);
+      }
+      setEnteredUsersSum(newUsersSum);
+    } else {
+      setEnteredUsersSum(newUsersSum);
+    }
   };
+
   const descriptionInputChangeHandler = (event) => {
     setEnteredDescription(event.target.value);
   };
+
   const dateInputChangeHandler = (date) => {
     setEnteredDate(date);
   };
 
   const clearForm = () => {
+    setManualInputs([]);
     setEnteredCurrency(null);
     setEnteredSum('');
     setEnteredDescription('');
     setEnteredDate(null);
     setEnteredUsersSum({});
+    setSumRemainsError(false);
+    setSumError(false);
   };
 
   const cancelingOfDebtHandler = () => {
@@ -102,6 +205,9 @@ function DebtForm() {
 
   const submissionOfDebtHandler = (event) => {
     event.preventDefault();
+    if (sumError || sumRemainsError) {
+      return;
+    }
     if (sender.length === 0) {
       setIsSenderSelected(false);
     } else if (receiver.length === 0) {
@@ -112,18 +218,15 @@ function DebtForm() {
   };
 
   const shareSum = () => {
-    const sharedSum = Math.round((enteredSum / sender.length) * 100) / 100;
+    setManualInputs([]);
+    setSumRemainsError(false);
+    setSumError(false);
+    const sharedSum = roundSum(enteredSum, sender.length);
     const newUsersSum = {};
     sender.forEach((id) => {
       newUsersSum[id] = sharedSum;
     });
     setEnteredUsersSum(newUsersSum);
-  };
-
-  const choseSumTextHelper = (sum) => {
-    const isValid = validationProps.sum.testSum(sum);
-    if (!isValid && sum) return validationProps.sum.errorTitle;
-    return validationProps.sum.title;
   };
 
   const currentUserId = auth.currentUser.uid;
@@ -134,6 +237,13 @@ function DebtForm() {
   );
 
   const popularCurrencies = ['USD', 'EUR'];
+
+  useEffect(() => {
+    if (isAllManual(manualInputs)) {
+      setSumError(false);
+      setSumRemainsError(false);
+    }
+  }, [enteredSum]);
 
   useEffect(() => {
     sender.length > 0 && setIsSenderSelected(true);
@@ -301,15 +411,9 @@ function DebtForm() {
                           }}
                           helperText={choseSumTextHelper(
                             enteredUsersSum[user.id],
+                            user.id,
                           )}
-                          error={
-                            !!(
-                              enteredUsersSum[user.id] &&
-                              !validationProps.sum.testSum(
-                                enteredUsersSum[user.id],
-                              )
-                            )
-                          }
+                          error={sumRemainsError[user.id] || sumError[user.id]}
                           style={{ whiteSpace: 'pre-wrap' }}
                           className={enteredUsersSum[user.id] && classes.valid}
                           required
