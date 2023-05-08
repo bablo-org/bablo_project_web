@@ -83,13 +83,23 @@ function DebtForm() {
     return Math.round((sum / amount) * 100) / 100;
   };
 
+  const isAllManual = (inputs) => {
+    return inputs.length === sender.length;
+  };
+
   const usersSumInputChangeHandler = (event, user) => {
     setSumRemainsError(false);
     setSumError(false);
     const newUsersSum = { ...enteredUsersSum };
     const newSumError = { ...sumError };
+    const newManualInputs = [...manualInputs];
     newUsersSum[user.id] = event.target.value;
     newSumError[user.id] = true;
+
+    if (!manualInputs.includes(user.id) && enteredSum) {
+      newManualInputs.push(user.id);
+      setManualInputs(newManualInputs);
+    }
 
     if (!isSumValid(event.target.value)) {
       setSumError(newSumError);
@@ -97,7 +107,11 @@ function DebtForm() {
       return;
     }
 
-    if (enteredSum && +event.target.value >= +enteredSum) {
+    if (
+      enteredSum &&
+      +event.target.value > +enteredSum &&
+      !isAllManual(newManualInputs)
+    ) {
       const newSumRemainsError = { ...sumRemainsError };
       newSumRemainsError[user.id] = true;
       setSumRemainsError(newSumRemainsError);
@@ -107,17 +121,22 @@ function DebtForm() {
 
     if (enteredSum) {
       let sumRemains = enteredSum - event.target.value;
-      const newManualInput = [...manualInputs];
 
-      if (!manualInputs.includes(user.id)) {
-        newManualInput.push(user.id);
-        setManualInputs(newManualInput);
-      }
       manualInputs.forEach((id) => {
         if (id in enteredUsersSum && id !== user.id) {
           sumRemains -= enteredUsersSum[id];
         }
       });
+
+      if (isAllManual(newManualInputs)) {
+        let sum = +event.target.value;
+        manualInputs.forEach((id) => {
+          if (id in enteredUsersSum && id !== user.id) {
+            sum += +enteredUsersSum[id];
+          }
+        });
+        setEnteredSum(sum);
+      }
 
       if (isSumValid(roundSum(sumRemains, 1))) {
         sender.forEach((selectedUser) => {
@@ -125,14 +144,11 @@ function DebtForm() {
             selectedUser !== user.id &&
             !manualInputs.includes(selectedUser)
           ) {
-            const amount =
-              newManualInput.length > 1
-                ? sender.length - newManualInput.length
-                : sender.length - 1;
+            const amount = sender.length - newManualInputs.length;
             newUsersSum[selectedUser] = roundSum(sumRemains, amount);
           }
         });
-      } else if (+sumRemains < 0) {
+      } else if (+sumRemains < 0 && !isAllManual(newManualInputs)) {
         setSumError(newSumError);
       }
       setEnteredUsersSum(newUsersSum);
@@ -221,6 +237,13 @@ function DebtForm() {
   );
 
   const popularCurrencies = ['USD', 'EUR'];
+
+  useEffect(() => {
+    if (isAllManual(manualInputs)) {
+      setSumError(false);
+      setSumRemainsError(false);
+    }
+  }, [enteredSum]);
 
   useEffect(() => {
     sender.length > 0 && setIsSenderSelected(true);
