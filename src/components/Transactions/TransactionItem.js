@@ -12,8 +12,8 @@ import {
   Typography,
   colors,
   ButtonGroup,
-  Button,
 } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 import { ExpandMore, ArrowForward } from '@mui/icons-material';
 import { formatDate } from '../../utils/formatDate';
 import { auth } from '../../services/firebase';
@@ -49,25 +49,14 @@ function TransactionItem({
   recieverId,
 }) {
   const currentUserId = auth.currentUser.uid;
-
-  const {
-    mutateAsync: putTransactionsApprove,
-    isFetching: isApproveInProgress,
-  } = useApproveTransation();
-  const {
-    mutateAsync: putTransactionsComplete,
-    isFetching: isCompleteInProgress,
-  } = useCompleteTransation();
-  const {
-    mutateAsync: putTransactionsDecline,
-    isFetching: isDeclineeInProgress,
-  } = useDeclineTransation();
+  const { mutate: putTransactionsApprove, status: approveStatus } =
+    useApproveTransation();
+  const { mutate: putTransactionsComplete, status: completeStatus } =
+    useCompleteTransation();
+  const { mutate: putTransactionsDecline, status: declineStatus } =
+    useDeclineTransation();
   const [expanded, setExpanded] = useState(false);
 
-  const isLoading = React.useMemo(
-    () => isApproveInProgress || isCompleteInProgress || isDeclineeInProgress,
-    [isApproveInProgress, isCompleteInProgress, isDeclineeInProgress],
-  );
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
@@ -139,23 +128,35 @@ function TransactionItem({
           variant='contained'
           aria-label='outlined primary button group'
         >
-          {currentUserId === senderId && status === 'PENDING' && !isLoading && (
+          {currentUserId === senderId && status === 'PENDING' && (
             <>
-              <Button onClick={putTransactionsApproveHandler} color='success'>
+              <LoadingButton
+                onClick={putTransactionsApproveHandler}
+                loading={approveStatus === 'loading'}
+                color='success'
+                variant='outlined'
+              >
                 Подтвердить
-              </Button>
-              <Button onClick={putTransactionsDeclineHandler} color='error'>
+              </LoadingButton>
+              <LoadingButton
+                loading={declineStatus === 'loading'}
+                onClick={putTransactionsDeclineHandler}
+                color='error'
+                variant='outlined'
+              >
                 Отклонить
-              </Button>
+              </LoadingButton>
             </>
           )}
-          {status === 'APPROVED' &&
-            recieverId === currentUserId &&
-            !isLoading && (
-              <Button onClick={putTransactionsCompleteHandler}>
-                Завершить
-              </Button>
-            )}
+          {status === 'APPROVED' && recieverId === currentUserId && (
+            <LoadingButton
+              loading={completeStatus === 'loading'}
+              onClick={putTransactionsCompleteHandler}
+              variant='outlined'
+            >
+              Завершить
+            </LoadingButton>
+          )}
         </ButtonGroup>
         <ExpandMoreIcon
           expand={expanded}

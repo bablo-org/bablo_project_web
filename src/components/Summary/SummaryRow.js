@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
 import { useState } from 'react';
+import { formatDate } from '../../utils/formatDate';
 
 function SummaryRow({ row }) {
   const [open, setOpen] = useState(false);
@@ -58,7 +59,7 @@ function SummaryRow({ row }) {
                   {row.history.map((historyRow) => (
                     <TableRow key={historyRow.date}>
                       <TableCell component='th' scope='row'>
-                        {historyRow.date}
+                        {formatDate(historyRow.date)}
                       </TableCell>
                       <TableCell>{historyRow.description}</TableCell>
                       <TableCell align='right'>{historyRow.amount}</TableCell>

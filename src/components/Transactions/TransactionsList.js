@@ -7,8 +7,11 @@ import { useGetTransactions, useGetUsers } from '../../queries';
 
 function TransactionsList() {
   const { data: users } = useGetUsers();
-  const { data: transactions, isFetching: isTransactionsLoading } =
-    useGetTransactions();
+  const {
+    data: transactions,
+    isLoading: isTransactionsLoading,
+    isRefetching: isTransactionsFetching,
+  } = useGetTransactions();
 
   const formatUserName = (incomingId) => {
     const idToName = users.find((user) => user.id === incomingId)?.name;
@@ -17,7 +20,7 @@ function TransactionsList() {
 
   const transformedTransactions = useMemo(() => {
     const sortedTransactions = transactions.sort(
-      (obj1, obj2) => new Date(obj2.date) - new Date(obj1.date),
+      (obj1, obj2) => obj2.date - obj1.date,
     );
     return sortedTransactions.map((transaction) => (
       <Grid item xs={12} md={6} lg={4} key={transaction.id}>
@@ -39,7 +42,7 @@ function TransactionsList() {
     ));
   }, [transactions]);
 
-  if (isTransactionsLoading || users === undefined) {
+  if (isTransactionsFetching && transactions.length === 0) {
     return <Spinner />;
   }
   if (!isTransactionsLoading && transactions.length === 0) {

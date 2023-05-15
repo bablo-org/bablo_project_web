@@ -15,12 +15,12 @@ import {
   Typography,
 } from '@mui/material/';
 import {
-  Menu as MenuIcon,
-  Receipt as ReceiptIcon,
-  History as HistoryIcon,
-  Summarize as SummarizeIcon,
-  AccountCircle as AccountCircleIcon,
-  Logout as LogoutIcon,
+  Menu,
+  AddBox,
+  History,
+  Summarize,
+  AccountCircle,
+  Logout,
 } from '@mui/icons-material/';
 import { useContext, useMemo } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
@@ -42,22 +42,22 @@ function AuthorizedLayout() {
       {
         name: 'Добавить транзакцию',
         path: PATHES.ADD_TRANSACTION,
-        icon: <ReceiptIcon />,
+        icon: <AddBox />,
       },
       {
         name: 'История',
         path: PATHES.HISTORY,
-        icon: <HistoryIcon />,
+        icon: <History />,
       },
       {
         name: 'Итоги',
         path: PATHES.SUMMARY,
-        icon: <SummarizeIcon />,
+        icon: <Summarize />,
       },
       {
         name: 'Профиль',
         path: PATHES.PROFILE,
-        icon: <AccountCircleIcon />,
+        icon: <AccountCircle />,
       },
     ],
     [],
@@ -119,7 +119,7 @@ function AuthorizedLayout() {
             }}
           >
             <ListItemIcon>
-              <LogoutIcon />
+              <Logout />
             </ListItemIcon>
             <ListItemText primary='Выйти' />
           </ListItemButton>
@@ -146,7 +146,7 @@ function AuthorizedLayout() {
             onClick={handleDrawerToggle}
             sx={{ mr: 2, display: { sm: 'none' } }}
           >
-            <MenuIcon />
+            <Menu />
           </IconButton>
           <Typography variant='h6' noWrap component='div'>
             {pageHeader}
