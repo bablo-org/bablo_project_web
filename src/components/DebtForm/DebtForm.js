@@ -58,8 +58,8 @@ function DebtForm() {
     setEnteredSum(event.target.value);
     setManualInputs([]);
     setEnteredUsersSum({});
-    setSumError({});
-    setSumRemainsError({});
+    setSumError(false);
+    setSumRemainsError(false);
   };
 
   const isSumValid = (sum) => {
