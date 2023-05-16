@@ -6,9 +6,13 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Box,
+  Typography,
+  Grid,
 } from '@mui/material';
 import { useMemo, useState, useEffect } from 'react';
 import SummaryRow from './SummaryRow';
+import Spinner from '../Spinner/Spinner';
 import { useGetUsers, useGetTransactions } from '../../queries';
 import { auth } from '../../services/firebase';
 
@@ -25,7 +29,11 @@ function createData(name, valueGain, valueLost, total, history) {
 function Summary() {
   const currentUserId = auth.currentUser.uid;
   const { data: users } = useGetUsers();
-  const { data: transactions } = useGetTransactions();
+  const {
+    data: transactions,
+    isLoading: isTransactionsLoading,
+    isRefetching: isTransactionsFetching,
+  } = useGetTransactions();
   const [summaryData, setSummaryData] = useState([]);
   const approvedTransactions = useMemo(() => {
     return transactions.filter(
@@ -101,7 +109,30 @@ function Summary() {
       userSumamryData.history.sort((obj1, obj2) => obj2.date - obj1.date),
     );
   });
-
+  if (isTransactionsFetching && transactions.length === 0) {
+    return <Spinner />;
+  }
+  if (approvedTransactions.length === 0 && !isTransactionsLoading) {
+    return (
+      <Grid container alignItems='center' justifyContent='center'>
+        <Box
+          sx={{
+            border: 3,
+            borderColor: '#0566',
+            borderRadius: 15,
+            height: 100,
+            width: 400,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          Нет подтвержденных транзакций
+          <Typography />
+        </Box>
+      </Grid>
+    );
+  }
   return (
     <TableContainer component={Paper}>
       <Table aria-label='collapsible table'>

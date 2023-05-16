@@ -57,7 +57,7 @@ function SummaryRow({ row }) {
                 </TableHead>
                 <TableBody>
                   {row.history.map((historyRow) => (
-                    <TableRow key={historyRow.date}>
+                    <TableRow key={Math.random()}>
                       <TableCell component='th' scope='row'>
                         {formatDate(historyRow.date)}
                       </TableCell>
