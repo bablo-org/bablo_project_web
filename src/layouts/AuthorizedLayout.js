@@ -22,17 +22,17 @@ import {
   AccountCircle,
   Logout,
 } from '@mui/icons-material/';
-import { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { auth, signOut } from '../services/firebase';
-import { AuthContext } from '../context/Auth';
 import { PATHES } from '../routes';
 
 const drawerWidth = 240;
 
 function AuthorizedLayout() {
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const authContext = useContext(AuthContext);
+  const authContext = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const location = useLocation();
   const isCurrentLocation = (item) => location.pathname === item.path;
