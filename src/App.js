@@ -1,15 +1,16 @@
 import { RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import {
   initializeFirebase,
   auth,
   onAuthStateChanged,
 } from './services/firebase';
 import './App.css';
-import { AuthContext } from './context/Auth';
 import router from './routes';
 import { defaultQueryFn } from './queries';
+import { authActions } from './store/slices/auth';
 
 initializeFirebase();
 const queryClient = new QueryClient({
@@ -22,10 +23,8 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-  const [user, setUser] = useState();
+  const dispatch = useDispatch();
   const [loaded, setLoaded] = useState(false);
-
-  const authContext = useMemo(() => ({ user, setUser }), [user, setUser]);
 
   useEffect(() => {
     onAuthStateChanged(auth, (currentUser) => {
@@ -33,12 +32,17 @@ function App() {
       if (currentUser) {
         // User is signed in, see docs for a list of available properties
         // https://firebase.google.com/docs/reference/js/v8/firebase.User
-        setUser(currentUser);
+        dispatch(
+          authActions.setUser({
+            uid: currentUser.uid,
+            email: currentUser.email,
+          }),
+        );
         // ...
       } else {
         // User is signed out
         // ...
-        setUser();
+        dispatch(authActions.clearUser());
       }
     });
   }, []);
@@ -50,9 +54,7 @@ function App() {
   return (
     <div className='App'>
       <QueryClientProvider client={queryClient}>
-        <AuthContext.Provider value={authContext}>
-          <RouterProvider router={router} />
-        </AuthContext.Provider>
+        <RouterProvider router={router} />
       </QueryClientProvider>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -10,21 +10,20 @@ import {
 } from '@mui/material';
 import LoginIcon from '@mui/icons-material/Login';
 import LoadingButton from '@mui/lab/LoadingButton';
+import { useSelector } from 'react-redux';
 import { auth, signInWithEmailAndPassword } from '../../services/firebase';
 import { PATHES } from '../../routes';
-import { AuthContext } from '../../context/Auth';
 import classes from './LoginForm.module.css';
 import Logo from '../../BabloLogo.png';
 import { validationProps } from '../../utils/validationForm';
 
 function InputForm() {
   const navigate = useNavigate();
-  const authContext = useContext(AuthContext);
   const [enteredEmail, setEnteredEmail] = useState('');
   const [enteredPassword, setEnteredPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
-  const { user } = authContext;
+  const { user } = useSelector((state) => state.auth);
   const errorMessage = useMemo(() => {
     switch (error) {
       case 'auth/invalid-email':
