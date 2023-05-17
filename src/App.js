@@ -10,7 +10,7 @@ import {
 import './App.css';
 import router from './routes';
 import { defaultQueryFn } from './queries';
-import { authActions } from './store/auth';
+import { authActions } from './store/slices/auth';
 
 initializeFirebase();
 const queryClient = new QueryClient({

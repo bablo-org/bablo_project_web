@@ -19,12 +19,11 @@ import { validationProps } from '../../utils/validationForm';
 
 function InputForm() {
   const navigate = useNavigate();
-  const authContext = useSelector((state) => state.auth);
   const [enteredEmail, setEnteredEmail] = useState('');
   const [enteredPassword, setEnteredPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
-  const { user } = authContext;
+  const { user } = useSelector((state) => state.auth);
   const errorMessage = useMemo(() => {
     switch (error) {
       case 'auth/invalid-email':
