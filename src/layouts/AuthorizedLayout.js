@@ -27,6 +27,7 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { auth, signOut } from '../services/firebase';
 import { PATHES } from '../routes';
+import SnackbarMessage from '../components/SnackbarMessage/SnackbarMessage';
 
 const drawerWidth = 240;
 
@@ -200,6 +201,7 @@ function AuthorizedLayout() {
       >
         <Toolbar />
         <Outlet />
+        <SnackbarMessage />
       </Box>
     </Box>
   );

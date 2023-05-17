@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Container, Grid, Typography, Divider } from '@mui/material';
 import { useGetUsers } from '../../queries';
 import { auth } from '../../services/firebase';
@@ -6,11 +6,8 @@ import TelegramProfile from './TelegramProfile';
 import UserProfileLoader from './Skeleton/UserProfileLoader';
 import UserCurrancy from './UserCurrancy';
 import UserNameAndAvatar from './UserNameAndAvatar';
-import SnackbarMessage from '../SnackbarMessage/SnackbarMessage';
 
 function UserProfile() {
-  const [snackbarType, setSnackbarType] = useState('close');
-
   const { data: users, isFetching: usersLoading } = useGetUsers();
   const currentUserId = auth.currentUser.uid;
   const currentUser = useMemo(
@@ -25,14 +22,9 @@ function UserProfile() {
 
   return (
     <Container maxWidth='md'>
-      <SnackbarMessage
-        type={snackbarType}
-        onClose={() => setSnackbarType('close')}
-      />
       <Grid container spacing={2} direction='column'>
         <UserNameAndAvatar
           currentUser={currentUser}
-          setSnackbarType={setSnackbarType}
           showSkeleton={showSkeleton}
         />
         <Grid item xs={12}>
@@ -48,7 +40,6 @@ function UserProfile() {
             <UserProfileLoader />
           ) : (
             <TelegramProfile
-              setSnackbarType={setSnackbarType}
               enableTgNotifications={currentUser.enableTgNotifications}
               telegramUser={currentUser.telegramUser}
               UsersLoading={usersLoading}
@@ -67,10 +58,7 @@ function UserProfile() {
           {showSkeleton ? (
             <UserProfileLoader />
           ) : (
-            <UserCurrancy
-              currentUser={currentUser}
-              setSnackbarType={setSnackbarType}
-            />
+            <UserCurrancy currentUser={currentUser} />
           )}
         </Grid>
       </Grid>

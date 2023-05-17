@@ -18,10 +18,15 @@ import {
   AddCircleOutline as AddCircleOutlineIcon,
 } from '@mui/icons-material';
 import { useState, useMemo, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import TransitionsModal from '../modal/modal';
 import { useGetCurrencies, useUpdateUserSettings } from '../../queries';
+import {
+  showErrorSnackbarMessage,
+  showSavedSnackbarMessage,
+} from '../../store/slices/snackbarMessage';
 
-function UserCurrancy({ currentUser, setSnackbarType }) {
+function UserCurrancy({ currentUser }) {
   const [selectedCurrencies, setSelectedCurrencis] = useState([]);
   const [favoriteCurrenciesId, setFavoriteCurrenciesId] = useState([]);
   const [isCurrenciesUpdated, setIsCurrenciesUpdated] = useState(false);
@@ -30,6 +35,7 @@ function UserCurrancy({ currentUser, setSnackbarType }) {
   const { data: currencies } = useGetCurrencies();
   const { mutateAsync: putUserSettings, isLoading: loadingSetSettings } =
     useUpdateUserSettings();
+  const dispatch = useDispatch();
 
   const favoriteCurrencies = useMemo(() => {
     if (favoriteCurrenciesId && currencies.length > 1)
@@ -77,9 +83,9 @@ function UserCurrancy({ currentUser, setSnackbarType }) {
     try {
       const settings = { favoriteCurrencies: updatedCurrencies };
       await putUserSettings(settings);
-      setSnackbarType('success');
+      dispatch(showSavedSnackbarMessage());
     } catch {
-      setSnackbarType('error');
+      dispatch(showErrorSnackbarMessage());
     } finally {
       setConfirmModalOpen(false);
     }
