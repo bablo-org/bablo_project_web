@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
 import { useState } from 'react';
+import { nanoid } from '@reduxjs/toolkit';
 import { formatDate } from '../../utils/formatDate';
 
 function SummaryRow({ row }) {
@@ -25,6 +26,7 @@ function SummaryRow({ row }) {
             aria-label='expand row'
             size='small'
             onClick={() => setOpen(!open)}
+            disabled={row.history.length === 0}
           >
             {open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
           </IconButton>
@@ -57,7 +59,7 @@ function SummaryRow({ row }) {
                 </TableHead>
                 <TableBody>
                   {row.history.map((historyRow) => (
-                    <TableRow key={Math.random()}>
+                    <TableRow key={nanoid()}>
                       <TableCell component='th' scope='row'>
                         {formatDate(historyRow.date)}
                       </TableCell>

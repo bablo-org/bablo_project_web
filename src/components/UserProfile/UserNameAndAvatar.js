@@ -10,14 +10,16 @@ import {
 } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { Check as CheckIcon, Clear as ClearIcon } from '@mui/icons-material';
+import { useDispatch } from 'react-redux';
 import { useUpdateUser, useUpdateUserAvatar } from '../../queries';
 import { getDownloadURL, storage, ref } from '../../services/firebase';
 import classes from './UserProfile.module.css';
 import { validationProps } from '../../utils/validationForm';
 import UserProfileAvatar from './UserProfileAvatar';
 import AvatarSkeleton from './Skeleton/AvatarSkeleton';
+import { showSnackbarMessage } from '../../store/slices/snackbarMessage';
 
-function UserNameAndAvatar({ currentUser, setSnackbarType, showSkeleton }) {
+function UserNameAndAvatar({ currentUser, showSkeleton }) {
   const { mutateAsync: putUser } = useUpdateUser();
   const { mutateAsync: postUserAvatar } = useUpdateUserAvatar();
   const [showAvatarSkeleton, setShowAvatarSkeleton] = useState(showSkeleton);
@@ -30,6 +32,7 @@ function UserNameAndAvatar({ currentUser, setSnackbarType, showSkeleton }) {
   const [isAvatarDeleted, setIsAvatarDeleted] = useState(false);
   const [loadingUserInfo, setLoadingUserInfo] = useState(false);
   const inputFileValue = useRef();
+  const dispatch = useDispatch();
   const { avatar } = validationProps;
 
   const clearForm = () => {
@@ -124,10 +127,20 @@ function UserNameAndAvatar({ currentUser, setSnackbarType, showSkeleton }) {
       }
       if (userUpdates) {
         await putUser(userUpdates);
-        setSnackbarType('success');
+        dispatch(
+          showSnackbarMessage({
+            severity: 'success',
+            message: 'Изменения успешно сохранены',
+          }),
+        );
       }
     } catch {
-      setSnackbarType('error');
+      dispatch(
+        showSnackbarMessage({
+          severity: 'error',
+          message: 'Что-то пошло не так... Попробуйте перезагрузить страницу.',
+        }),
+      );
     } finally {
       setLoadingUserInfo(false);
       clearForm();

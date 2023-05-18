@@ -11,6 +11,7 @@ import './App.css';
 import router from './routes';
 import { defaultQueryFn } from './queries';
 import { authActions } from './store/slices/auth';
+import SnackbarMessage from './components/SnackbarMessage/SnackbarMessage';
 
 initializeFirebase();
 const queryClient = new QueryClient({
@@ -55,6 +56,7 @@ function App() {
     <div className='App'>
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
+        <SnackbarMessage />
       </QueryClientProvider>
     </div>
   );

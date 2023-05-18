@@ -16,16 +16,14 @@ import {
   Telegram as TelegramIcon,
   Clear as ClearIcon,
 } from '@mui/icons-material';
+import { useDispatch } from 'react-redux';
 import classes from './UserProfile.module.css';
 import { validationProps } from '../../utils/validationForm';
 import { useUpdateTgUserName, useUpdateUserSettings } from '../../queries';
 import TransitionsModal from '../modal/modal';
+import { showSnackbarMessage } from '../../store/slices/snackbarMessage';
 
-function TelegramProfile({
-  setSnackbarType,
-  enableTgNotifications,
-  telegramUser,
-}) {
+function TelegramProfile({ enableTgNotifications, telegramUser }) {
   const { mutateAsync: putTgUserName, isLoading: loadingTgUsername } =
     useUpdateTgUserName();
   const { mutateAsync: putUserSettings, isLoading: loadingUserSettings } =
@@ -36,16 +34,28 @@ function TelegramProfile({
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [isNotificationOn, setIsNotificationOn] = useState(true);
   const [tgCollapseOff, setTgCollapseOff] = useState(false);
+  const dispatch = useDispatch();
 
   const updateTg = async (Name) => {
     try {
       await putTgUserName(Name);
-      setSnackbarType('success');
+      dispatch(
+        showSnackbarMessage({
+          severity: 'success',
+          message: 'Изменения успешно сохранены',
+        }),
+      );
     } catch (e) {
       if (e.message === '500') {
         setIsTgError(true);
       } else {
-        setSnackbarType('error');
+        dispatch(
+          showSnackbarMessage({
+            severity: 'error',
+            message:
+              'Что-то пошло не так... Попробуйте перезагрузить страницу.',
+          }),
+        );
       }
     }
   };
@@ -63,9 +73,19 @@ function TelegramProfile({
     try {
       const settings = { enableTelegramNotifications: !isNotificationOn };
       await putUserSettings(settings);
-      setSnackbarType('succes');
+      dispatch(
+        showSnackbarMessage({
+          severity: 'success',
+          message: 'Изменения успешно сохранены',
+        }),
+      );
     } catch {
-      setSnackbarType('error');
+      dispatch(
+        showSnackbarMessage({
+          severity: 'error',
+          message: 'Что-то пошло не так... Попробуйте перезагрузить страницу.',
+        }),
+      );
     } finally {
       setConfirmModalOpen(false);
     }

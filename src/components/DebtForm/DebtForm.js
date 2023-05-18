@@ -17,6 +17,7 @@ import {
   SafetyDivider as SafetyDividerIcon,
 } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
+import { useDispatch } from 'react-redux';
 import { auth } from '../../services/firebase';
 import { validationProps } from '../../utils/validationForm';
 import AvatarsList from '../AvatarsList/AvatarsList';
@@ -26,7 +27,7 @@ import {
   useGetUsers,
   usePostTransaction,
 } from '../../queries';
-import SnackbarMessage from '../SnackbarMessage/SnackbarMessage';
+import { showSnackbarMessage } from '../../store/slices/snackbarMessage';
 
 function DebtForm() {
   const [sender, setSender] = useState([]);
@@ -39,10 +40,10 @@ function DebtForm() {
   const [enteredDescription, setEnteredDescription] = useState('');
   const [enteredDate, setEnteredDate] = useState(null);
   const [currenciesOptions, setCurrenciesOptions] = useState([]);
-  const [snackbarType, setSnackbarType] = useState('close');
   const [sumRemainsError, setSumRemainsError] = useState({});
   const [sumError, setSumError] = useState({});
   const [manualInputs, setManualInputs] = useState([]);
+  const dispatch = useDispatch();
 
   const {
     data: users,
@@ -195,9 +196,19 @@ function DebtForm() {
     });
     try {
       await postTransactions({ transactions: debtData });
-      setSnackbarType('success');
+      dispatch(
+        showSnackbarMessage({
+          severity: 'success',
+          message: 'Транзакция успешно добавлена',
+        }),
+      );
     } catch {
-      setSnackbarType('error');
+      dispatch(
+        showSnackbarMessage({
+          severity: 'error',
+          message: 'Что-то пошло не так... Попробуйте перезагрузить страницу.',
+        }),
+      );
     } finally {
       clearForm();
     }
@@ -281,7 +292,6 @@ function DebtForm() {
 
   return (
     <Container maxWidth='md'>
-      <SnackbarMessage type={snackbarType} onClose={setSnackbarType} />
       <Grid container spacing={2} direction='column'>
         <Grid item xs={12}>
           <AvatarsList
