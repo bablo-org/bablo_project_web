@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   open: false,
-  severity: '',
+  severity: undefined,
   message: '',
 };
 
@@ -11,26 +11,13 @@ const snackbarMessageSlice = createSlice({
   name: 'snackbarMessage',
   initialState,
   reducers: {
-    showSavedSnackbarMessage(state) {
+    showSnackbarMessage(state, action) {
       state.open = true;
-      state.severity = 'success';
-      state.message = 'Изменения успешно сохранены';
-    },
-    showPostedSnackbarMessage(state) {
-      state.open = true;
-      state.severity = 'success';
-      state.message = 'Транзакция успешно добавлена';
-    },
-    showErrorSnackbarMessage(state) {
-      state.open = true;
-      state.severity = 'error';
-      state.message =
-        'Что-то пошло не так... Попробуйте перезагрузить страницу.';
+      state.severity = action.payload.severity;
+      state.message = action.payload.message;
     },
     closeSnackbarMessage(state) {
       state.open = false;
-      state.severity = '';
-      state.message = '';
     },
   },
 });
@@ -39,9 +26,4 @@ const { actions, reducer } = snackbarMessageSlice;
 
 export default reducer;
 
-export const {
-  showSavedSnackbarMessage,
-  showPostedSnackbarMessage,
-  showErrorSnackbarMessage,
-  closeSnackbarMessage,
-} = actions;
+export const { showSnackbarMessage, closeSnackbarMessage } = actions;

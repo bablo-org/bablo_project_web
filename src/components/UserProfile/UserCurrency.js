@@ -21,12 +21,9 @@ import { useState, useMemo, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import TransitionsModal from '../modal/modal';
 import { useGetCurrencies, useUpdateUserSettings } from '../../queries';
-import {
-  showErrorSnackbarMessage,
-  showSavedSnackbarMessage,
-} from '../../store/slices/snackbarMessage';
+import { showSnackbarMessage } from '../../store/slices/snackbarMessage';
 
-function UserCurrancy({ currentUser }) {
+function UserCurrency({ currentUser }) {
   const [selectedCurrencies, setSelectedCurrencis] = useState([]);
   const [favoriteCurrenciesId, setFavoriteCurrenciesId] = useState([]);
   const [isCurrenciesUpdated, setIsCurrenciesUpdated] = useState(false);
@@ -83,9 +80,19 @@ function UserCurrancy({ currentUser }) {
     try {
       const settings = { favoriteCurrencies: updatedCurrencies };
       await putUserSettings(settings);
-      dispatch(showSavedSnackbarMessage());
+      dispatch(
+        showSnackbarMessage({
+          severity: 'success',
+          message: 'Изменения успешно сохранены',
+        }),
+      );
     } catch {
-      dispatch(showErrorSnackbarMessage());
+      dispatch(
+        showSnackbarMessage({
+          severity: 'error',
+          message: 'Что-то пошло не так... Попробуйте перезагрузить страницу.',
+        }),
+      );
     } finally {
       setConfirmModalOpen(false);
     }
@@ -305,4 +312,4 @@ function UserCurrancy({ currentUser }) {
   );
 }
 
-export default UserCurrancy;
+export default UserCurrency;

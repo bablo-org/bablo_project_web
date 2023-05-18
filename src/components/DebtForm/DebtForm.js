@@ -27,10 +27,7 @@ import {
   useGetUsers,
   usePostTransaction,
 } from '../../queries';
-import {
-  showErrorSnackbarMessage,
-  showPostedSnackbarMessage,
-} from '../../store/slices/snackbarMessage';
+import { showSnackbarMessage } from '../../store/slices/snackbarMessage';
 
 function DebtForm() {
   const [sender, setSender] = useState([]);
@@ -199,9 +196,19 @@ function DebtForm() {
     });
     try {
       await postTransactions({ transactions: debtData });
-      dispatch(showPostedSnackbarMessage());
+      dispatch(
+        showSnackbarMessage({
+          severity: 'success',
+          message: 'Транзакция успешно добавлена',
+        }),
+      );
     } catch {
-      dispatch(showErrorSnackbarMessage());
+      dispatch(
+        showSnackbarMessage({
+          severity: 'error',
+          message: 'Что-то пошло не так... Попробуйте перезагрузить страницу.',
+        }),
+      );
     } finally {
       clearForm();
     }

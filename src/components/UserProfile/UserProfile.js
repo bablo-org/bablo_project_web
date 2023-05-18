@@ -4,7 +4,7 @@ import { useGetUsers } from '../../queries';
 import { auth } from '../../services/firebase';
 import TelegramProfile from './TelegramProfile';
 import UserProfileLoader from './Skeleton/UserProfileLoader';
-import UserCurrancy from './UserCurrancy';
+import UserCurrency from './UserCurrency';
 import UserNameAndAvatar from './UserNameAndAvatar';
 
 function UserProfile() {
@@ -58,7 +58,7 @@ function UserProfile() {
           {showSkeleton ? (
             <UserProfileLoader />
           ) : (
-            <UserCurrancy currentUser={currentUser} />
+            <UserCurrency currentUser={currentUser} />
           )}
         </Grid>
       </Grid>

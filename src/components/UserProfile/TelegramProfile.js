@@ -21,10 +21,7 @@ import classes from './UserProfile.module.css';
 import { validationProps } from '../../utils/validationForm';
 import { useUpdateTgUserName, useUpdateUserSettings } from '../../queries';
 import TransitionsModal from '../modal/modal';
-import {
-  showErrorSnackbarMessage,
-  showSavedSnackbarMessage,
-} from '../../store/slices/snackbarMessage';
+import { showSnackbarMessage } from '../../store/slices/snackbarMessage';
 
 function TelegramProfile({ enableTgNotifications, telegramUser }) {
   const { mutateAsync: putTgUserName, isLoading: loadingTgUsername } =
@@ -42,12 +39,23 @@ function TelegramProfile({ enableTgNotifications, telegramUser }) {
   const updateTg = async (Name) => {
     try {
       await putTgUserName(Name);
-      dispatch(showSavedSnackbarMessage());
+      dispatch(
+        showSnackbarMessage({
+          severity: 'success',
+          message: 'Изменения успешно сохранены',
+        }),
+      );
     } catch (e) {
       if (e.message === '500') {
         setIsTgError(true);
       } else {
-        dispatch(showErrorSnackbarMessage());
+        dispatch(
+          showSnackbarMessage({
+            severity: 'error',
+            message:
+              'Что-то пошло не так... Попробуйте перезагрузить страницу.',
+          }),
+        );
       }
     }
   };
@@ -65,9 +73,19 @@ function TelegramProfile({ enableTgNotifications, telegramUser }) {
     try {
       const settings = { enableTelegramNotifications: !isNotificationOn };
       await putUserSettings(settings);
-      dispatch(showSavedSnackbarMessage());
+      dispatch(
+        showSnackbarMessage({
+          severity: 'success',
+          message: 'Изменения успешно сохранены',
+        }),
+      );
     } catch {
-      dispatch(showErrorSnackbarMessage());
+      dispatch(
+        showSnackbarMessage({
+          severity: 'error',
+          message: 'Что-то пошло не так... Попробуйте перезагрузить страницу.',
+        }),
+      );
     } finally {
       setConfirmModalOpen(false);
     }

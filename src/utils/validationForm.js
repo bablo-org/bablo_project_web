@@ -22,7 +22,7 @@ export const validationProps = {
     },
     inputPropsPattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$',
     title: 'Введите Ваш e-mail',
-    errorTitle: 'Адрес электронной почты должен содержать символ "@"',
+    errorTitle: 'Адрес электронной почты должен быть вида xxxxx@xxx.xx',
   },
   avatar: {
     title: 'Загрузите аватар',

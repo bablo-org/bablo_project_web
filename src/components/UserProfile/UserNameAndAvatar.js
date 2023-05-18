@@ -17,10 +17,7 @@ import classes from './UserProfile.module.css';
 import { validationProps } from '../../utils/validationForm';
 import UserProfileAvatar from './UserProfileAvatar';
 import AvatarSkeleton from './Skeleton/AvatarSkeleton';
-import {
-  showErrorSnackbarMessage,
-  showSavedSnackbarMessage,
-} from '../../store/slices/snackbarMessage';
+import { showSnackbarMessage } from '../../store/slices/snackbarMessage';
 
 function UserNameAndAvatar({ currentUser, showSkeleton }) {
   const { mutateAsync: putUser } = useUpdateUser();
@@ -130,10 +127,20 @@ function UserNameAndAvatar({ currentUser, showSkeleton }) {
       }
       if (userUpdates) {
         await putUser(userUpdates);
-        dispatch(showSavedSnackbarMessage());
+        dispatch(
+          showSnackbarMessage({
+            severity: 'success',
+            message: 'Изменения успешно сохранены',
+          }),
+        );
       }
     } catch {
-      dispatch(showErrorSnackbarMessage());
+      dispatch(
+        showSnackbarMessage({
+          severity: 'error',
+          message: 'Что-то пошло не так... Попробуйте перезагрузить страницу.',
+        }),
+      );
     } finally {
       setLoadingUserInfo(false);
       clearForm();

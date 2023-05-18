@@ -1,21 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Container,
-  Grid,
-  TextField,
-  FormControl,
-  FormHelperText,
-  Box,
-} from '@mui/material';
+import { Container, Grid, TextField, FormControl, Box } from '@mui/material';
 import LoginIcon from '@mui/icons-material/Login';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { auth, signInWithEmailAndPassword } from '../../services/firebase';
 import { PATHES } from '../../routes';
 import classes from './LoginForm.module.css';
 import Logo from '../../BabloLogo.png';
 import { validationProps } from '../../utils/validationForm';
+import { showSnackbarMessage } from '../../store/slices/snackbarMessage';
 
 function InputForm() {
   const navigate = useNavigate();
@@ -24,6 +18,7 @@ function InputForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const { user } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
   const errorMessage = useMemo(() => {
     switch (error) {
       case 'auth/invalid-email':
@@ -67,6 +62,17 @@ function InputForm() {
       navigate(PATHES.ADD_TRANSACTION);
     }
   }, [user, navigate]);
+
+  useEffect(() => {
+    if (error) {
+      dispatch(
+        showSnackbarMessage({
+          severity: 'error',
+          message: errorMessage,
+        }),
+      );
+    }
+  }, [error]);
 
   return (
     <Container
@@ -123,11 +129,6 @@ function InputForm() {
                     className={enteredPassword && classes.valid}
                   />
                 </FormControl>
-              </Grid>
-              <Grid item xs={12}>
-                <FormHelperText error={!!error}>
-                  {error && errorMessage}
-                </FormHelperText>
               </Grid>
               <Grid item xs={12}>
                 <LoadingButton
