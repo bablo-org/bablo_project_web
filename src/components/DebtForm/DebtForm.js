@@ -31,8 +31,10 @@ import { showSnackbarMessage } from '../../store/slices/snackbarMessage';
 
 function DebtForm() {
   const [sender, setSender] = useState([]);
+  const [disabledSender, setDisabledSender] = useState([]);
   const [isSenderSelected, setIsSenderSelected] = useState(true);
   const [receiver, setReceiver] = useState([]);
+  const [disabledReceiver, setDisabledReceiver] = useState([]);
   const [isReceiverSelected, setIsReceiverSelected] = useState(true);
   const [enteredCurrency, setEnteredCurrency] = useState(null);
   const [enteredSum, setEnteredSum] = useState('');
@@ -298,19 +300,32 @@ function DebtForm() {
             users={users}
             loading={isUsersLoading}
             error={isUserLoadingError}
-            onUserSelected={setSender}
-            blockedUserIds={undefined}
+            contractor={sender}
+            disabledUserIds={disabledSender}
+            sender={sender}
+            receiver={receiver}
+            setSender={setSender}
+            setReceiver={setReceiver}
+            setDisabledSender={setDisabledSender}
+            setDisabledReceiver={setDisabledReceiver}
+            isSender
           />
           {!isSenderSelected && <p>Выберите Должника</p>}
         </Grid>
-        {sender.length > 0 && (
+        {(sender.length > 0 || receiver.length > 0) && (
           <Grid item xs={12}>
             <AvatarsList
               users={users}
               loading={isUsersLoading}
               error={isUserLoadingError}
-              onUserSelected={setReceiver}
-              blockedUserIds={sender}
+              contractor={receiver}
+              disabledUserIds={disabledReceiver}
+              sender={sender}
+              receiver={receiver}
+              setSender={setSender}
+              setReceiver={setReceiver}
+              setDisabledSender={setDisabledSender}
+              setDisabledReceiver={setDisabledReceiver}
             />
             {!isReceiverSelected && <p>Выберите Получателя</p>}
           </Grid>

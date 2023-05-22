@@ -1,84 +1,75 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import { Stack, Skeleton, Box } from '@mui/material';
 import { auth } from '../../services/firebase';
 import UserAvatar from '../UserAvatar/UserAvatar';
+import { selectContractors } from './selectContractors';
 
 function AvatarsList({
-  onUserSelected,
-  blockedUserIds,
   users,
   loading,
   error,
+  contractor,
+  disabledUserIds,
+  sender,
+  receiver,
+  isSender,
+  setSender,
+  setReceiver,
+  setDisabledSender,
+  setDisabledReceiver,
 }) {
   const currentUserId = auth.currentUser.uid;
-  const [selectedIds, setSelectedIds] = useState([]);
+  const toggleSelectedId = (id) => {
+    let currentContractor = [...contractor];
 
-  const toggleSelectedId = useCallback(
-    (id) => {
-      if (selectedIds.includes(id)) {
-        setSelectedIds((p) => p.filter((item) => item !== id));
-      } else {
-        setSelectedIds([...selectedIds, id]);
-      }
-    },
-    [selectedIds],
-  );
+    // toogle selected Users
+    if (currentContractor.includes(id)) {
+      currentContractor = currentContractor.filter((item) => item !== id);
+    } else if (id === currentUserId || !isSender) {
+      currentContractor = [id];
+    } else {
+      currentContractor.push(id);
+    }
 
-  const isUserBlocked = useCallback(
-    (userId) => {
-      if (!blockedUserIds) return false;
-      if (blockedUserIds.includes(currentUserId)) {
-        if (
-          userId === currentUserId ||
-          (selectedIds.length > 0 && userId !== selectedIds[0])
-        ) {
-          return true;
-        }
-      } else if (userId !== currentUserId) {
-        return true;
-      }
-      return false;
-    },
-    [blockedUserIds, currentUserId, selectedIds],
-  );
+    // check for toogle between sender and receiver as current user
+    let secondContractor = isSender ? receiver : sender;
+    if (
+      currentContractor.includes(currentUserId) &&
+      secondContractor.includes(currentUserId)
+    ) {
+      secondContractor = [];
+    }
 
-  const isUserSelected = useCallback(
-    (userId) => {
-      let isSelected = false;
-      if (selectedIds.includes(currentUserId)) {
-        if (userId !== currentUserId) {
-          isSelected = true;
-        }
-      } else if (selectedIds.length > 0 && userId === currentUserId) {
-        isSelected = true;
-      }
-      return isSelected;
-    },
-    [currentUserId, selectedIds],
-  );
+    const floatProps = isSender
+      ? { sender: currentContractor, receiver: secondContractor }
+      : { sender: secondContractor, receiver: currentContractor };
+    selectContractors(
+      { ...floatProps },
+      setSender,
+      setReceiver,
+      setDisabledSender,
+      setDisabledReceiver,
+      users,
+      currentUserId,
+    );
+  };
 
   const renderAvatar = useCallback(
     (user) => {
-      const isBlocked = isUserBlocked(user.id);
-      const isSelected = isBlocked ? false : isUserSelected(user.id);
       return (
         <UserAvatar
           key={user.id}
           name={user.name}
           id={user.id}
           toggleSelectedId={toggleSelectedId}
-          isActive={selectedIds.indexOf(user.id) !== -1}
-          isBlocked={isBlocked || isSelected}
+          isActive={contractor.includes(user.id)}
+          isDisabled={disabledUserIds.includes(user.id)}
           avatarUrl={user.avatar}
         />
       );
     },
-    [isUserBlocked, isUserSelected, selectedIds, toggleSelectedId],
+    [contractor],
   );
-
-  useEffect(() => {
-    onUserSelected(selectedIds);
-  }, [selectedIds]);
 
   return (
     <Stack direction='row' justifyContent='center'>
