@@ -22,7 +22,7 @@ function AvatarsList({
   const toggleSelectedId = (id) => {
     let currentContractor = [...contractor];
 
-    // toogle selected Users
+    // toggle selected Users
     if (currentContractor.includes(id)) {
       currentContractor = currentContractor.filter((item) => item !== id);
     } else if (id === currentUserId || !isSender) {
@@ -31,7 +31,7 @@ function AvatarsList({
       currentContractor.push(id);
     }
 
-    // check for toogle between sender and receiver as current user
+    // check for toggle between sender and receiver as current user
     let secondContractor = isSender ? receiver : sender;
     if (
       currentContractor.includes(currentUserId) &&
@@ -68,7 +68,7 @@ function AvatarsList({
         />
       );
     },
-    [contractor],
+    [contractor, users],
   );
 
   return (
