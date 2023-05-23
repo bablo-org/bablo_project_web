@@ -1,5 +1,6 @@
 import { Avatar, Badge } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import React from 'react';
 
 function UserAvatar({
   name,
@@ -30,7 +31,7 @@ function UserAvatar({
     >
       <Avatar
         alt={name}
-        size='responsive'
+        sizes='responsive'
         variant='rounded'
         sx={{
           backgroundColor: isBlocked ? 'grey' : '#1976d2',
