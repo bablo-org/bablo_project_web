@@ -24,7 +24,6 @@ import {
 } from '@mui/icons-material/';
 import { useMemo } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
 import { auth, signOut } from '../services/firebase';
 import { PATHES } from '../routes';
 
@@ -32,11 +31,10 @@ const drawerWidth = 240;
 
 function AuthorizedLayout() {
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const authContext = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const location = useLocation();
   const isCurrentLocation = (item) => location.pathname === item.path;
-  const { setUser } = authContext;
+
   const listItemButtons = useMemo(
     () => [
       {
@@ -113,9 +111,7 @@ function AuthorizedLayout() {
         <ListItem key='Выйти' disablePadding>
           <ListItemButton
             onClick={() => {
-              signOut(auth).then(() => {
-                setUser(null);
-              });
+              signOut(auth);
             }}
           >
             <ListItemIcon>
