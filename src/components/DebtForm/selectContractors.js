@@ -1,9 +1,5 @@
 export const selectContractors = (
   { sender, receiver },
-  setSender,
-  setReceiver,
-  setDisabledSender,
-  setDisabledReceiver,
   users,
   currentUserId,
 ) => {
@@ -59,8 +55,5 @@ export const selectContractors = (
     newDisabledSender = filteredUserId(currentUserId);
   }
 
-  setSender(newSender);
-  setReceiver(newReceiver);
-  setDisabledSender(newDisabledSender);
-  setDisabledReceiver(newDisabledReceiver);
+  return { newSender, newReceiver, newDisabledSender, newDisabledReceiver };
 };

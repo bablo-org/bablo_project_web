@@ -28,6 +28,7 @@ import {
   usePostTransaction,
 } from '../../queries';
 import { showSnackbarMessage } from '../../store/slices/snackbarMessage';
+import { selectContractors } from './selectContractors';
 
 function DebtForm() {
   const [sender, setSender] = useState([]);
@@ -251,6 +252,40 @@ function DebtForm() {
 
   const popularCurrencies = ['USD', 'EUR'];
 
+  const toggleSelectedId = (id, isSender) => {
+    let selectedUserIds = isSender ? sender : receiver;
+
+    // toggle selected Users
+    if (selectedUserIds.includes(id)) {
+      selectedUserIds = selectedUserIds.filter((item) => item !== id);
+    } else if (id === currentUserId || !isSender) {
+      selectedUserIds = [id];
+    } else {
+      selectedUserIds.push(id);
+    }
+
+    // check for toggle between sender and receiver as current user
+    let secondUserIds = isSender ? receiver : sender;
+    if (
+      selectedUserIds.includes(currentUserId) &&
+      secondUserIds.includes(currentUserId)
+    ) {
+      secondUserIds = [];
+    }
+
+    const floatProps = isSender
+      ? { sender: selectedUserIds, receiver: secondUserIds }
+      : { sender: secondUserIds, receiver: selectedUserIds };
+
+    const { newSender, newReceiver, newDisabledSender, newDisabledReceiver } =
+      selectContractors({ ...floatProps }, users, currentUserId);
+
+    setSender(newSender);
+    setReceiver(newReceiver);
+    setDisabledSender(newDisabledSender);
+    setDisabledReceiver(newDisabledReceiver);
+  };
+
   useEffect(() => {
     if (isAllManual(manualInputs)) {
       setSumError(false);
@@ -300,14 +335,9 @@ function DebtForm() {
             users={users}
             loading={isUsersLoading}
             error={isUserLoadingError}
-            contractor={sender}
+            selectedUserIds={sender}
             disabledUserIds={disabledSender}
-            sender={sender}
-            receiver={receiver}
-            setSender={setSender}
-            setReceiver={setReceiver}
-            setDisabledSender={setDisabledSender}
-            setDisabledReceiver={setDisabledReceiver}
+            toggleSelectedId={toggleSelectedId}
             isSender
           />
           {!isSenderSelected && <p>Выберите Должника</p>}
@@ -318,14 +348,9 @@ function DebtForm() {
               users={users}
               loading={isUsersLoading}
               error={isUserLoadingError}
-              contractor={receiver}
+              selectedUserIds={receiver}
               disabledUserIds={disabledReceiver}
-              sender={sender}
-              receiver={receiver}
-              setSender={setSender}
-              setReceiver={setReceiver}
-              setDisabledSender={setDisabledSender}
-              setDisabledReceiver={setDisabledReceiver}
+              toggleSelectedId={toggleSelectedId}
             />
             {!isReceiverSelected && <p>Выберите Получателя</p>}
           </Grid>
