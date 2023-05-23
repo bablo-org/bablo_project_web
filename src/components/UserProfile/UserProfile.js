@@ -8,13 +8,14 @@ import UserCurrency from './UserCurrency';
 import UserNameAndAvatar from './UserNameAndAvatar';
 
 function UserProfile() {
-  const { data: users, isFetching: usersLoading } = useGetUsers();
+  const { data: users } = useGetUsers();
   const currentUserId = auth.currentUser.uid;
   const currentUser = useMemo(
     () => users.find((u) => u.id === currentUserId),
     [users, currentUserId],
   );
 
+  const usersLoading = true;
   const showSkeleton = useMemo(
     () => usersLoading || !currentUser,
     [usersLoading, currentUser],
@@ -55,11 +56,7 @@ function UserProfile() {
             Избранные валюты
           </Typography>
           <Divider />
-          {showSkeleton ? (
-            <UserProfileLoader />
-          ) : (
-            <UserCurrency currentUser={currentUser} />
-          )}
+          <UserCurrency currentUser={currentUser} />
         </Grid>
       </Grid>
       <Grid item xs={12} sx={{ paddingBottom: '50px' }} />
