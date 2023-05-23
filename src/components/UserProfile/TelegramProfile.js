@@ -91,7 +91,7 @@ function TelegramProfile({ enableTgNotifications, telegramUser }) {
     }
   };
 
-  const toogleNotifications = () => {
+  const toggleNotifications = () => {
     if (isNotificationOn) {
       setConfirmModalOpen(true);
     } else {
@@ -175,7 +175,7 @@ function TelegramProfile({ enableTgNotifications, telegramUser }) {
                 </Typography>
                 <Switch
                   checked={isNotificationOn}
-                  onChange={toogleNotifications}
+                  onChange={toggleNotifications}
                   inputProps={{ 'aria-label': 'controlled' }}
                 />
               </Stack>
