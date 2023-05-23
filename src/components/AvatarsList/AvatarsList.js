@@ -8,7 +8,6 @@ function AvatarsList({
   error,
   selectedUserIds,
   disabledUserIds,
-  isSender,
   toggleSelectedId,
 }) {
   const renderAvatar = useCallback(
@@ -22,7 +21,6 @@ function AvatarsList({
           isActive={selectedUserIds.includes(user.id)}
           isDisabled={disabledUserIds.includes(user.id)}
           avatarUrl={user.avatar}
-          isSender={isSender}
         />
       );
     },

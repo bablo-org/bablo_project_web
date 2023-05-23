@@ -337,8 +337,7 @@ function DebtForm() {
             error={isUserLoadingError}
             selectedUserIds={sender}
             disabledUserIds={disabledSender}
-            toggleSelectedId={toggleSelectedId}
-            isSender
+            toggleSelectedId={(id) => toggleSelectedId(id, true)}
           />
           {!isSenderSelected && <p>Выберите Должника</p>}
         </Grid>
@@ -350,7 +349,7 @@ function DebtForm() {
               error={isUserLoadingError}
               selectedUserIds={receiver}
               disabledUserIds={disabledReceiver}
-              toggleSelectedId={toggleSelectedId}
+              toggleSelectedId={(id) => toggleSelectedId(id, false)}
             />
             {!isReceiverSelected && <p>Выберите Получателя</p>}
           </Grid>

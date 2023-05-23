@@ -8,10 +8,9 @@ function UserAvatar({
   isActive,
   isDisabled,
   avatarUrl,
-  isSender,
 }) {
   const onAvatarClicked = () => {
-    toggleSelectedId && toggleSelectedId(id, isSender);
+    toggleSelectedId && toggleSelectedId(id);
   };
 
   return (
