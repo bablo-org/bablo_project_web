@@ -96,7 +96,9 @@ function UserCurrency({ currentUser }) {
         }),
       );
     } finally {
+      setSelectedCurrencis([]);
       setConfirmModalOpen(false);
+      setIsCurrenciesUpdated(false);
     }
   };
 

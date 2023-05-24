@@ -3,7 +3,6 @@ import { Container, Grid, Typography, Divider } from '@mui/material';
 import { useGetUsers } from '../../queries';
 import { auth } from '../../services/firebase';
 import TelegramProfile from './TelegramProfile';
-import UserProfileLoader from './Skeleton/UserProfileLoader';
 import UserCurrency from './UserCurrency';
 import UserNameAndAvatar from './UserNameAndAvatar';
 
@@ -36,15 +35,7 @@ function UserProfile() {
             Telergam
           </Typography>
           <Divider />
-          {showSkeleton ? (
-            <UserProfileLoader />
-          ) : (
-            <TelegramProfile
-              enableTgNotifications={currentUser.enableTgNotifications}
-              telegramUser={currentUser.telegramUser}
-              UsersLoading={usersLoading}
-            />
-          )}
+          <TelegramProfile currentUser={currentUser} />
         </Grid>
         <Grid item xs={12}>
           <Typography
