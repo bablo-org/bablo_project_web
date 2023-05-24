@@ -22,6 +22,7 @@ import { useDispatch } from 'react-redux';
 import TransitionsModal from '../modal/modal';
 import { useGetCurrencies, useUpdateUserSettings } from '../../queries';
 import { showSnackbarMessage } from '../../store/slices/snackbarMessage';
+import CurrenciesSkeleton from './Skeleton/CurrenciesSkeleton';
 
 function UserCurrency({ currentUser }) {
   const [selectedCurrencies, setSelectedCurrencis] = useState([]);
@@ -29,13 +30,14 @@ function UserCurrency({ currentUser }) {
   const [isCurrenciesUpdated, setIsCurrenciesUpdated] = useState(false);
   const [addCurrienseOff, setAddCurrienseOff] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
-  const { data: currencies } = useGetCurrencies();
+  const { data: currencies, isFetching: currenciesLoading } =
+    useGetCurrencies();
   const { mutateAsync: putUserSettings, isLoading: loadingSetSettings } =
     useUpdateUserSettings();
   const dispatch = useDispatch();
 
   const favoriteCurrencies = useMemo(() => {
-    if (favoriteCurrenciesId && currencies.length > 1)
+    if (favoriteCurrenciesId && !currenciesLoading)
       return favoriteCurrenciesId.map((item) => {
         return currencies.find((e) => e.id === item);
       });
@@ -105,11 +107,20 @@ function UserCurrency({ currentUser }) {
     updateUserSettings(settings);
   };
 
+  const showSkeleton = useMemo(
+    () => currenciesLoading || !currentUser,
+    [currenciesLoading, currentUser],
+  );
+
   useEffect(() => {
-    setFavoriteCurrenciesId(currentUser.favoriteCurrencies);
+    if (currentUser) {
+      setFavoriteCurrenciesId(currentUser.favoriteCurrencies);
+    }
   }, [currentUser]);
 
-  return (
+  return showSkeleton ? (
+    <CurrenciesSkeleton />
+  ) : (
     <>
       <TransitionsModal
         isOpen={confirmModalOpen}
