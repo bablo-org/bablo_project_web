@@ -7,11 +7,12 @@ function UserAvatar({
   id,
   toggleSelectedId,
   isActive,
-  isBlocked,
+  isDisabled,
   avatarUrl,
+  isSender,
 }) {
   const onAvatarClicked = () => {
-    toggleSelectedId(id);
+    toggleSelectedId && toggleSelectedId(id, isSender);
   };
 
   return (
@@ -34,9 +35,9 @@ function UserAvatar({
         sizes='responsive'
         variant='rounded'
         sx={{
-          backgroundColor: isBlocked ? 'grey' : '#1976d2',
+          backgroundColor: isDisabled ? 'grey' : '#1976d2',
           backgroundImage: `url(${avatarUrl})`,
-          opacity: isBlocked && '0.3',
+          opacity: isDisabled && '0.3',
           backgroundSize: 'cover',
           fontSize: {
             xs: 'clamp(10px, 1.5vw, 14px)',
@@ -60,7 +61,7 @@ function UserAvatar({
             },
           },
         }}
-        onClick={!isBlocked ? onAvatarClicked : undefined}
+        onClick={onAvatarClicked}
       >
         <div
           style={{

@@ -55,11 +55,7 @@ function UserProfile() {
             Избранные валюты
           </Typography>
           <Divider />
-          {showSkeleton ? (
-            <UserProfileLoader />
-          ) : (
-            <UserCurrency currentUser={currentUser} />
-          )}
+          <UserCurrency currentUser={currentUser} />
         </Grid>
       </Grid>
       <Grid item xs={12} sx={{ paddingBottom: '50px' }} />
