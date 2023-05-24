@@ -11,8 +11,7 @@ import {
 function CurrenciesSkeleton() {
   const renderTooltips = () => {
     const tooltips = [];
-    for (let i = 0; i < 3; ) {
-      i += 1;
+    for (let i = 0; i < 3; i++) {
       tooltips.push(
         <Tooltip key={i}>
           <Chip
@@ -27,8 +26,7 @@ function CurrenciesSkeleton() {
   };
   const renderGridContent = () => {
     const grid = [];
-    for (let i = 0; i < 2; ) {
-      i += 1;
+    for (let i = 0; i < 2; i++) {
       grid.push(
         <Grid item xs={12}>
           <Stack
