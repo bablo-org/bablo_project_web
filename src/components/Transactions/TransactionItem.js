@@ -7,20 +7,20 @@ import {
   CardContent,
   CardActions,
   Collapse,
-  Avatar,
   IconButton,
   Typography,
-  colors,
   ButtonGroup,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { ExpandMore, ArrowForward } from '@mui/icons-material';
 import { formatDate } from '../../utils/formatDate';
 import { auth } from '../../services/firebase';
+import UserAvatar from '../UserAvatar/UserAvatar';
 import {
   useApproveTransation,
   useCompleteTransation,
   useDeclineTransation,
+  useGetUsers,
 } from '../../queries';
 
 const ExpandMoreIcon = styled((props) => {
@@ -48,6 +48,7 @@ function TransactionItem({
   senderId,
   recieverId,
 }) {
+  const { data: users } = useGetUsers();
   const currentUserId = auth.currentUser.uid;
   const { mutate: putTransactionsApprove, status: approveStatus } =
     useApproveTransation();
@@ -72,46 +73,45 @@ function TransactionItem({
   const putTransactionsApproveHandler = () => {
     putTransactionsApprove([id]);
   };
-
   return (
     <Card sx={{ marginBottom: 2, fontSize: 'small' }}>
       <CardHeader
-        avatar={
+        title={
           <>
-            <Avatar
-              sx={{
-                bgcolor: colors.deepPurple[500],
-                fontSize: 12,
-                width: 66,
-                height: 66,
-              }}
-            >
-              {sender}
-            </Avatar>
+            <Typography>Транзакция</Typography>
+            <Typography sx={{ marginBottom: 2 }}>
+              {JSON.stringify(formatDate(date))}
+            </Typography>
+          </>
+        }
+        subheader={
+          <>
+            <UserAvatar
+              name={sender}
+              id={senderId}
+              avatarUrl={users.find((u) => u.id === senderId)?.avatar}
+            />
             <ArrowForward
               fontSize='large'
               color='action'
               sx={{ margin: 'auto' }}
             />
-            <Avatar
-              sx={{
-                bgcolor: colors.deepPurple[500],
-                fontSize: 12,
-                width: 66,
-                height: 66,
-              }}
-            >
-              {receiver}
-            </Avatar>
+            <UserAvatar
+              name={receiver}
+              id={recieverId}
+              avatarUrl={users.find((u) => u.id === recieverId)?.avatar}
+            />
           </>
         }
-        title={<Typography>Транзакция</Typography>}
-        subheader={<Typography>{JSON.stringify(formatDate(date))}</Typography>}
       />
       <CardContent>
-        <Typography>
+        <Typography align='center'>
           Статус:
-          {status}
+          {` ${status}`}
+        </Typography>
+        <Typography>
+          Описание:
+          {` ${description}`}
         </Typography>
         <Typography
           variant='body3'
@@ -170,7 +170,6 @@ function TransactionItem({
       <Collapse in={expanded} timeout='auto' unmountOnExit>
         <CardContent>
           {[
-            `Описание: ${description}`,
             `Создана: ${JSON.stringify(formatDate(created))}`,
             `Обновлена: ${JSON.stringify(formatDate(updated))}`,
           ].map((text) => (
