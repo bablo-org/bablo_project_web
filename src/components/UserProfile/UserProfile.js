@@ -8,14 +8,13 @@ import UserCurrency from './UserCurrency';
 import UserNameAndAvatar from './UserNameAndAvatar';
 
 function UserProfile() {
-  const { data: users } = useGetUsers();
+  const { data: users, isFetching: usersLoading } = useGetUsers();
   const currentUserId = auth.currentUser.uid;
   const currentUser = useMemo(
     () => users.find((u) => u.id === currentUserId),
     [users, currentUserId],
   );
 
-  const usersLoading = true;
   const showSkeleton = useMemo(
     () => usersLoading || !currentUser,
     [usersLoading, currentUser],
