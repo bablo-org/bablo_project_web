@@ -112,7 +112,9 @@ function TelegramProfile({ currentUser }) {
   };
 
   useEffect(() => {
-    setIsNotificationOn(enableTgNotifications);
+    if (enableTgNotifications) {
+      setIsNotificationOn(enableTgNotifications);
+    }
   }, [enableTgNotifications]);
 
   return (

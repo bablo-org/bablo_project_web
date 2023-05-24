@@ -4,7 +4,7 @@ const renderGridContent = (n) => {
   const grid = [];
   for (let i = 0; i < n; i++) {
     grid.push(
-      <Grid item xs={12}>
+      <Grid item xs={12} key={i}>
         <Stack
           direction='row'
           spacing={2}
