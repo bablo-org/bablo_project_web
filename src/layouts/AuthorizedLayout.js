@@ -92,7 +92,9 @@ function AuthorizedLayout() {
             <ListItemButton
               onClick={() => {
                 navigate(item.path);
-                mobileOpen && setMobileOpen(false);
+                if (mobileOpen) {
+                  setMobileOpen(false);
+                }
               }}
               selected={isCurrentLocation(item)}
             >
