@@ -5,7 +5,7 @@ import { auth } from '../../services/firebase';
 import TelegramProfile from './TelegramProfile';
 import UserProfileLoader from './Skeleton/UserProfileLoader';
 import UserCurrency from './UserCurrency';
-import UserNameAndAvatar from './UserNameAndAvatar';
+import UserNameAndAvatar from './UserNameAndAvatar/UserNameAndAvatar';
 
 function UserProfile() {
   const { data: users, isFetching: usersLoading } = useGetUsers();

@@ -1,6 +1,6 @@
 import { Badge } from '@mui/material';
 import { DisabledByDefault as DisabledByDefaultIcon } from '@mui/icons-material';
-import UserAvatar from '../UserAvatar/UserAvatar';
+import UserAvatar from '../../UserAvatar/UserAvatar';
 
 function UserProfileAvatar({ currentUser, deleteAvatar }) {
   return (
