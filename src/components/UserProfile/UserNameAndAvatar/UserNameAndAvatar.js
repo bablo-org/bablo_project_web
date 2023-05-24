@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import {
   TextField,
-  FormControl,
   Stack,
   Button,
   Grid,
@@ -11,13 +10,14 @@ import {
 import LoadingButton from '@mui/lab/LoadingButton';
 import { Check as CheckIcon, Clear as ClearIcon } from '@mui/icons-material';
 import { useDispatch } from 'react-redux';
-import { useUpdateUser, useUpdateUserAvatar } from '../../queries';
-import { getDownloadURL, storage, ref } from '../../services/firebase';
-import classes from './UserProfile.module.css';
-import { validationProps } from '../../utils/validationForm';
+import { useUpdateUser, useUpdateUserAvatar } from '../../../queries';
+import { getDownloadURL, storage, ref } from '../../../services/firebase';
+import classes from '../UserProfile.module.css';
+import { validationProps } from '../../../utils/validationForm';
 import UserProfileAvatar from './UserProfileAvatar';
-import AvatarSkeleton from './Skeleton/AvatarSkeleton';
-import { showSnackbarMessage } from '../../store/slices/snackbarMessage';
+import AvatarSkeleton from '../Skeleton/AvatarSkeleton';
+import { showSnackbarMessage } from '../../../store/slices/snackbarMessage';
+import ResposibleContent from './ResposibleContent';
 
 function UserNameAndAvatar({ currentUser, showSkeleton }) {
   const { mutateAsync: putUser } = useUpdateUser();
@@ -170,6 +170,37 @@ function UserNameAndAvatar({ currentUser, showSkeleton }) {
     }
   }, [currentUser]);
 
+  const inputName = (
+    <TextField
+      placeholder={updatedUser?.name || 'Имя пользователя'}
+      variant='outlined'
+      label='Имя'
+      value={name}
+      type='text'
+      id='name'
+      onChange={changeUserName}
+      helperText='Введите имя пользователя'
+      className={name && classes.valid}
+    />
+  );
+  const inputAvatar = (
+    <TextField
+      variant='outlined'
+      label={avatarUrl && 'Аватар'}
+      type='file'
+      id='avatar'
+      onChange={changeUserAvatar}
+      helperText={imageError || avatar.title}
+      error={imageError}
+      inputProps={{ ref: inputFileValue }}
+      className={avatarUrl && classes.valid}
+    />
+  );
+  const avatarBlock = showAvatarSkeleton ? (
+    <AvatarSkeleton />
+  ) : (
+    <UserProfileAvatar currentUser={updatedUser} deleteAvatar={deleteAvatar} />
+  );
   return (
     <Grid item xs={12}>
       <form onSubmit={validateAndSubmit}>
@@ -180,46 +211,11 @@ function UserNameAndAvatar({ currentUser, showSkeleton }) {
             </Typography>
             <Divider />
           </Grid>
-          <Grid item xs={12}>
-            {showAvatarSkeleton ? (
-              <AvatarSkeleton />
-            ) : (
-              <UserProfileAvatar
-                currentUser={updatedUser}
-                deleteAvatar={deleteAvatar}
-              />
-            )}
-          </Grid>
-          <Grid item xs={12}>
-            <FormControl fullWidth required>
-              <TextField
-                placeholder={updatedUser?.name || 'Имя пользователя'}
-                variant='outlined'
-                label='Имя'
-                value={name}
-                type='text'
-                id='name'
-                onChange={changeUserName}
-                helperText='Введите имя пользователя'
-                className={name && classes.valid}
-              />
-            </FormControl>
-          </Grid>
-          <Grid item xs={12}>
-            <FormControl fullWidth required>
-              <TextField
-                variant='outlined'
-                label={avatarUrl && 'Аватар'}
-                type='file'
-                id='avatar'
-                onChange={changeUserAvatar}
-                helperText={imageError || avatar.title}
-                error={imageError}
-                inputProps={{ ref: inputFileValue }}
-                className={avatarUrl && classes.valid}
-              />
-            </FormControl>
-          </Grid>
+          <ResposibleContent
+            avatarBlock={avatarBlock}
+            inputAvatar={inputAvatar}
+            inputName={inputName}
+          />
           <Grid item xs={12}>
             <Stack direction='row' spacing={2}>
               <Button
