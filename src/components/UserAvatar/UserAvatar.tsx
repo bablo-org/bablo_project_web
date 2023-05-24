@@ -1,18 +1,27 @@
 import { Avatar, Badge } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import React from 'react';
+
+interface UserAvatarProps {
+  name: string;
+  id: string;
+  toggleSelectedId?: (id: string, isSender: boolean) => void;
+  isActive?: boolean;
+  isDisabled?: boolean;
+  avatarUrl?: string;
+  isSender?: boolean;
+}
 
 function UserAvatar({
   name,
   id,
   toggleSelectedId,
-  isActive,
+  isActive = false,
   isDisabled,
   avatarUrl,
-  isSender,
-}) {
+  isSender = false,
+}: UserAvatarProps) {
   const onAvatarClicked = () => {
-    toggleSelectedId && toggleSelectedId(id, isSender);
+    toggleSelectedId?.(id, isSender);
   };
 
   return (
@@ -37,7 +46,7 @@ function UserAvatar({
         sx={{
           backgroundColor: isDisabled ? 'grey' : '#1976d2',
           backgroundImage: `url(${avatarUrl})`,
-          opacity: isDisabled && '0.3',
+          opacity: isDisabled ? '0.3' : '1',
           backgroundSize: 'cover',
           fontSize: {
             xs: 'clamp(10px, 1.5vw, 14px)',
