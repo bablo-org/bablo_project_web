@@ -1,5 +1,3 @@
-import { Timestamp } from 'firebase/firestore';
-
 export interface UserSettings {
   enableTelegramNotifications?: boolean;
   favoriteCurrencies?: string[];
@@ -9,7 +7,7 @@ interface User {
   id: string;
   name: string;
   avatar?: string;
-  created: Timestamp;
+  created: number;
   email: string;
   settings?: UserSettings;
   telegramId?: string;
