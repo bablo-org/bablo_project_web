@@ -37,10 +37,12 @@ function TelegramProfile({ currentUser }) {
   const [tgCollapseOff, setTgCollapseOff] = useState(false);
   const dispatch = useDispatch();
   const showSkeleton = useMemo(() => !currentUser, [currentUser]);
-  const { enableTgNotifications, telegramUser } = useMemo(() => {
+
+  const { settings, telegramUser } = useMemo(() => {
     if (currentUser) return currentUser;
     return [];
   }, [currentUser]);
+
   const updateTg = async (Name) => {
     try {
       await putTgUserName(Name);
@@ -76,8 +78,10 @@ function TelegramProfile({ currentUser }) {
 
   const updateUserSettings = async () => {
     try {
-      const settings = { enableTelegramNotifications: !isNotificationOn };
-      await putUserSettings(settings);
+      const updatedSettings = {
+        enableTelegramNotifications: !isNotificationOn,
+      };
+      await putUserSettings(updatedSettings);
       dispatch(
         showSnackbarMessage({
           severity: 'success',
@@ -112,10 +116,10 @@ function TelegramProfile({ currentUser }) {
   };
 
   useEffect(() => {
-    if (enableTgNotifications) {
-      setIsNotificationOn(enableTgNotifications);
+    if (settings) {
+      setIsNotificationOn(settings?.enableTelegramNotifications);
     }
-  }, [enableTgNotifications]);
+  }, [settings]);
 
   return (
     <form onSubmit={updateTgUserName}>

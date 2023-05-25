@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { defaultQueryFn } from '.';
+import User, { UserSettings } from '../models/User';
 
 const useGetUsers = () => {
   return useQuery({
@@ -8,17 +9,21 @@ const useGetUsers = () => {
     refetchOnReconnect: 'always',
     refetchOnWindowFocus: 'always',
     retryOnMount: true,
-    select: (data) => {
-      return data.map((user) => ({
+    select: (data: any) => {
+      return data.map((user: any) => ({
         id: user.id,
         name: user.name,
-        email: user.email,
-        created: user.created,
         avatar: user.avatar,
+        created: user.created,
+        email: user.email,
+        settings: {
+          enableTelegramNotifications:
+            user.settings.enableTelegramNotifications,
+          favoriteCurrencies: user.settings.favoriteCurrencies,
+        },
+        telegramId: user.telegramId,
         telegramUser: user.telegramUser,
-        enableTgNotifications: user.settings.enableTelegramNotifications,
-        favoriteCurrencies: user.settings.favoriteCurrencies,
-      }));
+      })) as User[];
     },
   });
 };
@@ -27,7 +32,13 @@ const useUpdateUserAvatar = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ encodedImage, fileName }) => {
+    mutationFn: ({
+      encodedImage,
+      fileName,
+    }: {
+      encodedImage: string;
+      fileName: string;
+    }) => {
       return defaultQueryFn({
         queryKey: [`users/uploadAvatar?fileName=${fileName}`],
         requestOptions: {
@@ -44,7 +55,7 @@ const useUpdateUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ name, avatar }) => {
+    mutationFn: ({ name, avatar }: { name: string; avatar?: string }) => {
       return defaultQueryFn({
         queryKey: ['users/updateProfile'],
         requestOptions: {
@@ -61,7 +72,7 @@ const useUpdateTgUserName = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (name) => {
+    mutationFn: (name: string) => {
       return defaultQueryFn({
         queryKey: [`users/connectTelegram/${name}`],
         requestOptions: {
@@ -77,7 +88,7 @@ const useUpdateUserSettings = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (settings) => {
+    mutationFn: (settings: UserSettings) => {
       return defaultQueryFn({
         queryKey: ['users/updateSettings'],
         requestOptions: {
