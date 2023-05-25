@@ -15,19 +15,45 @@ import SummaryRow from './SummaryRow';
 import Spinner from '../Spinner/Spinner';
 import { useGetUsers, useGetTransactions } from '../../queries';
 import { auth } from '../../services/firebase';
-
-function createData(name, valueGain, valueLost, total, history) {
-  return {
-    name,
-    valueGain,
-    valueLost,
-    total,
-    history,
-  };
-}
-
-function Summary() {
-  const currentUserId = auth.currentUser.uid;
+import Currency from '../../models/Currency';
+// type SummaryRowData = {
+//   name: string;
+//   id: string;
+//   toggleSelectedId?: (id: string, isSender: boolean) => void;
+//   isActive?: boolean;
+//   isDisabled?: boolean;
+//   avatarUrl?: string;
+//   isSender?: boolean;
+// };
+function createData(
+  name: string,
+  valueGain: number,
+  valueLost: number,
+  total: number,
+  history: []
+  ) {
+    return {
+      name,
+      valueGain,
+      valueLost,
+      total,
+      history,
+    };
+  }
+  
+  function Summary() {
+  type historyData = { date: string | number; description: string; amount: string | number }
+  type transaction = {id: string,
+    sender: string,
+    receiver: string,
+    currency: string,
+    amount: number,
+    description: string,
+    date: string | number,
+    status: string | number,
+    created: string | number,
+    updated: string | number,}[]
+  const currentUserId = auth?.currentUser?.uid;
   const { data: users } = useGetUsers();
   const {
     data: transactions,
@@ -35,20 +61,31 @@ function Summary() {
     isRefetching: isTransactionsFetching,
   } = useGetTransactions();
   const [summaryData, setSummaryData] = useState([]);
-  const approvedTransactions = useMemo(() => {
-    return transactions.filter(
-      (transaction) => transaction.status === 'APPROVED',
+  const approvedTransactions: transaction = useMemo(() => {
+    return transactions?.filter(
+      (transaction) => transaction.status === 'APPROVED'
     );
   }, [transactions]);
 
   useEffect(() => {
-    if (users.length === 0 || approvedTransactions.length === 0) return;
+    if (users?.length === 0 || approvedTransactions?.length === 0) return;
 
-    const currencies = {};
-    approvedTransactions.forEach((transaction) => {
+    const currencies: {[key: string]: number} = {};
+    approvedTransactions?.forEach((transaction) => {
       currencies[transaction.currency] = 0;
     });
-    const updatedSummaryData = users.map((user) => ({
+    const updatedSummaryData: {userId: string,
+      name: string,
+      total:  {
+        [key: string]: number
+      },
+      totalOutcoming: {
+        [key: string]: number
+      },
+      totalIncoming:  {
+        [key: string]: number
+      },
+      history: historyData[],}[] = users?.map((user) => ({
       userId: user.id,
       name: user.name,
       total: { ...currencies },
@@ -56,15 +93,15 @@ function Summary() {
       totalIncoming: { ...currencies },
       history: [],
     }));
-    approvedTransactions.forEach((transaction) => {
-      const senderIndex = updatedSummaryData.findIndex(
-        (user) => user.userId === transaction.sender,
+    approvedTransactions?.forEach((transaction) => {
+      const senderIndex: number = updatedSummaryData?.findIndex(
+        (user) => user.userId === transaction.sender
       );
-      const receiverIndex = updatedSummaryData.findIndex(
-        (user) => user.userId === transaction.receiver,
+      const receiverIndex: number = updatedSummaryData?.findIndex(
+        (user) => user.userId === transaction.receiver
       );
-      const updateSummaryHistoryData = (index) => {
-        const historyClone = { date: '', description: '', amount: '' };
+      const updateSummaryHistoryData = (index: number) => {
+        const historyClone: historyData = { date: '', description: '', amount: '' };
 
         historyClone.description = `${transaction.description}`;
 
@@ -74,7 +111,7 @@ function Summary() {
         } else {
           historyClone.amount = `-${transaction.amount} ${transaction.currency}`;
         }
-        updatedSummaryData[index].history.push(historyClone);
+        updatedSummaryData?[index].history.push(historyClone)
       };
       updateSummaryHistoryData(senderIndex);
       updateSummaryHistoryData(receiverIndex);
@@ -88,7 +125,7 @@ function Summary() {
         transaction.amount;
     });
     const filteredSummaryData = updatedSummaryData.filter(
-      (data) => data.userId !== currentUserId,
+      (data) => data.userId !== currentUserId
     );
     setSummaryData(filteredSummaryData);
   }, [users, approvedTransactions]);
@@ -106,7 +143,7 @@ function Summary() {
       displayTotalIncomeData(userSumamryData.totalIncoming),
       displayTotalIncomeData(userSumamryData.totalOutcoming),
       displayTotalIncomeData(userSumamryData.total),
-      userSumamryData.history.sort((obj1, obj2) => obj2.date - obj1.date),
+      userSumamryData.history.sort((obj1: historyData, obj2: historyData) => obj2.date - obj1.date)
     );
   });
   if (isTransactionsFetching && transactions.length === 0) {
