@@ -1,12 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { defaultQueryFn } from '.';
+import Transaction from '../models/Transaction';
 
 const useGetTransactions = () => {
   return useQuery({
     queryKey: ['transactions'],
     placeholderData: [],
-    select: (data) => {
-      return data.map((transaction) => ({
+    select: (data: any) => {
+      return data.map((transaction: any) => ({
         id: transaction.id,
         sender: transaction.sender,
         receiver: transaction.receiver,
@@ -17,7 +18,7 @@ const useGetTransactions = () => {
         status: transaction.status,
         created: transaction.created,
         updated: transaction.updated,
-      }));
+      })) as Transaction[];
     },
   });
 };
@@ -26,19 +27,11 @@ const usePostTransaction = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    /**
-     *
-     * @param {
-     * Array<{
-     *  sender: string;
-     *  receiver: string;
-     *  currency: string;
-     *  amount: number;
-     *  description: string;
-     *  date: string
-     * }>}
-     */
-    mutationFn: ({ transactions }) => {
+    mutationFn: ({
+      transactions,
+    }: {
+      transactions: Partial<Transaction>[];
+    }) => {
       return defaultQueryFn({
         queryKey: ['transactions'],
         requestOptions: {
@@ -55,7 +48,7 @@ const useApproveTransation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (transactionIds) => {
+    mutationFn: (transactionIds: string[]) => {
       return defaultQueryFn({
         queryKey: ['transactions/approve'],
         requestOptions: {
@@ -72,7 +65,7 @@ const useDeclineTransation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (transactionIds) => {
+    mutationFn: (transactionIds: string[]) => {
       return defaultQueryFn({
         queryKey: ['transactions/decline'],
         requestOptions: {
@@ -89,7 +82,7 @@ const useCompleteTransation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (transactionIds) => {
+    mutationFn: (transactionIds: string[]) => {
       return defaultQueryFn({
         queryKey: ['transactions/complete'],
         requestOptions: {

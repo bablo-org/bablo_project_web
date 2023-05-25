@@ -116,7 +116,7 @@ function UserCurrency({ currentUser }) {
 
   useEffect(() => {
     if (currentUser) {
-      setFavoriteCurrenciesId(currentUser.favoriteCurrencies);
+      setFavoriteCurrenciesId(currentUser.settings.favoriteCurrencies);
     }
   }, [currentUser]);
 
@@ -191,7 +191,9 @@ function UserCurrency({ currentUser }) {
                 <Button
                   variant='outlined'
                   onClick={() => {
-                    setFavoriteCurrenciesId(currentUser.favoriteCurrencies);
+                    setFavoriteCurrenciesId(
+                      currentUser.settings.favoriteCurrencies,
+                    );
                     setIsCurrenciesUpdated(false);
                   }}
                   color='error'

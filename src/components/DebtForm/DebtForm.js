@@ -294,11 +294,15 @@ function DebtForm() {
   }, [enteredSum]);
 
   useEffect(() => {
-    sender.length > 0 && setIsSenderSelected(true);
+    if (sender.length > 0) {
+      setIsSenderSelected(true);
+    }
   }, [sender]);
 
   useEffect(() => {
-    receiver.length > 0 && setIsReceiverSelected(true);
+    if (receiver.length > 0) {
+      setIsReceiverSelected(true);
+    }
   }, [receiver]);
 
   useEffect(() => {
@@ -307,7 +311,7 @@ function DebtForm() {
     }
     const options = currencies
       .map((obj) => {
-        if (currentUser.favoriteCurrencies.includes(obj.id)) {
+        if (currentUser.settings.favoriteCurrencies.includes(obj.id)) {
           return { ...obj, group: 'Избранные валюты' };
         }
         if (popularCurrencies.includes(obj.id)) {
