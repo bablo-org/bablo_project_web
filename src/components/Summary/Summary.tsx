@@ -15,44 +15,46 @@ import SummaryRow from './SummaryRow';
 import Spinner from '../Spinner/Spinner';
 import { useGetUsers, useGetTransactions } from '../../queries';
 import { auth } from '../../services/firebase';
-import Currency from '../../models/Currency';
-// type SummaryRowData = {
-//   name: string;
-//   id: string;
-//   toggleSelectedId?: (id: string, isSender: boolean) => void;
-//   isActive?: boolean;
-//   isDisabled?: boolean;
-//   avatarUrl?: string;
-//   isSender?: boolean;
-// };
+import Transaction from '../../models/Transaction';
+
+type HistoryData = {
+  date: number;
+  description: string;
+  amount: string | number;
+};
+
+type UserSummaryData = {
+  userId: string;
+  name: string;
+  total: {
+    [key: string]: number;
+  };
+  totalOutcoming: {
+    [key: string]: number;
+  };
+  totalIncoming: {
+    [key: string]: number;
+  };
+  history: HistoryData[];
+};
+
 function createData(
   name: string,
-  valueGain: number,
-  valueLost: number,
-  total: number,
-  history: []
-  ) {
-    return {
-      name,
-      valueGain,
-      valueLost,
-      total,
-      history,
-    };
-  }
-  
-  function Summary() {
-  type historyData = { date: string | number; description: string; amount: string | number }
-  type transaction = {id: string,
-    sender: string,
-    receiver: string,
-    currency: string,
-    amount: number,
-    description: string,
-    date: string | number,
-    status: string | number,
-    created: string | number,
-    updated: string | number,}[]
+  valueGain: (string | number)[],
+  valueLost: (string | number)[],
+  total: (string | number)[],
+  history: HistoryData[],
+) {
+  return {
+    name,
+    valueGain,
+    valueLost,
+    total,
+    history,
+  };
+}
+
+function Summary() {
   const currentUserId = auth?.currentUser?.uid;
   const { data: users } = useGetUsers();
   const {
@@ -60,48 +62,46 @@ function createData(
     isLoading: isTransactionsLoading,
     isRefetching: isTransactionsFetching,
   } = useGetTransactions();
-  const [summaryData, setSummaryData] = useState([]);
-  const approvedTransactions: transaction = useMemo(() => {
-    return transactions?.filter(
-      (transaction) => transaction.status === 'APPROVED'
+  const [summaryData, setSummaryData] = useState<UserSummaryData[]>([]);
+  const approvedTransactions: Transaction[] = useMemo(() => {
+    return (
+      transactions?.filter(
+        (transaction) => transaction.status === 'APPROVED',
+      ) ?? []
     );
   }, [transactions]);
 
   useEffect(() => {
     if (users?.length === 0 || approvedTransactions?.length === 0) return;
 
-    const currencies: {[key: string]: number} = {};
+    const currencies: { [key: string]: number } = {};
     approvedTransactions?.forEach((transaction) => {
       currencies[transaction.currency] = 0;
     });
-    const updatedSummaryData: {userId: string,
-      name: string,
-      total:  {
-        [key: string]: number
-      },
-      totalOutcoming: {
-        [key: string]: number
-      },
-      totalIncoming:  {
-        [key: string]: number
-      },
-      history: historyData[],}[] = users?.map((user) => ({
-      userId: user.id,
-      name: user.name,
-      total: { ...currencies },
-      totalOutcoming: { ...currencies },
-      totalIncoming: { ...currencies },
-      history: [],
-    }));
-    approvedTransactions?.forEach((transaction) => {
-      const senderIndex: number = updatedSummaryData?.findIndex(
-        (user) => user.userId === transaction.sender
+
+    const updatedSummaryData: UserSummaryData[] =
+      users?.map((user) => ({
+        userId: user.id,
+        name: user.name,
+        total: { ...currencies },
+        totalOutcoming: { ...currencies },
+        totalIncoming: { ...currencies },
+        history: [],
+      })) ?? [];
+
+    approvedTransactions.forEach((transaction) => {
+      const senderIndex = updatedSummaryData.findIndex(
+        (user) => user.userId === transaction.sender,
       );
-      const receiverIndex: number = updatedSummaryData?.findIndex(
-        (user) => user.userId === transaction.receiver
+      const receiverIndex = updatedSummaryData.findIndex(
+        (user) => user.userId === transaction.receiver,
       );
       const updateSummaryHistoryData = (index: number) => {
-        const historyClone: historyData = { date: '', description: '', amount: '' };
+        const historyClone: HistoryData = {
+          date: 0,
+          description: '',
+          amount: '',
+        };
 
         historyClone.description = `${transaction.description}`;
 
@@ -111,7 +111,7 @@ function createData(
         } else {
           historyClone.amount = `-${transaction.amount} ${transaction.currency}`;
         }
-        updatedSummaryData?[index].history.push(historyClone)
+        updatedSummaryData[index].history.push(historyClone);
       };
       updateSummaryHistoryData(senderIndex);
       updateSummaryHistoryData(receiverIndex);
@@ -125,13 +125,16 @@ function createData(
         transaction.amount;
     });
     const filteredSummaryData = updatedSummaryData.filter(
-      (data) => data.userId !== currentUserId
+      (data) => data.userId !== currentUserId,
     );
     setSummaryData(filteredSummaryData);
   }, [users, approvedTransactions]);
+
   const rows = summaryData.map((userSumamryData) => {
-    const displayTotalIncomeData = (totalSummaryData) => {
-      const totalOutput = [];
+    const displayTotalIncomeData = (totalSummaryData: {
+      [key: string]: number;
+    }) => {
+      const totalOutput: (string | number)[] = [];
       Object.entries(totalSummaryData).forEach((entry) => {
         const [key, value] = entry;
         totalOutput.push(key, ': ', value, ' ');
@@ -143,12 +146,16 @@ function createData(
       displayTotalIncomeData(userSumamryData.totalIncoming),
       displayTotalIncomeData(userSumamryData.totalOutcoming),
       displayTotalIncomeData(userSumamryData.total),
-      userSumamryData.history.sort((obj1: historyData, obj2: historyData) => obj2.date - obj1.date)
+      userSumamryData.history.sort((obj1: HistoryData, obj2: HistoryData) => {
+        return obj2.date - obj1.date;
+      }),
     );
   });
-  if (isTransactionsFetching && transactions.length === 0) {
+
+  if (isTransactionsFetching && transactions?.length === 0) {
     return <Spinner />;
   }
+
   if (approvedTransactions.length === 0 && !isTransactionsLoading) {
     return (
       <Grid container alignItems='center' justifyContent='center'>

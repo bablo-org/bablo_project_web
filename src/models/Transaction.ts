@@ -1,17 +1,16 @@
-import { Timestamp } from 'firebase/firestore';
 import { TransactionStatus } from './enums/TransactionStatus';
 
 interface Transaction {
   id: string;
   amount: number;
   currency: string;
-  date: Timestamp;
+  date: number;
   description: string;
   receiver: string;
   sender: string;
   status: TransactionStatus;
-  updated: Timestamp;
-  created: Timestamp;
+  updated: number;
+  created: number;
 }
 
 export default Transaction;

@@ -1,11 +1,9 @@
-import { Timestamp } from 'firebase/firestore';
-
 interface Currency {
   id: string;
   name: string;
   rate: number;
   symbol: string;
-  updated: Timestamp;
+  updated: number;
 }
 
 export default Currency;
