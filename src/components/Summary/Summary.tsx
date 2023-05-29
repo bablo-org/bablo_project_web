@@ -16,7 +16,12 @@ import Spinner from '../Spinner/Spinner';
 import { useGetUsers, useGetTransactions } from '../../queries';
 import { auth } from '../../services/firebase';
 import Transaction from '../../models/Transaction';
-import HistoryData from '../../models/HistoryData';
+
+type HistoryData = {
+  date: number;
+  description: string;
+  amount: string | number;
+};
 
 type UserSummaryData = {
   userId: string;
@@ -199,5 +204,5 @@ function Summary() {
     </>
   );
 }
-
+export { HistoryData };
 export default Summary;

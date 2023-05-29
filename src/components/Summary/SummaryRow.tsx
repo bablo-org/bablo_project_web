@@ -13,7 +13,7 @@ import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
 import { useState } from 'react';
 import { nanoid } from '@reduxjs/toolkit';
 import { formatDate } from '../../utils/formatDate';
-import HistoryData from '../../models/HistoryData';
+import { HistoryData } from './Summary';
 
 type SummaryRowProps = {
   name: string;
