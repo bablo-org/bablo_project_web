@@ -16,12 +16,7 @@ import Spinner from '../Spinner/Spinner';
 import { useGetUsers, useGetTransactions } from '../../queries';
 import { auth } from '../../services/firebase';
 import Transaction from '../../models/Transaction';
-
-type HistoryData = {
-  date: number;
-  description: string;
-  amount: string | number;
-};
+import HistoryData from '../../models/HistoryData';
 
 type UserSummaryData = {
   userId: string;
@@ -178,24 +173,30 @@ function Summary() {
     );
   }
   return (
-    <TableContainer component={Paper}>
-      <Table aria-label='collapsible table'>
-        <TableHead>
-          <TableRow>
-            <TableCell />
-            <TableCell>Итоги по Транзакциям</TableCell>
-            <TableCell align='right'>Я получу</TableCell>
-            <TableCell align='right'>Я Должен</TableCell>
-            <TableCell align='right'>Итоги</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows.map((row) => (
-            <SummaryRow key={row.name} row={row} />
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <>
+      <Typography variant='h6' gutterBottom component='div'>
+        Подтвержденные транзакции
+      </Typography>
+      <TableContainer component={Paper}>
+        <Table aria-label='collapsible table'>
+          <TableHead>
+            <TableRow>
+              <TableCell />
+              <TableCell>Кол-во</TableCell>
+              <TableCell>Пользователь</TableCell>
+              <TableCell align='right'>Я получу</TableCell>
+              <TableCell align='right'>Я Должен</TableCell>
+              <TableCell align='right'>Итоги</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {rows.map((row) => (
+              <SummaryRow key={row.name} row={row} />
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </>
   );
 }
 
