@@ -8,14 +8,22 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  Typography,
 } from '@mui/material';
 import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
 import { useState } from 'react';
 import { nanoid } from '@reduxjs/toolkit';
 import { formatDate } from '../../utils/formatDate';
+import { HistoryData } from './Summary';
 
-function SummaryRow({ row }) {
+type SummaryRowProps = {
+  name: string;
+  valueGain: (string | number)[];
+  valueLost: (string | number)[];
+  total: (string | number)[];
+  history: HistoryData[];
+};
+
+function SummaryRow({ row }: { row: SummaryRowProps }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -31,6 +39,7 @@ function SummaryRow({ row }) {
             {open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
           </IconButton>
         </TableCell>
+        <TableCell>{row.history.length}</TableCell>
         <TableCell component='th' scope='row'>
           {row.name}
         </TableCell>
@@ -46,9 +55,6 @@ function SummaryRow({ row }) {
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
           <Collapse in={open} timeout='auto' unmountOnExit>
             <Box sx={{ margin: 1 }}>
-              <Typography variant='h6' gutterBottom component='div'>
-                Подтвержденные транзакции
-              </Typography>
               <Table size='small' aria-label='purchases'>
                 <TableHead>
                   <TableRow>
@@ -58,7 +64,7 @@ function SummaryRow({ row }) {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {row.history.map((historyRow) => (
+                  {row.history.map((historyRow: HistoryData) => (
                     <TableRow key={nanoid()}>
                       <TableCell component='th' scope='row'>
                         {formatDate(historyRow.date)}
