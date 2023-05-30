@@ -31,17 +31,13 @@ import {
 import { showSnackbarMessage } from '../../store/slices/snackbarMessage';
 import { selectContractors } from './selectContractors';
 import User from '../../models/User';
+import Currency from '../../models/Currency';
 
 interface UsersSum {
   [key: string]: string | number;
 }
 
-interface CurrenciesOption {
-  id: string;
-  name: string;
-  rate: number;
-  updated: number;
-  symbol: string;
+interface GroupedCurrency extends Currency {
   group: string;
 }
 
@@ -57,14 +53,14 @@ function DebtForm() {
   const [disabledReceiver, setDisabledReceiver] = useState<string[]>([]);
   const [isReceiverSelected, setIsReceiverSelected] = useState<boolean>(true);
   const [enteredCurrency, setEnteredCurrency] =
-    useState<CurrenciesOption | null>(null);
+    useState<GroupedCurrency | null>(null);
   const [enteredSum, setEnteredSum] = useState<string | number>('');
   const [enteredUsersSum, setEnteredUsersSum] = useState<UsersSum>({});
   const [enteredDescription, setEnteredDescription] = useState<string>('');
   const [enteredDate, setEnteredDate] = useState<Dayjs | null>(null);
-  const [currenciesOptions, setCurrenciesOptions] = useState<
-    CurrenciesOption[]
-  >([]);
+  const [currenciesOptions, setCurrenciesOptions] = useState<GroupedCurrency[]>(
+    [],
+  );
   const [sumRemainsError, setSumRemainsError] = useState<SumError>({});
   const [sumError, setSumError] = useState<SumError>({});
   const [manualInputs, setManualInputs] = useState<string[]>([]);
