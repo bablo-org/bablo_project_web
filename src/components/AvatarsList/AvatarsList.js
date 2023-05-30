@@ -1,4 +1,3 @@
-import { useCallback } from 'react';
 import { Stack, Skeleton, Box } from '@mui/material';
 import UserAvatar from '../UserAvatar/UserAvatar';
 
@@ -10,22 +9,19 @@ function AvatarsList({
   disabledUserIds,
   toggleSelectedId,
 }) {
-  const renderAvatar = useCallback(
-    (user) => {
-      return (
-        <UserAvatar
-          key={user.id}
-          name={user.name}
-          id={user.id}
-          toggleSelectedId={toggleSelectedId}
-          isActive={selectedUserIds.includes(user.id)}
-          isDisabled={disabledUserIds.includes(user.id)}
-          avatarUrl={user.avatar}
-        />
-      );
-    },
-    [selectedUserIds, users],
-  );
+  const renderAvatar = (user) => {
+    return (
+      <UserAvatar
+        key={user.id}
+        name={user.name}
+        id={user.id}
+        toggleSelectedId={toggleSelectedId}
+        isActive={selectedUserIds.includes(user.id)}
+        isDisabled={disabledUserIds.includes(user.id)}
+        avatarUrl={user.avatar}
+      />
+    );
+  };
 
   return (
     <Stack direction='row' justifyContent='center'>

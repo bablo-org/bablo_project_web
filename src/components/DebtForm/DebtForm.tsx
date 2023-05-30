@@ -15,6 +15,7 @@ import {
   Check as CheckIcon,
   Clear as ClearIcon,
   SafetyDivider as SafetyDividerIcon,
+  Person as PersonIcon,
 } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { useDispatch } from 'react-redux';
@@ -55,6 +56,7 @@ function DebtForm() {
   const [enteredCurrency, setEnteredCurrency] =
     useState<GroupedCurrency | null>(null);
   const [enteredSum, setEnteredSum] = useState<string | number>('');
+  const [totalSum, setTotalSum] = useState<number>(0);
   const [enteredUsersSum, setEnteredUsersSum] = useState<UsersSum>({});
   const [enteredDescription, setEnteredDescription] = useState<string>('');
   const [enteredDate, setEnteredDate] = useState<Dayjs | null>(null);
@@ -64,6 +66,8 @@ function DebtForm() {
   const [sumRemainsError, setSumRemainsError] = useState<SumError>({});
   const [sumError, setSumError] = useState<SumError>({});
   const [manualInputs, setManualInputs] = useState<string[]>([]);
+  const [isMyselfInclude, setIsMyselfInclude] = useState<boolean>(false);
+  const [myselfSum, setMyselfSum] = useState<string>('');
   const dispatch = useDispatch();
 
   const {
@@ -133,7 +137,7 @@ function DebtForm() {
       setManualInputs(newManualInputs);
     }
 
-    if (!isSumValid(event.target.value)) {
+    if (event.target.value !== '' && !isSumValid(event.target.value)) {
       setSumError(newSumError);
       setEnteredUsersSum(newUsersSum);
       return;
@@ -152,7 +156,7 @@ function DebtForm() {
     }
 
     if (enteredSum) {
-      let sumRemains = +enteredSum - +event.target.value;
+      let sumRemains = totalSum - +event.target.value;
 
       manualInputs.forEach((id) => {
         if (id in enteredUsersSum && id !== user.id) {
@@ -168,6 +172,7 @@ function DebtForm() {
           }
         });
         setEnteredSum(sum);
+        setMyselfSum('');
       }
 
       if (isSumValid(roundSum(sumRemains, 1))) {
@@ -208,6 +213,8 @@ function DebtForm() {
     setEnteredUsersSum({});
     setSumRemainsError({});
     setSumError({});
+    setMyselfSum('');
+    setTotalSum(0);
   };
 
   const cancelingOfDebtHandler = () => {
@@ -263,10 +270,13 @@ function DebtForm() {
   };
 
   const shareSum = () => {
+    if (!totalSum || totalSum <= 0) {
+      return;
+    }
     setManualInputs([]);
     setSumRemainsError({});
     setSumError({});
-    const sharedSum = roundSum(+enteredSum, sender.length);
+    const sharedSum = roundSum(totalSum, sender.length);
     const newUsersSum: UsersSum = {};
     sender.forEach((id) => {
       newUsersSum[id] = sharedSum;
@@ -275,6 +285,33 @@ function DebtForm() {
   };
 
   const currentUserId = auth?.currentUser?.uid;
+
+  const toogleIsMyselfInclude = () => {
+    if (isMyselfInclude) {
+      setMyselfSum('');
+      setEnteredUsersSum({});
+      setSumError({});
+      setSumRemainsError({});
+    }
+    setIsMyselfInclude(!isMyselfInclude);
+  };
+
+  const MyselfSumInputChangaHandler = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    setManualInputs([]);
+    setEnteredUsersSum({});
+    setSumError({});
+    setSumRemainsError({});
+
+    const newSumError = currentUserId ? { [currentUserId]: true } : {};
+    if (event.target.value !== '' && !isSumValid(event.target.value)) {
+      setSumError(newSumError);
+    } else if (+event.target.value >= +enteredSum) {
+      setSumRemainsError(newSumError);
+    }
+    setMyselfSum(event.target.value);
+  };
 
   const currentUser = useMemo(
     () => users?.find((u) => u.id === currentUserId),
@@ -302,6 +339,11 @@ function DebtForm() {
       selectedUserIds.includes(currentUserId) &&
       secondUserIds.includes(currentUserId)
     ) {
+      secondUserIds = [];
+    }
+
+    // hide reciever then sender toogle to unselected
+    if (isSender && selectedUserIds.length === 0) {
       secondUserIds = [];
     }
 
@@ -362,6 +404,15 @@ function DebtForm() {
 
     setCurrenciesOptions(options);
   }, [currentUser, currencies]);
+
+  useEffect(() => {
+    if (myselfSum) {
+      const sum = +enteredSum - +myselfSum;
+      setTotalSum(sum);
+    } else if (enteredSum) {
+      setTotalSum(+enteredSum);
+    }
+  }, [enteredSum, myselfSum]);
 
   return (
     <Container maxWidth='md'>
@@ -460,12 +511,68 @@ function DebtForm() {
                   />
                 </FormControl>
               </Grid>
-
+              {isMyselfInclude && currentUserId && (
+                <>
+                  <Grid item xs={12}>
+                    <FormControl fullWidth required>
+                      <TextField
+                        variant='outlined'
+                        label='Моя сумма'
+                        value={myselfSum}
+                        onChange={MyselfSumInputChangaHandler}
+                        type='text'
+                        id='myselfSum'
+                        inputProps={{
+                          inputMode: 'numeric',
+                          pattern: validationProps.sum.inputPropsPattern,
+                          title: validationProps.sum.errorTitle,
+                        }}
+                        helperText={choseSumTextHelper(
+                          enteredUsersSum[currentUserId],
+                          currentUserId,
+                        )}
+                        error={
+                          sumRemainsError[currentUserId] ||
+                          sumError[currentUserId]
+                        }
+                        style={{ whiteSpace: 'pre-wrap' }}
+                        className={myselfSum ? classes.valid : undefined}
+                      />
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <FormControl fullWidth required>
+                      <TextField
+                        variant='outlined'
+                        label='Сумма к распределению'
+                        value={totalSum <= 0 ? '' : totalSum}
+                        type='text'
+                        id='totalSum'
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                        className={totalSum ? classes.valid : undefined}
+                      />
+                    </FormControl>
+                  </Grid>
+                </>
+              )}
               {sender.length > 1 && (
                 <Grid item xs={12}>
-                  <Stack direction='row' spacing={2}>
+                  <Stack
+                    direction={window.innerWidth < 820 ? 'column' : 'row'}
+                    spacing={2}
+                  >
                     <Button
-                      variant='contained'
+                      variant={isMyselfInclude ? 'contained' : 'outlined'}
+                      endIcon={<PersonIcon />}
+                      onClick={toogleIsMyselfInclude}
+                      sx={{ width: { md: '200px' } }}
+                    >
+                      {isMyselfInclude ? 'Исключить меня' : 'Включить меня'}
+                    </Button>
+                    <Button
+                      variant='outlined'
                       onClick={shareSum}
                       endIcon={<SafetyDividerIcon />}
                     >
