@@ -4,11 +4,10 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 interface UserAvatarProps {
   name: string;
   id: string;
-  toggleSelectedId?: (id: string, isSender: boolean) => void;
+  toggleSelectedId?: (id: string) => void;
   isActive?: boolean;
   isDisabled?: boolean;
   avatarUrl?: string;
-  isSender?: boolean;
 }
 
 function UserAvatar({
@@ -18,10 +17,9 @@ function UserAvatar({
   isActive = false,
   isDisabled,
   avatarUrl,
-  isSender = false,
 }: UserAvatarProps) {
   const onAvatarClicked = () => {
-    toggleSelectedId?.(id, isSender);
+    toggleSelectedId?.(id);
   };
 
   return (
