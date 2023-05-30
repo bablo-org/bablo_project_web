@@ -18,6 +18,7 @@ import {
 } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { useDispatch } from 'react-redux';
+import { Dayjs } from 'dayjs';
 import { auth } from '../../services/firebase';
 import { validationProps } from '../../utils/validationForm';
 import AvatarsList from '../AvatarsList/AvatarsList';
@@ -29,23 +30,40 @@ import {
 } from '../../queries';
 import { showSnackbarMessage } from '../../store/slices/snackbarMessage';
 import { selectContractors } from './selectContractors';
+import User from '../../models/User';
+import Currency from '../../models/Currency';
+
+interface UsersSum {
+  [key: string]: string | number;
+}
+
+interface GroupedCurrency extends Currency {
+  group: string;
+}
+
+interface SumError {
+  [key: string]: boolean;
+}
 
 function DebtForm() {
-  const [sender, setSender] = useState([]);
-  const [disabledSender, setDisabledSender] = useState([]);
-  const [isSenderSelected, setIsSenderSelected] = useState(true);
-  const [receiver, setReceiver] = useState([]);
-  const [disabledReceiver, setDisabledReceiver] = useState([]);
-  const [isReceiverSelected, setIsReceiverSelected] = useState(true);
-  const [enteredCurrency, setEnteredCurrency] = useState(null);
-  const [enteredSum, setEnteredSum] = useState('');
-  const [enteredUsersSum, setEnteredUsersSum] = useState({});
-  const [enteredDescription, setEnteredDescription] = useState('');
-  const [enteredDate, setEnteredDate] = useState(null);
-  const [currenciesOptions, setCurrenciesOptions] = useState([]);
-  const [sumRemainsError, setSumRemainsError] = useState({});
-  const [sumError, setSumError] = useState({});
-  const [manualInputs, setManualInputs] = useState([]);
+  const [sender, setSender] = useState<string[]>([]);
+  const [disabledSender, setDisabledSender] = useState<string[]>([]);
+  const [isSenderSelected, setIsSenderSelected] = useState<boolean>(true);
+  const [receiver, setReceiver] = useState<string[]>([]);
+  const [disabledReceiver, setDisabledReceiver] = useState<string[]>([]);
+  const [isReceiverSelected, setIsReceiverSelected] = useState<boolean>(true);
+  const [enteredCurrency, setEnteredCurrency] =
+    useState<GroupedCurrency | null>(null);
+  const [enteredSum, setEnteredSum] = useState<string | number>('');
+  const [enteredUsersSum, setEnteredUsersSum] = useState<UsersSum>({});
+  const [enteredDescription, setEnteredDescription] = useState<string>('');
+  const [enteredDate, setEnteredDate] = useState<Dayjs | null>(null);
+  const [currenciesOptions, setCurrenciesOptions] = useState<GroupedCurrency[]>(
+    [],
+  );
+  const [sumRemainsError, setSumRemainsError] = useState<SumError>({});
+  const [sumError, setSumError] = useState<SumError>({});
+  const [manualInputs, setManualInputs] = useState<string[]>([]);
   const dispatch = useDispatch();
 
   const {
@@ -58,43 +76,53 @@ function DebtForm() {
   const { mutateAsync: postTransactions, isLoading: isAddingNewTransaction } =
     usePostTransaction();
 
-  const sumInputChangeHandler = (event) => {
+  const sumInputChangeHandler = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     setEnteredSum(event.target.value);
     setManualInputs([]);
     setEnteredUsersSum({});
-    setSumError(false);
-    setSumRemainsError(false);
+    setSumError({});
+    setSumRemainsError({});
   };
 
-  const isSumValid = (sum) => {
+  const isSumValid = (sum: string | number) => {
     return validationProps.sum.testSum(sum);
   };
 
-  const choseSumTextHelper = (sum, userId) => {
-    if (sumRemainsError[userId]) {
+  const choseSumTextHelper = (sum: string | number, userId?: string) => {
+    if (userId && sumRemainsError[userId]) {
       return validationProps.sum.errorRemainsTitle;
     }
     if (!isSumValid(sum) && sum) {
       return validationProps.sum.errorTitle;
     }
-    if (sumError[userId]) {
+    if (userId && sumError[userId]) {
       return validationProps.sum.errorRemainsSumTitle;
     }
     return validationProps.sum.title;
   };
 
-  const roundSum = (sum, amount) => {
+  const roundSum = (sum: number, amount: number) => {
     return Math.round((sum / amount) * 100) / 100;
   };
 
-  const isAllManual = (inputs) => {
+  const isAllManual = (inputs: string[]) => {
     return inputs.length === sender.length;
   };
 
-  const usersSumInputChangeHandler = (event, user) => {
-    setSumRemainsError(false);
-    setSumError(false);
-    const newUsersSum = { ...enteredUsersSum };
+  const usersSumInputChangeHandler = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    user: User | undefined,
+  ) => {
+    if (!user) {
+      return;
+    }
+    setSumRemainsError({});
+    setSumError({});
+    const newUsersSum: UsersSum = {
+      ...enteredUsersSum,
+    };
     const newSumError = { ...sumError };
     const newManualInputs = [...manualInputs];
     newUsersSum[user.id] = event.target.value;
@@ -124,11 +152,11 @@ function DebtForm() {
     }
 
     if (enteredSum) {
-      let sumRemains = enteredSum - event.target.value;
+      let sumRemains = +enteredSum - +event.target.value;
 
       manualInputs.forEach((id) => {
         if (id in enteredUsersSum && id !== user.id) {
-          sumRemains -= enteredUsersSum[id];
+          sumRemains -= +enteredUsersSum[id];
         }
       });
 
@@ -161,11 +189,13 @@ function DebtForm() {
     }
   };
 
-  const descriptionInputChangeHandler = (event) => {
+  const descriptionInputChangeHandler = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     setEnteredDescription(event.target.value);
   };
 
-  const dateInputChangeHandler = (date) => {
+  const dateInputChangeHandler = (date: Dayjs | null) => {
     setEnteredDate(date);
   };
 
@@ -176,8 +206,8 @@ function DebtForm() {
     setEnteredDescription('');
     setEnteredDate(null);
     setEnteredUsersSum({});
-    setSumRemainsError(false);
-    setSumError(false);
+    setSumRemainsError({});
+    setSumError({});
   };
 
   const cancelingOfDebtHandler = () => {
@@ -189,12 +219,10 @@ function DebtForm() {
       return {
         sender: id,
         receiver: receiver[0],
-        currency: enteredCurrency.id,
-        amount: parseFloat(
-          sender.length === 1 ? enteredSum : enteredUsersSum[id],
-        ),
+        currency: enteredCurrency?.id,
+        amount: sender.length === 1 ? +enteredSum : +enteredUsersSum[id],
         description: enteredDescription,
-        date: enteredDate ? new Date(enteredDate).toISOString() : undefined,
+        date: enteredDate?.valueOf(),
       };
     });
     try {
@@ -217,9 +245,12 @@ function DebtForm() {
     }
   };
 
-  const submissionOfDebtHandler = (event) => {
+  const submissionOfDebtHandler = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (sumError || sumRemainsError) {
+    if (
+      Object.keys(sumError).length > 0 ||
+      Object.keys(sumRemainsError).length > 0
+    ) {
       return;
     }
     if (sender.length === 0) {
@@ -233,26 +264,26 @@ function DebtForm() {
 
   const shareSum = () => {
     setManualInputs([]);
-    setSumRemainsError(false);
-    setSumError(false);
-    const sharedSum = roundSum(enteredSum, sender.length);
-    const newUsersSum = {};
+    setSumRemainsError({});
+    setSumError({});
+    const sharedSum = roundSum(+enteredSum, sender.length);
+    const newUsersSum: UsersSum = {};
     sender.forEach((id) => {
       newUsersSum[id] = sharedSum;
     });
     setEnteredUsersSum(newUsersSum);
   };
 
-  const currentUserId = auth.currentUser.uid;
+  const currentUserId = auth?.currentUser?.uid;
 
   const currentUser = useMemo(
-    () => users.find((u) => u.id === currentUserId),
+    () => users?.find((u) => u.id === currentUserId),
     [users, currentUserId],
   );
 
   const popularCurrencies = ['USD', 'EUR'];
 
-  const toggleSelectedId = (id, isSender) => {
+  const toggleSelectedId = (id: string, isSender: boolean) => {
     let selectedUserIds = isSender ? sender : receiver;
 
     // toggle selected Users
@@ -267,6 +298,7 @@ function DebtForm() {
     // check for toggle between sender and receiver as current user
     let secondUserIds = isSender ? receiver : sender;
     if (
+      currentUserId &&
       selectedUserIds.includes(currentUserId) &&
       secondUserIds.includes(currentUserId)
     ) {
@@ -288,8 +320,8 @@ function DebtForm() {
 
   useEffect(() => {
     if (isAllManual(manualInputs)) {
-      setSumError(false);
-      setSumRemainsError(false);
+      setSumError({});
+      setSumRemainsError({});
     }
   }, [enteredSum]);
 
@@ -311,7 +343,7 @@ function DebtForm() {
     }
     const options = currencies
       .map((obj) => {
-        if (currentUser.settings.favoriteCurrencies.includes(obj.id)) {
+        if (currentUser.settings?.favoriteCurrencies?.includes(obj.id)) {
           return { ...obj, group: 'Избранные валюты' };
         }
         if (popularCurrencies.includes(obj.id)) {
@@ -320,7 +352,7 @@ function DebtForm() {
         return { ...obj, group: 'Остальные валюты' };
       })
       .sort((a, b) => {
-        const groupOrder = {
+        const groupOrder: { [key: string]: number } = {
           'Избранные валюты': 1,
           'Популярные валюты': 2,
           'Остальные валюты': 3,
@@ -341,8 +373,7 @@ function DebtForm() {
             error={isUserLoadingError}
             selectedUserIds={sender}
             disabledUserIds={disabledSender}
-            toggleSelectedId={toggleSelectedId}
-            isSender
+            toggleSelectedId={(id: string) => toggleSelectedId(id, true)}
           />
           {!isSenderSelected && <p>Выберите Должника</p>}
         </Grid>
@@ -354,7 +385,7 @@ function DebtForm() {
               error={isUserLoadingError}
               selectedUserIds={receiver}
               disabledUserIds={disabledReceiver}
-              toggleSelectedId={toggleSelectedId}
+              toggleSelectedId={(id: string) => toggleSelectedId(id, false)}
             />
             {!isReceiverSelected && <p>Выберите Получателя</p>}
           </Grid>
@@ -402,7 +433,7 @@ function DebtForm() {
                       }}
                     />
                   )}
-                  className={enteredCurrency && classes.valid}
+                  className={enteredCurrency ? classes.valid : undefined}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -424,7 +455,7 @@ function DebtForm() {
                       !!(enteredSum && !validationProps.sum.testSum(enteredSum))
                     }
                     style={{ whiteSpace: 'pre-wrap' }}
-                    className={enteredSum && classes.valid}
+                    className={enteredSum ? classes.valid : undefined}
                     required={sender.length < 2}
                   />
                 </FormControl>
@@ -445,7 +476,10 @@ function DebtForm() {
               )}
               {sender.length > 1 &&
                 sender.map((id) => {
-                  const user = users.find((item) => item.id === id);
+                  const user = users?.find((item) => item.id === id);
+                  if (!user) {
+                    return null;
+                  }
                   return (
                     <Grid item xs={12} key={id}>
                       <FormControl fullWidth required>
@@ -469,7 +503,9 @@ function DebtForm() {
                           )}
                           error={sumRemainsError[user.id] || sumError[user.id]}
                           style={{ whiteSpace: 'pre-wrap' }}
-                          className={enteredUsersSum[user.id] && classes.valid}
+                          className={
+                            enteredUsersSum[user.id] ? classes.valid : undefined
+                          }
                           required
                         />
                       </FormControl>
@@ -500,7 +536,6 @@ function DebtForm() {
                         <DatePicker
                           label='Дата'
                           value={enteredDate}
-                          id='date'
                           onChange={dateInputChangeHandler}
                           disableFuture
                           closeOnSelect
@@ -533,7 +568,6 @@ function DebtForm() {
                     color='success'
                     type='submit'
                     endIcon={<CheckIcon />}
-                    onSubmit={submissionOfDebtHandler}
                   >
                     Отправить
                   </LoadingButton>
