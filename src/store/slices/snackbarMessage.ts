@@ -1,9 +1,10 @@
 /* eslint-disable no-param-reassign */
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { SnackbarSeverity } from '../../models/enums/snackbarSeverity';
 
 interface SnackbarState {
   open: boolean;
-  severity: string | undefined;
+  severity: SnackbarSeverity | undefined;
   message: string | undefined;
 }
 

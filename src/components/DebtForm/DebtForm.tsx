@@ -32,6 +32,7 @@ import { showSnackbarMessage } from '../../store/slices/snackbarMessage';
 import { selectContractors } from './selectContractors';
 import User from '../../models/User';
 import Currency from '../../models/Currency';
+import { SnackbarSeverity } from '../../models/enums/snackbarSeverity';
 
 interface UsersSum {
   [key: string]: string | number;
@@ -229,14 +230,14 @@ function DebtForm() {
       await postTransactions({ transactions: debtData });
       dispatch(
         showSnackbarMessage({
-          severity: 'success',
+          severity: SnackbarSeverity.SUCCESS,
           message: 'Транзакция успешно добавлена',
         }),
       );
     } catch {
       dispatch(
         showSnackbarMessage({
-          severity: 'error',
+          severity: SnackbarSeverity.ERROR,
           message: 'Что-то пошло не так... Попробуйте перезагрузить страницу.',
         }),
       );
