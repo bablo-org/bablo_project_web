@@ -88,7 +88,6 @@ function Summary() {
         totalIncoming: { ...currencies },
         history: [],
       })) ?? [];
-
     approvedTransactions.forEach((transaction) => {
       const senderIndex = updatedSummaryData.findIndex(
         (user) => user.userId === transaction.sender,

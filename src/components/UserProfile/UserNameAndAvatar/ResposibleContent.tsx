@@ -1,6 +1,15 @@
 import { Stack, Grid, FormControl } from '@mui/material';
+import { ReactNode } from 'react';
 
-function ResposibleContent({ avatarBlock, inputAvatar, inputName }) {
+function ResposibleContent({
+  avatarBlock,
+  inputAvatar,
+  inputName,
+}: {
+  avatarBlock: ReactNode;
+  inputAvatar: ReactNode;
+  inputName: ReactNode;
+}) {
   if (window.innerWidth < 820) {
     return (
       <>

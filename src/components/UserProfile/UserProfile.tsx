@@ -8,9 +8,9 @@ import UserNameAndAvatar from './UserNameAndAvatar/UserNameAndAvatar';
 
 function UserProfile() {
   const { data: users, isFetching: usersLoading } = useGetUsers();
-  const currentUserId = auth.currentUser.uid;
+  const currentUserId = auth?.currentUser?.uid;
   const currentUser = useMemo(
-    () => users.find((u) => u.id === currentUserId),
+    () => users?.find((u) => u.id === currentUserId),
     [users, currentUserId],
   );
 
@@ -23,7 +23,7 @@ function UserProfile() {
     <Container maxWidth='md'>
       <Grid container spacing={2} direction='column'>
         <UserNameAndAvatar
-          currentUser={currentUser}
+          currentUser={currentUser!}
           showSkeleton={showSkeleton}
         />
         <Grid item xs={12}>
@@ -35,7 +35,7 @@ function UserProfile() {
             Telergam
           </Typography>
           <Divider />
-          <TelegramProfile currentUser={currentUser} />
+          <TelegramProfile currentUser={currentUser!} />
         </Grid>
         <Grid item xs={12}>
           <Typography
@@ -46,7 +46,7 @@ function UserProfile() {
             Избранные валюты
           </Typography>
           <Divider />
-          <UserCurrency currentUser={currentUser} />
+          <UserCurrency currentUser={currentUser!} />
         </Grid>
       </Grid>
       <Grid item xs={12} sx={{ paddingBottom: '50px' }} />

@@ -1,4 +1,5 @@
-import { useEffect, useState, useMemo } from 'react';
+/* eslint-disable import/no-duplicates */
+import { useEffect, useState, useMemo, FormEvent } from 'react';
 import {
   TextField,
   FormControl,
@@ -23,8 +24,9 @@ import { useUpdateTgUserName, useUpdateUserSettings } from '../../queries';
 import TransitionsModal from '../modal/modal';
 import { showSnackbarMessage } from '../../store/slices/snackbarMessage';
 import TelegramSkeleton from './Skeleton/TelegramSkeleton';
+import User from '../../models/User';
 
-function TelegramProfile({ currentUser }) {
+function TelegramProfile({ currentUser }: { currentUser: User }) {
   const { mutateAsync: putTgUserName, isLoading: loadingTgUsername } =
     useUpdateTgUserName();
   const { mutateAsync: putUserSettings, isLoading: loadingUserSettings } =
@@ -38,12 +40,12 @@ function TelegramProfile({ currentUser }) {
   const dispatch = useDispatch();
   const showSkeleton = useMemo(() => !currentUser, [currentUser]);
 
-  const { settings, telegramUser } = useMemo(() => {
+  const user = useMemo(() => {
     if (currentUser) return currentUser;
-    return [];
+    return undefined;
   }, [currentUser]);
 
-  const updateTg = async (Name) => {
+  const updateTg = async (Name: string) => {
     try {
       await putTgUserName(Name);
       dispatch(
@@ -52,8 +54,8 @@ function TelegramProfile({ currentUser }) {
           message: 'Изменения успешно сохранены',
         }),
       );
-    } catch (e) {
-      if (e.message === '500') {
+    } catch (e: any) {
+      if (e?.message === '500') {
         setIsTgError(true);
       } else {
         dispatch(
@@ -67,7 +69,7 @@ function TelegramProfile({ currentUser }) {
     }
   };
 
-  const updateTgUserName = (e) => {
+  const updateTgUserName = (e: FormEvent) => {
     e.preventDefault();
     if (enteredTgName.includes('@')) {
       updateTg(enteredTgName.slice(1));
@@ -116,10 +118,10 @@ function TelegramProfile({ currentUser }) {
   };
 
   useEffect(() => {
-    if (settings) {
-      setIsNotificationOn(settings?.enableTelegramNotifications);
+    if (user?.settings) {
+      setIsNotificationOn(user?.settings?.enableTelegramNotifications!);
     }
-  }, [settings]);
+  }, [user?.settings]);
 
   return (
     <form onSubmit={updateTgUserName}>
@@ -166,15 +168,16 @@ function TelegramProfile({ currentUser }) {
                 </Button>
               </Stack>
             }
+            icon={undefined}
           />
-          {telegramUser && (
+          {user?.telegramUser && (
             <>
               <Grid item xs={12}>
                 <Typography
                   variant='body1'
                   sx={{ width: '200px', fontWeight: 'bold' }}
                 >
-                  {`@${telegramUser}`}
+                  {`@${user?.telegramUser}`}
                 </Typography>
               </Grid>
               <Grid item xs={12}>
@@ -204,7 +207,7 @@ function TelegramProfile({ currentUser }) {
               divider={<Divider orientation='vertical' flexItem />}
             >
               <Typography variant='body1' sx={{ width: '200px' }}>
-                Привязать {telegramUser && 'другой'} аккаунт
+                Привязать {user?.telegramUser && 'другой'} аккаунт
               </Typography>
               <Button
                 onClick={() => {

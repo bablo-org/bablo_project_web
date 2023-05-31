@@ -1,13 +1,20 @@
 import { Badge } from '@mui/material';
 import { DisabledByDefault as DisabledByDefaultIcon } from '@mui/icons-material';
 import UserAvatar from '../../UserAvatar/UserAvatar';
+import User from '../../../models/User';
 
-function UserProfileAvatar({ currentUser, deleteAvatar }) {
+function UserProfileAvatar({
+  currentUser,
+  deleteAvatar,
+}: {
+  currentUser: User;
+  deleteAvatar: () => void;
+}) {
   return (
     <Badge
       invisible={!currentUser.avatar}
       onClick={(event) => {
-        if (!event.target.closest('.MuiAvatar-root')) {
+        if (!(event.target as HTMLElement).closest('.MuiAvatar-root')) {
           deleteAvatar();
         }
       }}
