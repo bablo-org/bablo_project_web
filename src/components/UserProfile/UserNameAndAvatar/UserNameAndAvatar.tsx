@@ -207,9 +207,7 @@ function UserNameAndAvatar({ currentUser, showSkeleton }: Props) {
   const inputAvatar = (
     <TextField
       variant='outlined'
-      label={
-        typeof avatarUrl === 'string' && avatarUrl !== '' ? avatarUrl : 'Аватар'
-      }
+      label={undefined}
       type='file'
       id='avatar'
       onChange={changeUserAvatar}

@@ -28,7 +28,11 @@ import Currency from '../../models/Currency';
 import User from '../../models/User';
 import { UserSettings } from '../../models/User';
 
-function UserCurrency({ currentUser }: { currentUser: User }) {
+interface Props {
+  currentUser: User;
+}
+
+function UserCurrency({ currentUser }: Props) {
   const [selectedCurrencies, setSelectedCurrencis] = useState<Currency[]>([]);
   const [favoriteCurrenciesId, setFavoriteCurrenciesId] = useState<string[]>(
     [],
