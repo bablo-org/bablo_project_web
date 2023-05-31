@@ -1,6 +1,6 @@
 import { Stack, Grid, Divider, Skeleton, Button } from '@mui/material';
 
-const renderGridContent = (n) => {
+const renderGridContent = (n: number) => {
   const grid = [];
   for (let i = 0; i < n; i++) {
     grid.push(

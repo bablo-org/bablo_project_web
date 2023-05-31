@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect, useMemo, FormEvent } from 'react';
 import {
   TextField,
   Stack,
@@ -17,48 +17,54 @@ import { validationProps } from '../../../utils/validationForm';
 import UserProfileAvatar from './UserProfileAvatar';
 import AvatarSkeleton from '../Skeleton/AvatarSkeleton';
 import { showSnackbarMessage } from '../../../store/slices/snackbarMessage';
-import ResposibleContent from './ResposibleContent';
+import ResponsibleContent from './ResponsibleContent';
+import User from '../../../models/User';
 
-function UserNameAndAvatar({ currentUser, showSkeleton }) {
+interface Props {
+  currentUser: User;
+  showSkeleton: boolean;
+}
+
+function UserNameAndAvatar({ currentUser, showSkeleton }: Props) {
   const { mutateAsync: putUser } = useUpdateUser();
   const { mutateAsync: postUserAvatar } = useUpdateUserAvatar();
   const [showAvatarSkeleton, setShowAvatarSkeleton] = useState(showSkeleton);
-  const [imageError, setImageError] = useState(false);
-  const [encodedImageName, setEncodedImageName] = useState();
-  const [encodedImageCode, setEncodedImageCode] = useState();
-  const [updatedUser, setUpdatedUser] = useState({});
+  const [imageError, setImageError] = useState<string | void>();
+  const [encodedImageName, setEncodedImageName] = useState<string>('');
+  const [encodedImageCode, setEncodedImageCode] = useState<string | void>();
+  const [updatedUser, setUpdatedUser] = useState<Partial<User>>({});
   const [name, setName] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState();
+  const [avatarUrl, setAvatarUrl] = useState<string | void>();
   const [isAvatarDeleted, setIsAvatarDeleted] = useState(false);
   const [loadingUserInfo, setLoadingUserInfo] = useState(false);
-  const inputFileValue = useRef();
+  const inputFileValue = useRef<HTMLTextAreaElement>();
   const dispatch = useDispatch();
   const { avatar } = validationProps;
 
   const clearForm = () => {
     setName('');
     setAvatarUrl();
-    inputFileValue.current.value = '';
+    inputFileValue.current!.value = '';
     setUpdatedUser(currentUser);
     setIsAvatarDeleted(false);
   };
 
-  const deleteAvatar = () => {
+  const deleteAvatar: () => void = () => {
     setAvatarUrl('');
     setEncodedImageCode();
-    setEncodedImageName();
-    inputFileValue.current.value = '';
+    setEncodedImageName('');
+    inputFileValue.current!.value = '';
     const deleteUserAvatar = { ...updatedUser };
     deleteUserAvatar.avatar = '';
     setUpdatedUser(deleteUserAvatar);
     setIsAvatarDeleted(true);
   };
 
-  const changeUserName = (e) => {
+  const changeUserName = (e: FormEvent) => {
     const updateUserName = { ...updatedUser };
-    if (e.target.value !== '') {
-      updateUserName.name = e.target.value;
-      setName(e.target.value);
+    if ((e.target as HTMLTextAreaElement).value !== '') {
+      updateUserName.name = (e.target as HTMLTextAreaElement).value;
+      setName((e.target as HTMLTextAreaElement).value);
     } else {
       updateUserName.name = currentUser.name;
       setName('');
@@ -66,16 +72,20 @@ function UserNameAndAvatar({ currentUser, showSkeleton }) {
     setUpdatedUser(updateUserName);
   };
 
-  const trasformString = (string) => {
-    const codeValue = string.split('base64,')[1];
+  const trasformString = (string: string) => {
+    const codeValue: string = string.split('base64,')[1];
     setEncodedImageCode(codeValue);
   };
 
-  const encodeImageFileAsURL = (element) => {
+  const encodeImageFileAsURL = (
+    element: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     setAvatarUrl();
-    const file = element.target.files[0];
-    const fileSize = element.target.files[0].size;
-    const fileType = element.target.files[0].type.split('/')[1];
+    const file = (element.target as HTMLInputElement).files![0];
+    const fileSize = (element.target as HTMLInputElement).files![0].size;
+    const fileType = (element.target as HTMLInputElement).files![0].type.split(
+      '/',
+    )[1];
 
     if (fileSize > 1024001) {
       setImageError(avatar.errorSizeTitle);
@@ -90,17 +100,27 @@ function UserNameAndAvatar({ currentUser, showSkeleton }) {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = () => {
-      setEncodedImageName(encodeURIComponent(element.target.files[0].name));
+      setEncodedImageName(
+        encodeURIComponent((element.target as HTMLInputElement).files![0].name),
+      );
+      if (typeof reader.result !== 'string') {
+        console.warn(
+          'error while encoding image file as url in UserNameAndAvatar.tsx fn: encodeImageFileAsURL',
+        );
+        return;
+      }
       trasformString(reader.result);
       setAvatarUrl(reader.result);
 
       const updateUserAvatar = { ...updatedUser };
-      updateUserAvatar.avatar = reader.result;
+      updateUserAvatar.avatar = reader.result?.toString();
       setUpdatedUser(updateUserAvatar);
     };
   };
 
-  const changeUserAvatar = (e) => {
+  const changeUserAvatar = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     setImageError();
     encodeImageFileAsURL(e);
     setIsAvatarDeleted(false);
@@ -109,12 +129,13 @@ function UserNameAndAvatar({ currentUser, showSkeleton }) {
   const updateUser = async () => {
     try {
       setLoadingUserInfo(true);
-      const userUpdates = {};
+      const userUpdates: Partial<User> = {};
       if (encodedImageCode) {
         const response = await postUserAvatar({
           encodedImage: encodedImageCode,
           fileName: encodedImageName,
         });
+        if (!storage) return;
         const avatarDownloadURL = await getDownloadURL(
           ref(storage, response.path),
         );
@@ -147,7 +168,7 @@ function UserNameAndAvatar({ currentUser, showSkeleton }) {
     }
   };
 
-  const validateAndSubmit = (e) => {
+  const validateAndSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!name && !encodedImageName && avatarUrl !== '') {
       return;
@@ -186,20 +207,23 @@ function UserNameAndAvatar({ currentUser, showSkeleton }) {
   const inputAvatar = (
     <TextField
       variant='outlined'
-      label={avatarUrl && 'Аватар'}
+      label={undefined}
       type='file'
       id='avatar'
       onChange={changeUserAvatar}
       helperText={imageError || avatar.title}
-      error={imageError}
+      error={!!imageError}
       inputProps={{ ref: inputFileValue }}
-      className={avatarUrl && classes.valid}
+      className={(avatarUrl as string) && classes.valid}
     />
   );
   const avatarBlock = showAvatarSkeleton ? (
     <AvatarSkeleton />
   ) : (
-    <UserProfileAvatar currentUser={updatedUser} deleteAvatar={deleteAvatar} />
+    <UserProfileAvatar
+      currentUser={updatedUser as User}
+      deleteAvatar={deleteAvatar}
+    />
   );
   return (
     <Grid item xs={12}>
@@ -211,7 +235,7 @@ function UserNameAndAvatar({ currentUser, showSkeleton }) {
             </Typography>
             <Divider />
           </Grid>
-          <ResposibleContent
+          <ResponsibleContent
             avatarBlock={avatarBlock}
             inputAvatar={inputAvatar}
             inputName={inputName}

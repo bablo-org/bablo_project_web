@@ -55,7 +55,7 @@ const useUpdateUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ name, avatar }: { name: string; avatar?: string }) => {
+    mutationFn: ({ name, avatar }: Partial<User>) => {
       return defaultQueryFn({
         queryKey: ['users/updateProfile'],
         requestOptions: {
