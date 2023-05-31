@@ -1,7 +1,7 @@
 import { Stack, Grid, FormControl } from '@mui/material';
 import { ReactNode } from 'react';
 
-function ResposibleContent({
+function ResponsibleContent({
   avatarBlock,
   inputAvatar,
   inputName,
@@ -53,4 +53,4 @@ function ResposibleContent({
     </Grid>
   );
 }
-export default ResposibleContent;
+export default ResponsibleContent;

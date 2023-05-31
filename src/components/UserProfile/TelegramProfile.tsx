@@ -26,7 +26,11 @@ import { showSnackbarMessage } from '../../store/slices/snackbarMessage';
 import TelegramSkeleton from './Skeleton/TelegramSkeleton';
 import User from '../../models/User';
 
-function TelegramProfile({ currentUser }: { currentUser: User }) {
+interface Props {
+  currentUser: User;
+}
+
+function TelegramProfile({ currentUser }: Props) {
   const { mutateAsync: putTgUserName, isLoading: loadingTgUsername } =
     useUpdateTgUserName();
   const { mutateAsync: putUserSettings, isLoading: loadingUserSettings } =

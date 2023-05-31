@@ -17,16 +17,15 @@ import { validationProps } from '../../../utils/validationForm';
 import UserProfileAvatar from './UserProfileAvatar';
 import AvatarSkeleton from '../Skeleton/AvatarSkeleton';
 import { showSnackbarMessage } from '../../../store/slices/snackbarMessage';
-import ResposibleContent from './ResposibleContent';
+import ResponsibleContent from './ResponsibleContent';
 import User from '../../../models/User';
 
-function UserNameAndAvatar({
-  currentUser,
-  showSkeleton,
-}: {
+interface Props {
   currentUser: User;
   showSkeleton: boolean;
-}) {
+}
+
+function UserNameAndAvatar({ currentUser, showSkeleton }: Props) {
   const { mutateAsync: putUser } = useUpdateUser();
   const { mutateAsync: postUserAvatar } = useUpdateUserAvatar();
   const [showAvatarSkeleton, setShowAvatarSkeleton] = useState(showSkeleton);
@@ -236,7 +235,7 @@ function UserNameAndAvatar({
             </Typography>
             <Divider />
           </Grid>
-          <ResposibleContent
+          <ResponsibleContent
             avatarBlock={avatarBlock}
             inputAvatar={inputAvatar}
             inputName={inputName}

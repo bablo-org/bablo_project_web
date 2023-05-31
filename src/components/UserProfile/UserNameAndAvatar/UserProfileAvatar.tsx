@@ -3,13 +3,12 @@ import { DisabledByDefault as DisabledByDefaultIcon } from '@mui/icons-material'
 import UserAvatar from '../../UserAvatar/UserAvatar';
 import User from '../../../models/User';
 
-function UserProfileAvatar({
-  currentUser,
-  deleteAvatar,
-}: {
+interface Props {
   currentUser: User;
   deleteAvatar: () => void;
-}) {
+}
+
+function UserProfileAvatar({ currentUser, deleteAvatar }: Props) {
   return (
     <Badge
       invisible={!currentUser.avatar}
