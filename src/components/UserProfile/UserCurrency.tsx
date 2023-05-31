@@ -54,7 +54,7 @@ function UserCurrency({ currentUser }: Props) {
     return undefined;
   }, [favoriteCurrenciesId, currencies]);
 
-  const removeFavoriteCurrencis = (currencyId: string[]) => {
+  const removeFavoriteCurrencies = (currencyId: string[]) => {
     const updatedCurrencies = favoriteCurrenciesId.filter(
       (id) => currencyId.indexOf(id) === -1,
     );
@@ -78,7 +78,7 @@ function UserCurrency({ currentUser }: Props) {
               key={item?.id}
               variant='outlined'
               color='primary'
-              onDelete={() => removeFavoriteCurrencis([item?.id!])}
+              onDelete={() => removeFavoriteCurrencies([item?.id!])}
               sx={{ width: '100px' }}
             />
           </Tooltip>
@@ -246,7 +246,7 @@ function UserCurrency({ currentUser }: Props) {
               <Button
                 color='error'
                 onClick={() => {
-                  removeFavoriteCurrencis(favoriteCurrenciesId);
+                  removeFavoriteCurrencies(favoriteCurrenciesId);
                 }}
               >
                 <DeleteIcon color='error' />
