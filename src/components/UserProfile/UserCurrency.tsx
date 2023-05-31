@@ -18,7 +18,7 @@ import {
   Delete as DeleteIcon,
   AddCircleOutline as AddCircleOutlineIcon,
 } from '@mui/icons-material';
-import { useState, useMemo, useEffect, FormEvent } from 'react';
+import { useState, useMemo, useEffect, FormEvent, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import TransitionsModal from '../modal/modal';
 import { useGetCurrencies, useUpdateUserSettings } from '../../queries';
@@ -45,6 +45,7 @@ function UserCurrency({ currentUser }: Props) {
   const { mutateAsync: putUserSettings, isLoading: loadingSetSettings } =
     useUpdateUserSettings();
   const dispatch = useDispatch();
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   const favoriteCurrencies = useMemo(() => {
     if (favoriteCurrenciesId && !currenciesLoading)
@@ -60,6 +61,10 @@ function UserCurrency({ currentUser }: Props) {
     );
     setFavoriteCurrenciesId(updatedCurrencies);
     setIsCurrenciesUpdated(true);
+  };
+
+  const executeScroll = () => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const renderFavoriteCurrenciesList = () => {
@@ -275,13 +280,14 @@ function UserCurrency({ currentUser }: Props) {
           </Stack>
         </Grid>
       </Grid>
-      <Collapse in={addCurrienseOff}>
+      <Collapse in={addCurrienseOff} onEntered={executeScroll}>
         <form onSubmit={addNewCurrencies}>
           <Grid
             container
             spacing={2}
             direction='column'
             sx={{ textAlign: 'left', marginTop: '5px' }}
+            ref={bottomRef}
           >
             <Grid item xs={12}>
               <Autocomplete
