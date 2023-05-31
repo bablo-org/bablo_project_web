@@ -66,7 +66,7 @@ function DebtForm() {
   const [sumRemainsError, setSumRemainsError] = useState<SumError>({});
   const [sumError, setSumError] = useState<SumError>({});
   const [manualInputs, setManualInputs] = useState<string[]>([]);
-  const [isMyselfInclude, setIsMyselfInclude] = useState<boolean>(false);
+  const [isMyselfIncluded, setIsMyselfIncluded] = useState<boolean>(false);
   const [myselfSum, setMyselfSum] = useState<string>('');
   const dispatch = useDispatch();
 
@@ -79,6 +79,7 @@ function DebtForm() {
     useGetCurrencies();
   const { mutateAsync: postTransactions, isLoading: isAddingNewTransaction } =
     usePostTransaction();
+  const currentUserId = auth?.currentUser?.uid;
 
   const sumInputChangeHandler = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -88,6 +89,10 @@ function DebtForm() {
     setEnteredUsersSum({});
     setSumError({});
     setSumRemainsError({});
+    const newSumError = currentUserId ? { [currentUserId]: true } : {};
+    if (+enteredSum <= +myselfSum) {
+      setSumRemainsError(newSumError);
+    }
   };
 
   const isSumValid = (sum: string | number) => {
@@ -284,19 +289,17 @@ function DebtForm() {
     setEnteredUsersSum(newUsersSum);
   };
 
-  const currentUserId = auth?.currentUser?.uid;
-
   const toogleIsMyselfInclude = () => {
-    if (isMyselfInclude) {
+    if (isMyselfIncluded) {
       setMyselfSum('');
       setEnteredUsersSum({});
       setSumError({});
       setSumRemainsError({});
     }
-    setIsMyselfInclude(!isMyselfInclude);
+    setIsMyselfIncluded(!isMyselfIncluded);
   };
 
-  const MyselfSumInputChangaHandler = (
+  const myselfSumInputChangaHandler = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setManualInputs([]);
@@ -511,7 +514,7 @@ function DebtForm() {
                   />
                 </FormControl>
               </Grid>
-              {isMyselfInclude && currentUserId && (
+              {isMyselfIncluded && currentUserId && (
                 <>
                   <Grid item xs={12}>
                     <FormControl fullWidth required>
@@ -519,7 +522,7 @@ function DebtForm() {
                         variant='outlined'
                         label='Моя сумма'
                         value={myselfSum}
-                        onChange={MyselfSumInputChangaHandler}
+                        onChange={myselfSumInputChangaHandler}
                         type='text'
                         id='myselfSum'
                         inputProps={{
@@ -564,12 +567,12 @@ function DebtForm() {
                     spacing={2}
                   >
                     <Button
-                      variant={isMyselfInclude ? 'contained' : 'outlined'}
+                      variant={isMyselfIncluded ? 'contained' : 'outlined'}
                       endIcon={<PersonIcon />}
                       onClick={toogleIsMyselfInclude}
                       sx={{ width: { md: '200px' } }}
                     >
-                      {isMyselfInclude ? 'Исключить меня' : 'Включить меня'}
+                      {isMyselfIncluded ? 'Исключить меня' : 'Включить меня'}
                     </Button>
                     <Button
                       variant='outlined'
