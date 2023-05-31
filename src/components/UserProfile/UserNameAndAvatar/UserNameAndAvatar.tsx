@@ -82,8 +82,10 @@ function UserNameAndAvatar({ currentUser, showSkeleton }: Props) {
   ) => {
     setAvatarUrl();
     const file = (element.target as HTMLInputElement).files![0];
-    const fileSize = (element.target as HTMLInputElement).size;
-    const fileType = (element.target as HTMLInputElement).type.split('/')[1];
+    const fileSize = (element.target as HTMLInputElement).files![0].size;
+    const fileType = (element.target as HTMLInputElement).files![0].type.split(
+      '/',
+    )[1];
 
     if (fileSize > 1024001) {
       setImageError(avatar.errorSizeTitle);
