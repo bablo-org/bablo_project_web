@@ -291,9 +291,11 @@ function UserCurrency({ currentUser }: Props) {
                   setSelectedCurrencis(newValue);
                 }}
                 id='currencis'
-                options={currencies!?.filter((obj) => {
-                  return favoriteCurrenciesId.indexOf(obj.id) === -1;
-                })}
+                options={
+                  currencies?.filter((obj) => {
+                    return favoriteCurrenciesId.indexOf(obj.id) === -1;
+                  }) ?? []
+                }
                 getOptionLabel={(option) => {
                   const currencyName = `${option.id} - ${option.name}`;
                   return currencyName;
