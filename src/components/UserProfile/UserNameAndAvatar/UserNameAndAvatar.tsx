@@ -31,7 +31,7 @@ function UserNameAndAvatar({
   const { mutateAsync: postUserAvatar } = useUpdateUserAvatar();
   const [showAvatarSkeleton, setShowAvatarSkeleton] = useState(showSkeleton);
   const [imageError, setImageError] = useState<string | void>();
-  const [encodedImageName, setEncodedImageName] = useState<string | void>();
+  const [encodedImageName, setEncodedImageName] = useState<string>('');
   const [encodedImageCode, setEncodedImageCode] = useState<string | void>();
   const [updatedUser, setUpdatedUser] = useState<Partial<User>>({});
   const [name, setName] = useState('');
@@ -53,7 +53,7 @@ function UserNameAndAvatar({
   const deleteAvatar: () => void = () => {
     setAvatarUrl('');
     setEncodedImageCode();
-    setEncodedImageName();
+    setEncodedImageName('');
     inputFileValue.current!.value = '';
     const deleteUserAvatar = { ...updatedUser };
     deleteUserAvatar.avatar = '';
@@ -79,10 +79,10 @@ function UserNameAndAvatar({
   };
 
   const encodeImageFileAsURL = (
-    element: React.ChangeEventHandler<HTMLTextAreaElement>,
+    element: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setAvatarUrl();
-    const file = element.target.files![0];
+    const file = (element.target as HTMLInputElement).files![0];
     const fileSize = (element.target as HTMLInputElement).size;
     const fileType = (element.target as HTMLInputElement).type.split('/')[1];
 
@@ -118,7 +118,7 @@ function UserNameAndAvatar({
   };
 
   const changeUserAvatar = (
-    e: React.ChangeEventHandler<HTMLTextAreaElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setImageError();
     encodeImageFileAsURL(e);
@@ -134,6 +134,7 @@ function UserNameAndAvatar({
           encodedImage: encodedImageCode,
           fileName: encodedImageName,
         });
+        if (!storage) return;
         const avatarDownloadURL = await getDownloadURL(
           ref(storage, response.path),
         );
@@ -205,20 +206,25 @@ function UserNameAndAvatar({
   const inputAvatar = (
     <TextField
       variant='outlined'
-      label={avatarUrl && 'Аватар'}
+      label={
+        typeof avatarUrl === 'string' && avatarUrl !== '' ? avatarUrl : 'Аватар'
+      }
       type='file'
       id='avatar'
       onChange={changeUserAvatar}
       helperText={imageError || avatar.title}
       error={!!imageError}
       inputProps={{ ref: inputFileValue }}
-      className={avatarUrl && classes.valid}
+      className={(avatarUrl as string) && classes.valid}
     />
   );
   const avatarBlock = showAvatarSkeleton ? (
     <AvatarSkeleton />
   ) : (
-    <UserProfileAvatar currentUser={updatedUser} deleteAvatar={deleteAvatar} />
+    <UserProfileAvatar
+      currentUser={updatedUser as User}
+      deleteAvatar={deleteAvatar}
+    />
   );
   return (
     <Grid item xs={12}>
