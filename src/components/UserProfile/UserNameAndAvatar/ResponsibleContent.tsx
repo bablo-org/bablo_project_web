@@ -1,15 +1,13 @@
 import { Stack, Grid, FormControl } from '@mui/material';
 import { ReactNode } from 'react';
 
-function ResponsibleContent({
-  avatarBlock,
-  inputAvatar,
-  inputName,
-}: {
+interface Props {
   avatarBlock: ReactNode;
   inputAvatar: ReactNode;
   inputName: ReactNode;
-}) {
+}
+
+function ResponsibleContent({ avatarBlock, inputAvatar, inputName }: Props) {
   if (window.innerWidth < 820) {
     return (
       <>
