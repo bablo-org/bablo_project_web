@@ -17,8 +17,8 @@ import {
   SafetyDivider as SafetyDividerIcon,
 } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
-import { useDispatch } from 'react-redux';
 import { Dayjs } from 'dayjs';
+import { useAppDispatch } from '../../store/hooks';
 import { auth } from '../../services/firebase';
 import { validationProps } from '../../utils/validationForm';
 import AvatarsList from '../AvatarsList/AvatarsList';
@@ -32,7 +32,7 @@ import { showSnackbarMessage } from '../../store/slices/snackbarMessage';
 import { selectContractors } from './selectContractors';
 import User from '../../models/User';
 import Currency from '../../models/Currency';
-import { SnackbarSeverity } from '../../models/enums/snackbarSeverity';
+import { SnackbarSeverity } from '../../models/enums/SnackbarSeverity';
 
 interface UsersSum {
   [key: string]: string | number;
@@ -65,7 +65,7 @@ function DebtForm() {
   const [sumRemainsError, setSumRemainsError] = useState<SumError>({});
   const [sumError, setSumError] = useState<SumError>({});
   const [manualInputs, setManualInputs] = useState<string[]>([]);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const {
     data: users,

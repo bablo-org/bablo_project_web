@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { SnackbarSeverity } from '../../models/enums/snackbarSeverity';
+import { SnackbarSeverity } from '../../models/enums/SnackbarSeverity';
 
 interface SnackbarState {
   open: boolean;
@@ -18,7 +18,10 @@ const snackbarMessageSlice = createSlice({
   name: 'snackbarMessage',
   initialState,
   reducers: {
-    showSnackbarMessage(state, action: PayloadAction<Partial<SnackbarState>>) {
+    showSnackbarMessage(
+      state,
+      action: PayloadAction<Omit<SnackbarState, 'open'>>,
+    ) {
       state.open = true;
       state.severity = action.payload.severity;
       state.message = action.payload.message;
