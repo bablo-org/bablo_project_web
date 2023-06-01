@@ -1,6 +1,15 @@
-import { useCallback } from 'react';
 import { Stack, Skeleton, Box } from '@mui/material';
 import UserAvatar from '../UserAvatar/UserAvatar';
+import User from '../../models/User';
+
+interface AvatarListProps {
+  users: User[] | undefined;
+  loading: boolean;
+  error: boolean;
+  selectedUserIds: string[];
+  disabledUserIds: string[];
+  toggleSelectedId: (id: string) => void;
+}
 
 function AvatarsList({
   users,
@@ -9,23 +18,20 @@ function AvatarsList({
   selectedUserIds,
   disabledUserIds,
   toggleSelectedId,
-}) {
-  const renderAvatar = useCallback(
-    (user) => {
-      return (
-        <UserAvatar
-          key={user.id}
-          name={user.name}
-          id={user.id}
-          toggleSelectedId={toggleSelectedId}
-          isActive={selectedUserIds.includes(user.id)}
-          isDisabled={disabledUserIds.includes(user.id)}
-          avatarUrl={user.avatar}
-        />
-      );
-    },
-    [selectedUserIds, users],
-  );
+}: AvatarListProps) {
+  const renderAvatar = (user: User) => {
+    return (
+      <UserAvatar
+        key={user.id}
+        name={user.name}
+        id={user.id}
+        toggleSelectedId={toggleSelectedId}
+        isActive={selectedUserIds.includes(user.id)}
+        isDisabled={disabledUserIds.includes(user.id)}
+        avatarUrl={user.avatar}
+      />
+    );
+  };
 
   return (
     <Stack direction='row' justifyContent='center'>
@@ -47,7 +53,7 @@ function AvatarsList({
               </Box>
             );
           })
-        : users.map((user) => renderAvatar(user))}
+        : users?.map((user) => renderAvatar(user))}
       {error && <div>Дрюс что-то сломал.</div>}
     </Stack>
   );

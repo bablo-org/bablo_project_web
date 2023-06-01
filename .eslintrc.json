@@ -16,7 +16,6 @@
         "project": "./tsconfig.json"
     },
     "plugins": [
-        "react"
     ],
     "rules": {
         "react/require-default-props": "off",

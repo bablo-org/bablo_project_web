@@ -6,7 +6,7 @@ function CurrenciesSkeleton() {
     const tooltips = [];
     for (let i = 0; i < 3; i++) {
       tooltips.push(
-        <Tooltip key={i}>
+        <Tooltip key={i} title={undefined}>
           <Chip
             label={<Stack direction='row' spacing={1} />}
             key={i}

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-duplicates */
 import {
   Grid,
   Autocomplete,
@@ -17,16 +18,25 @@ import {
   Delete as DeleteIcon,
   AddCircleOutline as AddCircleOutlineIcon,
 } from '@mui/icons-material';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, FormEvent, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import TransitionsModal from '../modal/modal';
 import { useGetCurrencies, useUpdateUserSettings } from '../../queries';
 import { showSnackbarMessage } from '../../store/slices/snackbarMessage';
 import CurrenciesSkeleton from './Skeleton/CurrenciesSkeleton';
+import Currency from '../../models/Currency';
+import User from '../../models/User';
+import { UserSettings } from '../../models/User';
 
-function UserCurrency({ currentUser }) {
-  const [selectedCurrencies, setSelectedCurrencis] = useState([]);
-  const [favoriteCurrenciesId, setFavoriteCurrenciesId] = useState([]);
+interface Props {
+  currentUser: User;
+}
+
+function UserCurrency({ currentUser }: Props) {
+  const [selectedCurrencies, setSelectedCurrencis] = useState<Currency[]>([]);
+  const [favoriteCurrenciesId, setFavoriteCurrenciesId] = useState<string[]>(
+    [],
+  );
   const [isCurrenciesUpdated, setIsCurrenciesUpdated] = useState(false);
   const [addCurrienseOff, setAddCurrienseOff] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
@@ -35,16 +45,17 @@ function UserCurrency({ currentUser }) {
   const { mutateAsync: putUserSettings, isLoading: loadingSetSettings } =
     useUpdateUserSettings();
   const dispatch = useDispatch();
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   const favoriteCurrencies = useMemo(() => {
     if (favoriteCurrenciesId && !currenciesLoading)
       return favoriteCurrenciesId.map((item) => {
-        return currencies.find((e) => e.id === item);
+        return currencies?.find((e) => e.id === item);
       });
     return undefined;
   }, [favoriteCurrenciesId, currencies]);
 
-  const removeFavoriteCurrencis = (currencyId) => {
+  const removeFavoriteCurrencies = (currencyId: string[]) => {
     const updatedCurrencies = favoriteCurrenciesId.filter(
       (id) => currencyId.indexOf(id) === -1,
     );
@@ -52,23 +63,27 @@ function UserCurrency({ currentUser }) {
     setIsCurrenciesUpdated(true);
   };
 
+  const executeScroll = () => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   const renderFavoriteCurrenciesList = () => {
     if (favoriteCurrencies && favoriteCurrenciesId.length > 0) {
       return favoriteCurrencies.map((item) => {
-        const { symbol } = item;
+        const { symbol }: { symbol: string } = item!;
         return (
-          <Tooltip title={item.name} key={item.name}>
+          <Tooltip title={item?.name} key={item?.name}>
             <Chip
               label={
                 <Stack direction='row' spacing={1}>
                   <div style={{ fontWeight: 'bold' }}>{symbol}</div>
-                  <div>{item.id}</div>
+                  <div>{item?.id}</div>
                 </Stack>
               }
-              key={item.id}
+              key={item?.id}
               variant='outlined'
               color='primary'
-              onDelete={() => removeFavoriteCurrencis([item.id])}
+              onDelete={() => removeFavoriteCurrencies([item?.id!])}
               sx={{ width: '100px' }}
             />
           </Tooltip>
@@ -78,9 +93,9 @@ function UserCurrency({ currentUser }) {
     return <Typography variant='body1'>Нет избранных валют</Typography>;
   };
 
-  const updateUserSettings = async (updatedCurrencies) => {
+  const updateUserSettings = async (updatedCurrencies: string[]) => {
     try {
-      const settings = { favoriteCurrencies: updatedCurrencies };
+      const settings: UserSettings = { favoriteCurrencies: updatedCurrencies };
       await putUserSettings(settings);
       dispatch(
         showSnackbarMessage({
@@ -102,10 +117,10 @@ function UserCurrency({ currentUser }) {
     }
   };
 
-  const addNewCurrencies = (e) => {
+  const addNewCurrencies = (e: FormEvent) => {
     e.preventDefault();
-    const newCurrenciesId = selectedCurrencies.map((obj) => obj.id);
-    const settings = favoriteCurrenciesId.concat(newCurrenciesId);
+    const newCurrenciesId = selectedCurrencies.map((obj: Currency) => obj.id);
+    const settings: string[] = favoriteCurrenciesId.concat(newCurrenciesId);
     updateUserSettings(settings);
   };
 
@@ -116,7 +131,7 @@ function UserCurrency({ currentUser }) {
 
   useEffect(() => {
     if (currentUser) {
-      setFavoriteCurrenciesId(currentUser.settings.favoriteCurrencies);
+      setFavoriteCurrenciesId(currentUser.settings?.favoriteCurrencies!);
     }
   }, [currentUser]);
 
@@ -158,6 +173,7 @@ function UserCurrency({ currentUser }) {
             </Button>
           </Stack>
         }
+        icon={undefined}
       />
       <form
         onSubmit={(e) => {
@@ -192,7 +208,7 @@ function UserCurrency({ currentUser }) {
                   variant='outlined'
                   onClick={() => {
                     setFavoriteCurrenciesId(
-                      currentUser.settings.favoriteCurrencies,
+                      currentUser.settings?.favoriteCurrencies!,
                     );
                     setIsCurrenciesUpdated(false);
                   }}
@@ -235,7 +251,7 @@ function UserCurrency({ currentUser }) {
               <Button
                 color='error'
                 onClick={() => {
-                  removeFavoriteCurrencis(favoriteCurrenciesId);
+                  removeFavoriteCurrencies(favoriteCurrenciesId);
                 }}
               >
                 <DeleteIcon color='error' />
@@ -264,13 +280,14 @@ function UserCurrency({ currentUser }) {
           </Stack>
         </Grid>
       </Grid>
-      <Collapse in={addCurrienseOff}>
+      <Collapse in={addCurrienseOff} onEntered={executeScroll}>
         <form onSubmit={addNewCurrencies}>
           <Grid
             container
             spacing={2}
             direction='column'
             sx={{ textAlign: 'left', marginTop: '5px' }}
+            ref={bottomRef}
           >
             <Grid item xs={12}>
               <Autocomplete
@@ -280,9 +297,11 @@ function UserCurrency({ currentUser }) {
                   setSelectedCurrencis(newValue);
                 }}
                 id='currencis'
-                options={currencies.filter((obj) => {
-                  return favoriteCurrenciesId.indexOf(obj.id) === -1;
-                })}
+                options={
+                  currencies?.filter((obj) => {
+                    return favoriteCurrenciesId.indexOf(obj.id) === -1;
+                  }) ?? []
+                }
                 getOptionLabel={(option) => {
                   const currencyName = `${option.id} - ${option.name}`;
                   return currencyName;
