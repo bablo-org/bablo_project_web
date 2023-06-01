@@ -17,12 +17,13 @@ import {
   Telegram as TelegramIcon,
   Clear as ClearIcon,
 } from '@mui/icons-material';
-import { useDispatch } from 'react-redux';
+import { useAppDispatch } from '../../store/hooks';
 import classes from './UserProfile.module.css';
 import { validationProps } from '../../utils/validationForm';
 import { useUpdateTgUserName, useUpdateUserSettings } from '../../queries';
 import TransitionsModal from '../modal/modal';
 import { showSnackbarMessage } from '../../store/slices/snackbarMessage';
+import { SnackbarSeverity } from '../../models/enums/SnackbarSeverity';
 import TelegramSkeleton from './Skeleton/TelegramSkeleton';
 import User from '../../models/User';
 
@@ -41,7 +42,7 @@ function TelegramProfile({ currentUser }: Props) {
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [isNotificationOn, setIsNotificationOn] = useState(true);
   const [tgCollapseOff, setTgCollapseOff] = useState(false);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const showSkeleton = useMemo(() => !currentUser, [currentUser]);
 
   const user = useMemo(() => {
@@ -54,7 +55,7 @@ function TelegramProfile({ currentUser }: Props) {
       await putTgUserName(Name);
       dispatch(
         showSnackbarMessage({
-          severity: 'success',
+          severity: SnackbarSeverity.SUCCESS,
           message: 'Изменения успешно сохранены',
         }),
       );
@@ -64,7 +65,7 @@ function TelegramProfile({ currentUser }: Props) {
       } else {
         dispatch(
           showSnackbarMessage({
-            severity: 'error',
+            severity: SnackbarSeverity.ERROR,
             message:
               'Что-то пошло не так... Попробуйте перезагрузить страницу.',
           }),
@@ -90,14 +91,14 @@ function TelegramProfile({ currentUser }: Props) {
       await putUserSettings(updatedSettings);
       dispatch(
         showSnackbarMessage({
-          severity: 'success',
+          severity: SnackbarSeverity.SUCCESS,
           message: 'Изменения успешно сохранены',
         }),
       );
     } catch {
       dispatch(
         showSnackbarMessage({
-          severity: 'error',
+          severity: SnackbarSeverity.ERROR,
           message: 'Что-то пошло не так... Попробуйте перезагрузить страницу.',
         }),
       );

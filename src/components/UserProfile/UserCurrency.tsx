@@ -19,10 +19,11 @@ import {
   AddCircleOutline as AddCircleOutlineIcon,
 } from '@mui/icons-material';
 import { useState, useMemo, useEffect, FormEvent, useRef } from 'react';
-import { useDispatch } from 'react-redux';
+import { useAppDispatch } from '../../store/hooks';
 import TransitionsModal from '../modal/modal';
 import { useGetCurrencies, useUpdateUserSettings } from '../../queries';
 import { showSnackbarMessage } from '../../store/slices/snackbarMessage';
+import { SnackbarSeverity } from '../../models/enums/SnackbarSeverity';
 import CurrenciesSkeleton from './Skeleton/CurrenciesSkeleton';
 import Currency from '../../models/Currency';
 import User from '../../models/User';
@@ -44,7 +45,7 @@ function UserCurrency({ currentUser }: Props) {
     useGetCurrencies();
   const { mutateAsync: putUserSettings, isLoading: loadingSetSettings } =
     useUpdateUserSettings();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const favoriteCurrencies = useMemo(() => {
@@ -99,14 +100,14 @@ function UserCurrency({ currentUser }: Props) {
       await putUserSettings(settings);
       dispatch(
         showSnackbarMessage({
-          severity: 'success',
+          severity: SnackbarSeverity.SUCCESS,
           message: 'Изменения успешно сохранены',
         }),
       );
     } catch {
       dispatch(
         showSnackbarMessage({
-          severity: 'error',
+          severity: SnackbarSeverity.ERROR,
           message: 'Что-то пошло не так... Попробуйте перезагрузить страницу.',
         }),
       );
