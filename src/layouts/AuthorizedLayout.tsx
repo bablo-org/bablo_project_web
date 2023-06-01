@@ -22,18 +22,31 @@ import {
   AccountCircle,
   Logout,
 } from '@mui/icons-material/';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { auth, signOut } from '../services/firebase';
 import { PATHES } from '../routes';
+import { useAppDispatch } from '../store/hooks';
+import { showSnackbarMessage } from '../store/slices/snackbarMessage';
+import { SnackbarSeverity } from '../models/enums/SnackbarSeverity';
+import Logo from '../BabloLogo.png';
 
+interface ItemButton {
+  name: string;
+  path: string;
+  icon: JSX.Element;
+}
 const drawerWidth = 240;
 
 function AuthorizedLayout() {
-  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [mobileOpen, setMobileOpen] = useState<boolean>(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const isCurrentLocation = (item) => location.pathname === item.path;
+  const isCurrentLocation = (item: ItemButton) => {
+    return location.pathname === item.path;
+  };
+
+  const dispatch = useAppDispatch();
 
   const listItemButtons = useMemo(
     () => [
@@ -66,25 +79,37 @@ function AuthorizedLayout() {
   };
 
   const pageHeader = useMemo(() => {
-    const title = 'Bablo Project';
     switch (location.pathname) {
       case '/':
       case PATHES.ADD_TRANSACTION:
-        return title.concat(': Создать транзакцию');
+        return 'Создать транзакцию';
       case PATHES.HISTORY:
-        return title.concat(': История');
+        return 'История';
       case PATHES.SUMMARY:
-        return title.concat(': Итоги');
+        return 'Итоги';
       case PATHES.PROFILE:
-        return title.concat(': Профиль');
+        return 'Профиль';
       default:
-        return title;
+        return 'Bablo Project';
     }
   }, [location.pathname]);
 
   const drawer = (
     <div>
-      <Toolbar />
+      <IconButton
+        onClick={() => navigate('/')}
+        sx={{ ':hover': { backgroundColor: 'transparent' } }}
+      >
+        <Box
+          sx={{
+            backgroundImage: `url(${Logo})`,
+            backgroundSize: 'contain',
+            width: { xs: 150 },
+            height: { xs: 150 },
+            margin: 'auto',
+          }}
+        />
+      </IconButton>
       <Divider />
       <List>
         {listItemButtons.map((item) => (
@@ -99,7 +124,7 @@ function AuthorizedLayout() {
               selected={isCurrentLocation(item)}
             >
               <ListItemIcon
-                sx={{ color: isCurrentLocation(item) && '#1976d2' }}
+                sx={isCurrentLocation(item) ? { color: '#1976d2' } : undefined}
               >
                 {item.icon}
               </ListItemIcon>
@@ -113,6 +138,15 @@ function AuthorizedLayout() {
         <ListItem key='Выйти' disablePadding>
           <ListItemButton
             onClick={() => {
+              if (!auth) {
+                dispatch(
+                  showSnackbarMessage({
+                    severity: SnackbarSeverity.ERROR,
+                    message: 'Ошибка, попробуйте позднее...',
+                  }),
+                );
+                return;
+              }
               signOut(auth);
             }}
           >
