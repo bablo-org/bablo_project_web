@@ -3,34 +3,35 @@ import { useNavigate } from 'react-router-dom';
 import { Container, Grid, TextField, FormControl, Box } from '@mui/material';
 import LoginIcon from '@mui/icons-material/Login';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { auth, signInWithEmailAndPassword } from '../../services/firebase';
 import { PATHES } from '../../routes';
 import classes from './LoginForm.module.css';
 import Logo from '../../BabloLogo.png';
 import { validationProps } from '../../utils/validationForm';
 import { showSnackbarMessage } from '../../store/slices/snackbarMessage';
+import { SnackbarSeverity } from '../../models/enums/SnackbarSeverity';
 
 function InputForm() {
   const navigate = useNavigate();
-  const [enteredEmail, setEnteredEmail] = useState('');
-  const [enteredPassword, setEnteredPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
-  const { user } = useSelector((state) => state.auth);
-  const dispatch = useDispatch();
+  const [enteredEmail, setEnteredEmail] = useState<string>('');
+  const [enteredPassword, setEnteredPassword] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<boolean | string>(false);
+  const { user } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
   const errorMessage = useMemo(() => {
     switch (error) {
       case 'auth/invalid-email':
-        return 'Email address is not valid';
+        return 'Неверный email адрес';
       case 'auth/user-disabled':
-        return 'Email has been disabled';
+        return 'Пользователь заблокирован';
       case 'auth/user-not-found':
-        return 'User not found';
+        return 'Пользователь не найдет';
       case 'auth/wrong-password':
-        return 'Password is invalid for the given email';
+        return 'Неверный пароль';
       default:
-        return 'Unknown error.';
+        return 'Ошибка авторизации';
     }
   }, [error]);
   const { email } = validationProps;
@@ -48,8 +49,17 @@ function InputForm() {
     return email.title;
   };
 
-  const onLoginPress = (e) => {
-    e.preventDefault();
+  const onLoginPress = (e: React.FormEvent<HTMLFormElement> | undefined) => {
+    e?.preventDefault();
+    if (!auth) {
+      dispatch(
+        showSnackbarMessage({
+          severity: SnackbarSeverity.ERROR,
+          message: 'Ошибка авторизации',
+        }),
+      );
+      return;
+    }
     setLoading(true);
     setError(false);
     signInWithEmailAndPassword(auth, enteredEmail, enteredPassword)
@@ -67,7 +77,7 @@ function InputForm() {
     if (error) {
       dispatch(
         showSnackbarMessage({
-          severity: 'error',
+          severity: SnackbarSeverity.ERROR,
           message: errorMessage,
         }),
       );
