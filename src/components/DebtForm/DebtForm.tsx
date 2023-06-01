@@ -18,8 +18,8 @@ import {
   Person as PersonIcon,
 } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
-import { useDispatch } from 'react-redux';
 import { Dayjs } from 'dayjs';
+import { useAppDispatch } from '../../store/hooks';
 import { auth } from '../../services/firebase';
 import { validationProps } from '../../utils/validationForm';
 import AvatarsList from '../AvatarsList/AvatarsList';
@@ -33,6 +33,7 @@ import { showSnackbarMessage } from '../../store/slices/snackbarMessage';
 import { selectContractors } from './selectContractors';
 import User from '../../models/User';
 import Currency from '../../models/Currency';
+import { SnackbarSeverity } from '../../models/enums/SnackbarSeverity';
 
 interface UsersSum {
   [key: string]: string | number;
@@ -66,9 +67,9 @@ function DebtForm() {
   const [sumRemainsError, setSumRemainsError] = useState<SumError>({});
   const [sumError, setSumError] = useState<SumError>({});
   const [manualInputs, setManualInputs] = useState<string[]>([]);
+  const dispatch = useAppDispatch();
   const [isMyselfIncluded, setIsMyselfIncluded] = useState<boolean>(false);
   const [myselfSum, setMyselfSum] = useState<string>('');
-  const dispatch = useDispatch();
 
   const {
     data: users,
@@ -241,14 +242,14 @@ function DebtForm() {
       await postTransactions({ transactions: debtData });
       dispatch(
         showSnackbarMessage({
-          severity: 'success',
+          severity: SnackbarSeverity.SUCCESS,
           message: 'Транзакция успешно добавлена',
         }),
       );
     } catch {
       dispatch(
         showSnackbarMessage({
-          severity: 'error',
+          severity: SnackbarSeverity.ERROR,
           message: 'Что-то пошло не так... Попробуйте перезагрузить страницу.',
         }),
       );

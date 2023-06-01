@@ -1,7 +1,7 @@
 import { RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useAppDispatch } from './store/hooks';
 import {
   initializeFirebase,
   auth,
@@ -10,7 +10,7 @@ import {
 import './App.css';
 import router from './routes';
 import { defaultQueryFn } from './queries';
-import { authActions } from './store/slices/auth';
+import { setUser, clearUser } from './store/slices/auth';
 import SnackbarMessage from './components/SnackbarMessage/SnackbarMessage';
 
 initializeFirebase();
@@ -24,7 +24,7 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -34,7 +34,7 @@ function App() {
         // User is signed in, see docs for a list of available properties
         // https://firebase.google.com/docs/reference/js/v8/firebase.User
         dispatch(
-          authActions.setUser({
+          setUser({
             uid: currentUser.uid,
             email: currentUser.email,
           }),
@@ -43,7 +43,7 @@ function App() {
       } else {
         // User is signed out
         // ...
-        dispatch(authActions.clearUser());
+        dispatch(clearUser());
       }
     });
   }, []);
