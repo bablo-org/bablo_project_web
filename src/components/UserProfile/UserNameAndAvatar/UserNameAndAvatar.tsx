@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { Check as CheckIcon, Clear as ClearIcon } from '@mui/icons-material';
-import { useDispatch } from 'react-redux';
+import { useAppDispatch } from '../../../store/hooks';
 import { useUpdateUser, useUpdateUserAvatar } from '../../../queries';
 import { getDownloadURL, storage, ref } from '../../../services/firebase';
 import classes from '../UserProfile.module.css';
@@ -17,6 +17,7 @@ import { validationProps } from '../../../utils/validationForm';
 import UserProfileAvatar from './UserProfileAvatar';
 import AvatarSkeleton from '../Skeleton/AvatarSkeleton';
 import { showSnackbarMessage } from '../../../store/slices/snackbarMessage';
+import { SnackbarSeverity } from '../../../models/enums/SnackbarSeverity';
 import ResponsibleContent from './ResponsibleContent';
 import User from '../../../models/User';
 
@@ -38,7 +39,7 @@ function UserNameAndAvatar({ currentUser, showSkeleton }: Props) {
   const [isAvatarDeleted, setIsAvatarDeleted] = useState(false);
   const [loadingUserInfo, setLoadingUserInfo] = useState(false);
   const inputFileValue = useRef<HTMLTextAreaElement>();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { avatar } = validationProps;
 
   const clearForm = () => {
@@ -150,7 +151,7 @@ function UserNameAndAvatar({ currentUser, showSkeleton }: Props) {
         await putUser(userUpdates);
         dispatch(
           showSnackbarMessage({
-            severity: 'success',
+            severity: SnackbarSeverity.SUCCESS,
             message: 'Изменения успешно сохранены',
           }),
         );
@@ -158,7 +159,7 @@ function UserNameAndAvatar({ currentUser, showSkeleton }: Props) {
     } catch {
       dispatch(
         showSnackbarMessage({
-          severity: 'error',
+          severity: SnackbarSeverity.ERROR,
           message: 'Что-то пошло не так... Попробуйте перезагрузить страницу.',
         }),
       );
