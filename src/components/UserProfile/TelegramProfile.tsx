@@ -17,7 +17,7 @@ import {
   Telegram as TelegramIcon,
   Clear as ClearIcon,
 } from '@mui/icons-material';
-import { useAppDispatch } from '../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import classes from './UserProfile.module.css';
 import { validationProps } from '../../utils/validationForm';
 import { useUpdateTgUserName, useUpdateUserSettings } from '../../queries';
@@ -26,6 +26,7 @@ import { showSnackbarMessage } from '../../store/slices/snackbarMessage';
 import { SnackbarSeverity } from '../../models/enums/SnackbarSeverity';
 import TelegramSkeleton from './Skeleton/TelegramSkeleton';
 import User from '../../models/User';
+import { profileActions } from '../../store/slices/profileForm';
 
 interface Props {
   currentUser: User;
@@ -36,15 +37,16 @@ function TelegramProfile({ currentUser }: Props) {
     useUpdateTgUserName();
   const { mutateAsync: putUserSettings, isLoading: loadingUserSettings } =
     useUpdateUserSettings();
-  const [enteredTgName, setEnteredTgName] = useState('');
   const [isTgError, setIsTgError] = useState(false);
   const { tgName } = validationProps;
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [isNotificationOn, setIsNotificationOn] = useState(true);
-  const [tgCollapseOff, setTgCollapseOff] = useState(false);
   const dispatch = useAppDispatch();
   const showSkeleton = useMemo(() => !currentUser, [currentUser]);
-
+  const tgUserName = useAppSelector((state) => state.profileForm.tgUserName);
+  const tgCollapse = useAppSelector(
+    (state) => state.profileForm.showTgCollapse,
+  );
   const user = useMemo(() => {
     if (currentUser) return currentUser;
     return undefined;
@@ -76,10 +78,10 @@ function TelegramProfile({ currentUser }: Props) {
 
   const updateTgUserName = (e: FormEvent) => {
     e.preventDefault();
-    if (enteredTgName.includes('@')) {
-      updateTg(enteredTgName.slice(1));
+    if (tgUserName.includes('@')) {
+      updateTg(tgUserName.slice(1));
     } else {
-      updateTg(enteredTgName);
+      updateTg(tgUserName);
     }
   };
 
@@ -216,7 +218,7 @@ function TelegramProfile({ currentUser }: Props) {
               </Typography>
               <Button
                 onClick={() => {
-                  setTgCollapseOff(!tgCollapseOff);
+                  dispatch(profileActions.toggleTgCollapse());
                 }}
               >
                 <TelegramIcon />
@@ -224,7 +226,7 @@ function TelegramProfile({ currentUser }: Props) {
             </Stack>
           </Grid>
           <Grid item xs={12}>
-            <Collapse in={tgCollapseOff}>
+            <Collapse in={tgCollapse}>
               <Grid
                 container
                 spacing={2}
@@ -246,18 +248,18 @@ function TelegramProfile({ currentUser }: Props) {
                     <TextField
                       variant='outlined'
                       label='Имя пользователя'
-                      value={enteredTgName}
+                      value={tgUserName}
                       type='text'
                       onChange={(e) => {
                         setIsTgError(false);
-                        setEnteredTgName(e.target.value);
+                        dispatch(profileActions.setTgName(e.target.value));
                       }}
                       id='enteredTgName'
                       required
                       helperText={choseTgNameTextHelper()}
-                      className={enteredTgName && classes.valid}
+                      className={tgUserName && classes.valid}
                       error={isTgError}
-                      onFocus={() => setEnteredTgName('@')}
+                      onFocus={() => dispatch(profileActions.setTgName('@'))}
                       inputProps={{
                         inputMode: 'text',
                         pattern: tgName.inputPropsPattern,

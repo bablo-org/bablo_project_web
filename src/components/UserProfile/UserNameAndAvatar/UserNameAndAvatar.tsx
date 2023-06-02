@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { Check as CheckIcon, Clear as ClearIcon } from '@mui/icons-material';
-import { useAppDispatch } from '../../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { useUpdateUser, useUpdateUserAvatar } from '../../../queries';
 import { getDownloadURL, storage, ref } from '../../../services/firebase';
 import classes from '../UserProfile.module.css';
@@ -20,6 +20,7 @@ import { showSnackbarMessage } from '../../../store/slices/snackbarMessage';
 import { SnackbarSeverity } from '../../../models/enums/SnackbarSeverity';
 import ResponsibleContent from './ResponsibleContent';
 import User from '../../../models/User';
+import { profileActions } from '../../../store/slices/profileForm';
 
 interface Props {
   currentUser: User;
@@ -34,16 +35,15 @@ function UserNameAndAvatar({ currentUser, showSkeleton }: Props) {
   const [encodedImageName, setEncodedImageName] = useState<string>('');
   const [encodedImageCode, setEncodedImageCode] = useState<string | void>();
   const [updatedUser, setUpdatedUser] = useState<Partial<User>>({});
-  const [name, setName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | void>();
   const [isAvatarDeleted, setIsAvatarDeleted] = useState(false);
   const [loadingUserInfo, setLoadingUserInfo] = useState(false);
   const inputFileValue = useRef<HTMLTextAreaElement>();
   const dispatch = useAppDispatch();
   const { avatar } = validationProps;
-
+  const name = useAppSelector((state) => state.profileForm.userName);
   const clearForm = () => {
-    setName('');
+    dispatch(profileActions.setUserName(''));
     setAvatarUrl();
     inputFileValue.current!.value = '';
     setUpdatedUser(currentUser);
@@ -65,10 +65,12 @@ function UserNameAndAvatar({ currentUser, showSkeleton }: Props) {
     const updateUserName = { ...updatedUser };
     if ((e.target as HTMLTextAreaElement).value !== '') {
       updateUserName.name = (e.target as HTMLTextAreaElement).value;
-      setName((e.target as HTMLTextAreaElement).value);
+      dispatch(
+        profileActions.setUserName((e.target as HTMLTextAreaElement).value),
+      );
     } else {
       updateUserName.name = currentUser.name;
-      setName('');
+      dispatch(profileActions.setUserName(''));
     }
     setUpdatedUser(updateUserName);
   };
