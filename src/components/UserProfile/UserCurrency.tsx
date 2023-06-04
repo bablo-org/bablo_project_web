@@ -54,7 +54,7 @@ function UserCurrency({ currentUser }: Props) {
         return currencies?.find((e) => e.id === item);
       });
     return undefined;
-  }, [favoriteCurrenciesId, currencies]);
+  }, [favoriteCurrenciesId, currencies, currenciesLoading]);
 
   const removeFavoriteCurrencies = (currencyId: string[]) => {
     const updatedCurrencies = favoriteCurrenciesId.filter(
