@@ -40,9 +40,9 @@ type UserSummaryData = {
 
 function createData(
   name: string,
-  valueGain: (string | number)[],
-  valueLost: (string | number)[],
-  total: (string | number)[],
+  valueGain: string,
+  valueLost: string,
+  total: string,
   history: HistoryData[],
 ) {
   return {
@@ -133,11 +133,16 @@ function Summary() {
     const displayTotalIncomeData = (totalSummaryData: {
       [key: string]: number;
     }) => {
-      const totalOutput: (string | number)[] = [];
+      let totalOutput = '';
       Object.entries(totalSummaryData).forEach((entry) => {
         const [key, value] = entry;
-        totalOutput.push(key, ': ', value, ' ');
+        if (value > 0) {
+          totalOutput = totalOutput.concat(`${key}: ${value} `);
+        }
       });
+      if (totalOutput.length === 0) {
+        totalOutput = '-/-';
+      }
       return totalOutput;
     };
     return createData(

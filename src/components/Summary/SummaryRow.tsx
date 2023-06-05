@@ -17,9 +17,9 @@ import { HistoryData } from './Summary';
 
 type SummaryRowProps = {
   name: string;
-  valueGain: (string | number)[];
-  valueLost: (string | number)[];
-  total: (string | number)[];
+  valueGain: string;
+  valueLost: string;
+  total: string;
   history: HistoryData[];
 };
 
