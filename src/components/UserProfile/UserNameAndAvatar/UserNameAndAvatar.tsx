@@ -61,13 +61,13 @@ function UserNameAndAvatar({ currentUser, showSkeleton }: Props) {
     setIsAvatarDeleted(true);
   };
 
-  const changeUserName = (e: FormEvent) => {
+  const changeUserName = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const updateUserName = { ...updatedUser };
-    if ((e.target as HTMLTextAreaElement).value !== '') {
-      updateUserName.name = (e.target as HTMLTextAreaElement).value;
-      dispatch(
-        profileActions.setUserName((e.target as HTMLTextAreaElement).value),
-      );
+    if (e.target.value !== '') {
+      updateUserName.name = e.target.value;
+      dispatch(profileActions.setUserName(e.target.value));
     } else {
       updateUserName.name = currentUser.name;
       dispatch(profileActions.setUserName(''));

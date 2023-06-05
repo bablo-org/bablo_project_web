@@ -1,7 +1,16 @@
 /* eslint-disable no-param-reassign */
-import { createSlice } from '@reduxjs/toolkit';
+import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import Currency from '../../models/Currency';
 
-const initialState = {
+interface InitialState {
+  userName: string;
+  tgUserName: string;
+  showTgCollapse: boolean;
+  selectedCurrencies: Currency[];
+  showCurrenciesCollapse: boolean;
+}
+
+const initialState: InitialState = {
   userName: '',
   tgUserName: '',
   showTgCollapse: false,
@@ -22,7 +31,7 @@ const profileSlice = createSlice({
     toggleTgCollapse(state) {
       state.showTgCollapse = !state.showTgCollapse;
     },
-    setCurrencies(state, action) {
+    setCurrencies(state, action: PayloadAction<Currency[]>) {
       state.selectedCurrencies = action.payload;
     },
     toggleCurrenciesCollapse(state) {
