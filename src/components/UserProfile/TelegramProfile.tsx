@@ -259,7 +259,13 @@ function TelegramProfile({ currentUser }: Props) {
                       helperText={choseTgNameTextHelper()}
                       className={tgUserName && classes.valid}
                       error={isTgError}
-                      onFocus={() => dispatch(profileActions.setTgName('@'))}
+                      onFocus={() => {
+                        dispatch(
+                          profileActions.setTgName(
+                            `${tgUserName?.length > 0 ? tgUserName : '@'}`,
+                          ),
+                        );
+                      }}
                       inputProps={{
                         inputMode: 'text',
                         pattern: tgName.inputPropsPattern,
