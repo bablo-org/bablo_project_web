@@ -136,7 +136,7 @@ function Summary() {
       let totalOutput = '';
       Object.entries(totalSummaryData).forEach((entry) => {
         const [key, value] = entry;
-        if (value > 0) {
+        if (value !== 0) {
           totalOutput = totalOutput.concat(`${key}: ${value} `);
         }
       });
