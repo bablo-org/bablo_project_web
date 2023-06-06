@@ -16,6 +16,7 @@ import Spinner from '../Spinner/Spinner';
 import { useGetUsers, useGetTransactions } from '../../queries';
 import { auth } from '../../services/firebase';
 import Transaction from '../../models/Transaction';
+import { formatNumber, isRoundingToZero } from '../../utils/NumberUtils';
 
 type HistoryData = {
   date: number;
@@ -134,8 +135,8 @@ function Summary() {
       [key: string]: number;
     }) => {
       const totalOutput = Object.entries(totalSummaryData)
-        .filter((e) => e[1].toFixed(2) !== '0.00') // skip zeros
-        .map((e) => `${e[0]}: ${e[1].toFixed(2)}`) // USD-12.3456789 => 'USD: 12.34'
+        .filter((e) => !isRoundingToZero(e[1])) // skip zeros
+        .map((e) => `${e[0]}: ${formatNumber(e[1])}`) // {'USD', 123456.789} => 'USD: 123 456,789'
         .join(' / ');
       return totalOutput || '-/-';
     };
