@@ -56,7 +56,7 @@ function AuthorizedLayout() {
         icon: <AddBox />,
       },
       {
-        name: 'История',
+        name: 'Все транзакции',
         path: PATHES.HISTORY,
         icon: <History />,
       },
@@ -84,7 +84,7 @@ function AuthorizedLayout() {
       case PATHES.ADD_TRANSACTION:
         return 'Создать транзакцию';
       case PATHES.HISTORY:
-        return 'История';
+        return 'Все транзакции';
       case PATHES.SUMMARY:
         return 'Итоги';
       case PATHES.PROFILE:

@@ -16,6 +16,7 @@ import Spinner from '../Spinner/Spinner';
 import { useGetUsers, useGetTransactions } from '../../queries';
 import { auth } from '../../services/firebase';
 import Transaction from '../../models/Transaction';
+import { formatNumber, isRoundingToZero } from '../../utils/NumberUtils';
 
 type HistoryData = {
   date: number;
@@ -40,9 +41,9 @@ type UserSummaryData = {
 
 function createData(
   name: string,
-  valueGain: (string | number)[],
-  valueLost: (string | number)[],
-  total: (string | number)[],
+  valueGain: string[],
+  valueLost: string[],
+  total: string[],
   history: HistoryData[],
 ) {
   return {
@@ -129,23 +130,21 @@ function Summary() {
     setSummaryData(filteredSummaryData);
   }, [users, approvedTransactions]);
 
-  const rows = summaryData.map((userSumamryData) => {
+  const rows = summaryData.map((userSummaryData) => {
     const displayTotalIncomeData = (totalSummaryData: {
       [key: string]: number;
     }) => {
-      const totalOutput: (string | number)[] = [];
-      Object.entries(totalSummaryData).forEach((entry) => {
-        const [key, value] = entry;
-        totalOutput.push(key, ': ', value, ' ');
-      });
-      return totalOutput;
+      const totalOutput = Object.entries(totalSummaryData)
+        .filter((e) => !isRoundingToZero(e[1])) // skip zeros
+        .map((e) => `${e[0]}: ${formatNumber(e[1])}`); // {'USD', 123456.789} => 'USD: 123 456,79'
+      return totalOutput.length > 0 ? totalOutput : ['-/-'];
     };
     return createData(
-      userSumamryData.name,
-      displayTotalIncomeData(userSumamryData.totalIncoming),
-      displayTotalIncomeData(userSumamryData.totalOutcoming),
-      displayTotalIncomeData(userSumamryData.total),
-      userSumamryData.history.sort((obj1: HistoryData, obj2: HistoryData) => {
+      userSummaryData.name,
+      displayTotalIncomeData(userSummaryData.totalIncoming),
+      displayTotalIncomeData(userSummaryData.totalOutcoming),
+      displayTotalIncomeData(userSummaryData.total),
+      userSummaryData.history.sort((obj1: HistoryData, obj2: HistoryData) => {
         return obj2.date - obj1.date;
       }),
     );

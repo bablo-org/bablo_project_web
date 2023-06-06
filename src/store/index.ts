@@ -2,9 +2,10 @@ import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './slices/auth';
 import snackbarMessage from './slices/snackbarMessage';
 import addTransaction from './slices/addTransaction';
+import profileForm from './slices/profileForm';
 
 const store = configureStore({
-  reducer: { auth: authReducer, snackbarMessage, addTransaction },
+  reducer: { auth: authReducer, snackbarMessage, profileForm, addTransaction },
   devTools: process.env.NODE_ENV !== 'production',
 });
 
