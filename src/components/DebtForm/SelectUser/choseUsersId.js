@@ -1,8 +1,4 @@
-export const selectContractors = (
-  { sender, receiver },
-  users,
-  currentUserId,
-) => {
+export const choseUsersId = ({ sender, receiver }, users, currentUserId) => {
   const usersIds = Object.values(users).map((user) => user.id);
   const filteredUserId = (filteredUserIdedId) => {
     return usersIds.filter((id) => id !== filteredUserIdedId);
