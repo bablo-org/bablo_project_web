@@ -129,28 +129,22 @@ function Summary() {
     setSummaryData(filteredSummaryData);
   }, [users, approvedTransactions]);
 
-  const rows = summaryData.map((userSumamryData) => {
+  const rows = summaryData.map((userSummaryData) => {
     const displayTotalIncomeData = (totalSummaryData: {
       [key: string]: number;
     }) => {
-      let totalOutput = '';
-      Object.entries(totalSummaryData).forEach((entry) => {
-        const [key, value] = entry;
-        if (value !== 0) {
-          totalOutput = totalOutput.concat(`${key}: ${value} `);
-        }
-      });
-      if (totalOutput.length === 0) {
-        totalOutput = '-/-';
-      }
-      return totalOutput;
+      const totalOutput = Object.entries(totalSummaryData)
+        .filter((e) => e[1].toFixed(1) !== '0.0') // skip zeros
+        .map((e) => `${e[0]}: ${e[1].toFixed(2)}`) // USD-12.3456789 => 'USD: 12.34'
+        .join(' / ');
+      return totalOutput || '-/-';
     };
     return createData(
-      userSumamryData.name,
-      displayTotalIncomeData(userSumamryData.totalIncoming),
-      displayTotalIncomeData(userSumamryData.totalOutcoming),
-      displayTotalIncomeData(userSumamryData.total),
-      userSumamryData.history.sort((obj1: HistoryData, obj2: HistoryData) => {
+      userSummaryData.name,
+      displayTotalIncomeData(userSummaryData.totalIncoming),
+      displayTotalIncomeData(userSummaryData.totalOutcoming),
+      displayTotalIncomeData(userSummaryData.total),
+      userSummaryData.history.sort((obj1: HistoryData, obj2: HistoryData) => {
         return obj2.date - obj1.date;
       }),
     );
