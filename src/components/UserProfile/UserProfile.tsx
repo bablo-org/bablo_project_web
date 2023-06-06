@@ -5,6 +5,7 @@ import { auth } from '../../services/firebase';
 import TelegramProfile from './TelegramProfile';
 import UserCurrency from './UserCurrency';
 import UserNameAndAvatar from './UserNameAndAvatar/UserNameAndAvatar';
+import BorderBox from '../UI/BorderBox';
 
 function UserProfile() {
   const { data: users, isFetching: usersLoading } = useGetUsers();
@@ -26,28 +27,32 @@ function UserProfile() {
           currentUser={currentUser!}
           showSkeleton={showSkeleton}
         />
-        <Grid item xs={12}>
-          <Typography
-            variant='h6'
-            sx={{ marginTop: '15px', textAlign: 'left' }}
-            gutterBottom
-          >
-            Telergam
-          </Typography>
-          <Divider />
-          <TelegramProfile currentUser={currentUser!} />
-        </Grid>
-        <Grid item xs={12}>
-          <Typography
-            variant='h6'
-            sx={{ marginTop: '15px', textAlign: 'left' }}
-            gutterBottom
-          >
-            Избранные валюты
-          </Typography>
-          <Divider />
-          <UserCurrency currentUser={currentUser!} />
-        </Grid>
+        <BorderBox>
+          <Grid item xs={12} sx={{ m: 4 }}>
+            <Typography
+              variant='h6'
+              sx={{ marginTop: '15px', textAlign: 'left' }}
+              gutterBottom
+            >
+              Telergam
+            </Typography>
+            <Divider />
+            <TelegramProfile currentUser={currentUser!} />
+          </Grid>
+        </BorderBox>
+        <BorderBox>
+          <Grid item xs={12} sx={{ m: 4 }}>
+            <Typography
+              variant='h6'
+              sx={{ marginTop: '15px', textAlign: 'left' }}
+              gutterBottom
+            >
+              Избранные валюты
+            </Typography>
+            <Divider />
+            <UserCurrency currentUser={currentUser!} />
+          </Grid>
+        </BorderBox>
       </Grid>
       <Grid item xs={12} sx={{ paddingBottom: '50px' }} />
     </Container>

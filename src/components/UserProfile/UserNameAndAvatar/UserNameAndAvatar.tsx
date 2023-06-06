@@ -21,6 +21,7 @@ import { SnackbarSeverity } from '../../../models/enums/SnackbarSeverity';
 import ResponsibleContent from './ResponsibleContent';
 import User from '../../../models/User';
 import { profileActions } from '../../../store/slices/profileForm';
+import BorderBox from '../../UI/BorderBox';
 
 interface Props {
   currentUser: User;
@@ -229,47 +230,49 @@ function UserNameAndAvatar({ currentUser, showSkeleton }: Props) {
     />
   );
   return (
-    <Grid item xs={12}>
-      <form onSubmit={validateAndSubmit}>
-        <Grid container spacing={2} direction='column'>
-          <Grid item xs={12}>
-            <Typography variant='h6' gutterBottom sx={{ textAlign: 'left' }}>
-              Имя и Аватар
-            </Typography>
-            <Divider />
+    <BorderBox>
+      <Grid item xs={12} sx={{ m: 4 }}>
+        <form onSubmit={validateAndSubmit}>
+          <Grid container spacing={2} direction='column'>
+            <Grid item xs={12}>
+              <Typography variant='h6' gutterBottom sx={{ textAlign: 'left' }}>
+                Имя и Аватар
+              </Typography>
+              <Divider />
+            </Grid>
+            <ResponsibleContent
+              avatarBlock={avatarBlock}
+              inputAvatar={inputAvatar}
+              inputName={inputName}
+            />
+            <Grid item xs={12}>
+              <Stack direction='row' spacing={2}>
+                <Button
+                  variant='outlined'
+                  color='error'
+                  onClick={clearForm}
+                  endIcon={<ClearIcon />}
+                  disabled={isDisabledButton}
+                >
+                  Очистить
+                </Button>
+                <LoadingButton
+                  loading={loadingUserInfo}
+                  variant='contained'
+                  color='success'
+                  type='submit'
+                  endIcon={<CheckIcon />}
+                  onSubmit={validateAndSubmit}
+                  disabled={isDisabledButton}
+                >
+                  Сохранить
+                </LoadingButton>
+              </Stack>
+            </Grid>
           </Grid>
-          <ResponsibleContent
-            avatarBlock={avatarBlock}
-            inputAvatar={inputAvatar}
-            inputName={inputName}
-          />
-          <Grid item xs={12}>
-            <Stack direction='row' spacing={2}>
-              <Button
-                variant='outlined'
-                color='error'
-                onClick={clearForm}
-                endIcon={<ClearIcon />}
-                disabled={isDisabledButton}
-              >
-                Очистить
-              </Button>
-              <LoadingButton
-                loading={loadingUserInfo}
-                variant='contained'
-                color='success'
-                type='submit'
-                endIcon={<CheckIcon />}
-                onSubmit={validateAndSubmit}
-                disabled={isDisabledButton}
-              >
-                Сохранить
-              </LoadingButton>
-            </Stack>
-          </Grid>
-        </Grid>
-      </form>
-    </Grid>
+        </form>
+      </Grid>
+    </BorderBox>
   );
 }
 
