@@ -134,7 +134,7 @@ function Summary() {
       [key: string]: number;
     }) => {
       const totalOutput = Object.entries(totalSummaryData)
-        .filter((e) => e[1].toFixed(1) !== '0.00') // skip zeros
+        .filter((e) => e[1].toFixed(2) !== '0.00') // skip zeros
         .map((e) => `${e[0]}: ${e[1].toFixed(2)}`) // USD-12.3456789 => 'USD: 12.34'
         .join(' / ');
       return totalOutput || '-/-';
