@@ -69,7 +69,7 @@ function InputForm() {
 
   useEffect(() => {
     if (user) {
-      navigate(PATHES.ADD_TRANSACTION);
+      navigate(PATHES.HOME_PAGE);
     }
   }, [user, navigate]);
 

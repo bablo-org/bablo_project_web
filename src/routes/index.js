@@ -6,6 +6,7 @@ import SummaryPage from './SummaryPage';
 import LoginPage from './LoginPage';
 import AuthorizedLayout from '../layouts/AuthorizedLayout';
 import UserProfilePage from './UserProfilePage';
+import HomePage from '../components/HomePage/HomePage';
 
 export const PATHES = {
   LOGIN: '/login',
@@ -13,6 +14,7 @@ export const PATHES = {
   HISTORY: '/history',
   SUMMARY: '/summary',
   PROFILE: '/profile',
+  HOME_PAGE: '/',
 };
 export default createBrowserRouter([
   {
@@ -29,7 +31,7 @@ export default createBrowserRouter([
     children: [
       {
         index: true,
-        element: <AddTransactionPage />,
+        element: <HomePage />,
       },
       {
         path: PATHES.ADD_TRANSACTION,
