@@ -129,7 +129,7 @@ function Summary() {
     setSummaryData(filteredSummaryData);
   }, [users, approvedTransactions]);
 
-  const rows = summaryData.map((userSumamryData) => {
+  const rows = summaryData.map((userSummaryData) => {
     const displayTotalIncomeData = (totalSummaryData: {
       [key: string]: number;
     }) => {
@@ -137,7 +137,7 @@ function Summary() {
       Object.entries(totalSummaryData).forEach((entry) => {
         const [key, value] = entry;
         if (value > 0) {
-          totalOutput = totalOutput.concat(`${key}: ${value} `);
+          totalOutput = totalOutput.concat(`${key}: ${value.toFixed(2)} `);
         }
       });
       if (totalOutput.length === 0) {
@@ -146,11 +146,11 @@ function Summary() {
       return totalOutput;
     };
     return createData(
-      userSumamryData.name,
-      displayTotalIncomeData(userSumamryData.totalIncoming),
-      displayTotalIncomeData(userSumamryData.totalOutcoming),
-      displayTotalIncomeData(userSumamryData.total),
-      userSumamryData.history.sort((obj1: HistoryData, obj2: HistoryData) => {
+      userSummaryData.name,
+      displayTotalIncomeData(userSummaryData.totalIncoming),
+      displayTotalIncomeData(userSummaryData.totalOutcoming),
+      displayTotalIncomeData(userSummaryData.total),
+      userSummaryData.history.sort((obj1: HistoryData, obj2: HistoryData) => {
         return obj2.date - obj1.date;
       }),
     );
