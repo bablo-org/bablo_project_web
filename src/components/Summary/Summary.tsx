@@ -136,7 +136,7 @@ function Summary() {
     }) => {
       const totalOutput = Object.entries(totalSummaryData)
         .filter((e) => !isRoundingToZero(e[1])) // skip zeros
-        .map((e) => `${e[0]}: ${formatNumber(e[1])}`) // USD-12.3456789 => 'USD: 12.34'
+        .map((e) => `${e[0]}: ${formatNumber(e[1])}`) // {'USD', 123456.789} => 'USD: 123 456,789'
         .join(' / ');
       return totalOutput || '-/-';
     };
