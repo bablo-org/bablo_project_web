@@ -1,4 +1,11 @@
-import { TextField, FormControl, Stack, Button, Grid } from '@mui/material';
+import {
+  TextField,
+  FormControl,
+  Stack,
+  Button,
+  Grid,
+  Collapse,
+} from '@mui/material';
 import {
   SafetyDivider as SafetyDividerIcon,
   Person as PersonIcon,
@@ -16,7 +23,6 @@ import {
   setSumError,
   setManualInputs,
   setIsMyselfIncluded,
-  setMyselfSum,
 } from '../../../store/slices/addTransaction';
 import {
   isSumValid,
@@ -36,56 +42,23 @@ function GroupTransaction({ users, shareSum }: GroupTransactionProps) {
   const {
     sender,
     enteredSum,
-    totalSum,
     enteredUsersSum,
     isEnteredUsersSumValid,
     sumRemainsError,
     sumError,
     manualInputs,
     isMyselfIncluded,
-    myselfSum,
   } = useAppSelector((state) => state.addTransaction);
   const dispatch = useAppDispatch();
   const currentUserId = useAppSelector((state) => state.auth.user?.uid);
+  const currentUser = users?.find((item) => item.id === currentUserId);
 
   const toogleIsMyselfInclude = () => {
     if (isMyselfIncluded) {
-      dispatch(setMyselfSum(undefined));
       dispatch(setEnteredUsersSum({}));
       dispatch(clearAllSumErrors({ clearManualInputs: false }));
     }
     dispatch(setIsMyselfIncluded(!isMyselfIncluded));
-  };
-
-  const myselfSumInputChangaHandler = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    setEnteredUsersSum({});
-    dispatch(clearAllSumErrors({ clearManualInputs: true }));
-
-    const inputValue = replaceComma(event.target.value);
-    const newIsEnteredUsersSumValid = { ...isEnteredUsersSumValid };
-    newIsEnteredUsersSumValid[currentUserId!] = false;
-
-    if (
-      !isSumValid(inputValue) &&
-      validationProps.sum.testSumInput(inputValue)
-    ) {
-      dispatch(setIsEnteredUsersSumValid(newIsEnteredUsersSumValid));
-    } else if (
-      !isSumValid(inputValue) &&
-      !validationProps.sum.testSumInput(inputValue) &&
-      inputValue !== ''
-    ) {
-      dispatch(setIsEnteredUsersSumValid(newIsEnteredUsersSumValid));
-      return;
-    }
-
-    const newSumError = currentUserId ? { [currentUserId]: true } : {};
-    if (+event.target.value >= (enteredSum ? +enteredSum : 0)) {
-      dispatch(setSumRemainsError(newSumError));
-    }
-    dispatch(setMyselfSum(inputValue));
   };
 
   const usersSumInputChangeHandler = (
@@ -103,16 +76,22 @@ function GroupTransaction({ users, shareSum }: GroupTransactionProps) {
     const newSumError = { ...sumError };
     const newManualInputs = [...manualInputs];
     const newIsEnteredUsersSumValid = { ...isEnteredUsersSumValid };
+    const sumInputs = [...sender];
+    if (isMyselfIncluded) {
+      sumInputs.push(currentUserId!);
+    }
 
     newUsersSum[user.id] = replaceComma(event.target.value);
     newSumError[user.id] = true;
     newIsEnteredUsersSumValid[user.id] = false;
 
+    // add input as manualInput
     if (!manualInputs.includes(user.id) && enteredSum) {
       newManualInputs.push(user.id);
       dispatch(setManualInputs(newManualInputs));
     }
 
+    // validation input
     if (
       !isSumValid(newUsersSum[user.id] ?? '') &&
       validationProps.sum.testSumInput(newUsersSum[user.id])
@@ -128,10 +107,11 @@ function GroupTransaction({ users, shareSum }: GroupTransactionProps) {
       return;
     }
 
+    // validation controll sum
     if (
       enteredSum &&
       +newUsersSum[user.id] > +enteredSum &&
-      !isAllManual(newManualInputs, sender.length)
+      !isAllManual(newManualInputs, sumInputs.length)
     ) {
       const newSumRemainsError = { ...sumRemainsError };
       newSumRemainsError[user.id] = true;
@@ -141,23 +121,27 @@ function GroupTransaction({ users, shareSum }: GroupTransactionProps) {
     }
 
     if (enteredSum) {
-      let sumRemains = totalSum - +newUsersSum[user.id];
+      // set sumRemains witout input value
+      let sumRemains = +enteredSum - +newUsersSum[user.id];
 
+      // set sumRemains without values at manual inputs
       manualInputs.forEach((id) => {
         if (id in enteredUsersSum && id !== user.id) {
           sumRemains -= +enteredUsersSum[id];
         }
       });
 
-      if (isAllManual(newManualInputs, sender.length)) {
+      // case if all inputs as manual
+      // set total sum as amount of inputs and alert User
+      if (isAllManual(newManualInputs, sumInputs.length)) {
         let sum = +newUsersSum[user.id];
         manualInputs.forEach((id) => {
           if (id in enteredUsersSum && id !== user.id) {
             sum += +enteredUsersSum[id];
           }
         });
+        sumRemains = 0;
         dispatch(setEnteredSum(sum.toString()));
-        dispatch(setMyselfSum(undefined));
         dispatch(
           showSnackbarMessage({
             severity: SnackbarSeverity.WARNING,
@@ -166,14 +150,12 @@ function GroupTransaction({ users, shareSum }: GroupTransactionProps) {
         );
       }
 
+      // validation controll sum and sumRemains spread at not manual inputs
       if (isSumValid(roundSum(sumRemains, 1).toString())) {
-        sender.forEach((selectedUser) => {
-          if (
-            selectedUser !== user.id &&
-            !manualInputs.includes(selectedUser)
-          ) {
-            const amount = sender.length - newManualInputs.length;
-            newUsersSum[selectedUser] = roundSum(sumRemains, amount).toString();
+        sumInputs.forEach((itemId) => {
+          if (itemId !== user.id && !manualInputs.includes(itemId)) {
+            const amount = sumInputs.length - newManualInputs.length;
+            newUsersSum[itemId] = roundSum(sumRemains, amount).toString();
           }
         });
       } else if (
@@ -218,51 +200,6 @@ function GroupTransaction({ users, shareSum }: GroupTransactionProps) {
 
   return (
     <>
-      {isMyselfIncluded && currentUserId && (
-        <>
-          <Grid item xs={12}>
-            <FormControl fullWidth required>
-              <TextField
-                variant='outlined'
-                label='Моя сумма'
-                value={myselfSum || ''}
-                onChange={myselfSumInputChangaHandler}
-                type='text'
-                id='myselfSum'
-                inputProps={{
-                  inputMode: 'numeric',
-                  pattern: validationProps.sum.inputPropsPattern,
-                  title: validationProps.sum.errorTitle,
-                }}
-                helperText={choseSumTextHelper(
-                  sumRemainsError,
-                  sumError,
-                  isEnteredUsersSumValid[currentUserId] ?? true,
-                  currentUserId,
-                )}
-                error={showInputError(currentUserId)}
-                style={{ whiteSpace: 'pre-wrap' }}
-                className={myselfSum ? classes.valid : undefined}
-              />
-            </FormControl>
-          </Grid>
-          <Grid item xs={12}>
-            <FormControl fullWidth required>
-              <TextField
-                variant='outlined'
-                label='Сумма к распределению'
-                value={totalSum <= 0 ? '' : totalSum}
-                type='text'
-                id='totalSum'
-                InputProps={{
-                  readOnly: true,
-                }}
-                className={totalSum ? classes.valid : undefined}
-              />
-            </FormControl>
-          </Grid>
-        </>
-      )}
       <Grid item xs={12}>
         <Stack
           direction={window.innerWidth < 820 ? 'column' : 'row'}
@@ -284,6 +221,41 @@ function GroupTransaction({ users, shareSum }: GroupTransactionProps) {
             Поделить поровну
           </Button>
         </Stack>
+      </Grid>
+      <Grid item xs={12}>
+        <Collapse in={isMyselfIncluded}>
+          {isMyselfIncluded && currentUserId && (
+            <FormControl fullWidth required>
+              <TextField
+                variant='outlined'
+                label='Моя сумма'
+                value={enteredUsersSum[currentUserId] || ''}
+                onChange={(event) => {
+                  usersSumInputChangeHandler(event, currentUser);
+                }}
+                onBlur={() => usersSumInputBlurHandler(currentUserId)}
+                type='text'
+                id='myselfSum'
+                inputProps={{
+                  inputMode: 'numeric',
+                  pattern: validationProps.sum.inputPropsPattern,
+                  title: validationProps.sum.errorTitle,
+                }}
+                helperText={choseSumTextHelper(
+                  sumRemainsError,
+                  sumError,
+                  isEnteredUsersSumValid[currentUserId] ?? true,
+                  currentUserId,
+                )}
+                error={showInputError(currentUserId)}
+                style={{ whiteSpace: 'pre-wrap' }}
+                className={
+                  enteredUsersSum[currentUserId] ? classes.valid : undefined
+                }
+              />
+            </FormControl>
+          )}
+        </Collapse>
       </Grid>
       {sender.map((id) => {
         const user = users?.find((item) => item.id === id);

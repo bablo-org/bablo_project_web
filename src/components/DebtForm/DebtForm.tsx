@@ -31,13 +31,10 @@ import {
   setEnteredCurrency,
   setEnteredSum,
   setIsEnteredSumValid,
-  setTotalSum,
   setEnteredUsersSum,
   setEnteredDescription,
   setEnteredDate,
   setCurrenciesOptions,
-  setSumRemainsError,
-  setMyselfSum,
 } from '../../store/slices/addTransaction';
 import SelectUsers from './SelectUser/SelectUsers';
 import {
@@ -56,7 +53,6 @@ function DebtForm() {
     enteredCurrency,
     enteredSum,
     isEnteredSumValid,
-    totalSum,
     enteredUsersSum,
     enteredDescription,
     enteredDate,
@@ -64,7 +60,6 @@ function DebtForm() {
     sumRemainsError,
     sumError,
     manualInputs,
-    myselfSum,
     isMyselfIncluded,
   } = useAppSelector((state) => state.addTransaction);
 
@@ -104,10 +99,6 @@ function DebtForm() {
     dispatch(setEnteredSum(inputValue));
     dispatch(setEnteredUsersSum({}));
     dispatch(clearAllSumErrors({ clearManualInputs: true }));
-    if (+event.target.value <= (myselfSum ? +myselfSum : 0)) {
-      const newSumError = currentUserId ? { [currentUserId]: true } : {};
-      dispatch(setSumRemainsError(newSumError));
-    }
   };
 
   const sumInputBlurHandler = () => {
@@ -188,27 +179,22 @@ function DebtForm() {
         }),
       );
     } else {
-      console.log('put transaction');
-      dispatch(clearForm());
-      if (false) {
-        putTransaction();
-      }
+      putTransaction();
     }
   };
 
   const shareSum = () => {
-    if (!totalSum || totalSum <= 0) {
-      return;
-    }
-
     let sharedSum: number;
-    if (!myselfSum && isMyselfIncluded) {
+    const totalSum = enteredSum ? +enteredSum : 0;
+    const newUsersSum: UsersSum = {};
+
+    if (isMyselfIncluded) {
       sharedSum = roundSum(totalSum, sender.length + 1);
-      dispatch(setMyselfSum(sharedSum.toString()));
+      newUsersSum[currentUserId!] = sharedSum.toString();
     } else {
       sharedSum = roundSum(totalSum, sender.length);
     }
-    const newUsersSum: UsersSum = {};
+
     sender.forEach((id) => {
       newUsersSum[id] = sharedSum.toString();
     });
@@ -254,15 +240,6 @@ function DebtForm() {
 
     dispatch(setCurrenciesOptions(options));
   }, [currentUser, currencies]);
-
-  useEffect(() => {
-    if (myselfSum) {
-      const sum = roundSum((enteredSum ? +enteredSum : 0) - +myselfSum, 1);
-      dispatch(setTotalSum(sum));
-    } else if (enteredSum) {
-      dispatch(setTotalSum(+enteredSum));
-    }
-  }, [enteredSum, myselfSum]);
 
   return (
     <Container maxWidth='md'>

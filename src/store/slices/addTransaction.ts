@@ -22,7 +22,6 @@ interface AddTransaction {
   enteredCurrency: GroupedCurrency | null;
   enteredSum: string | undefined;
   isEnteredSumValid: boolean;
-  totalSum: number;
   enteredUsersSum: UsersSum;
   isEnteredUsersSumValid: SumError;
   enteredDescription: string;
@@ -32,7 +31,6 @@ interface AddTransaction {
   sumError: SumError;
   manualInputs: string[];
   isMyselfIncluded: boolean;
-  myselfSum: string | undefined;
 }
 
 const initialState: AddTransaction = {
@@ -43,7 +41,6 @@ const initialState: AddTransaction = {
   enteredCurrency: null,
   enteredSum: undefined,
   isEnteredSumValid: true,
-  totalSum: 0,
   enteredUsersSum: {},
   isEnteredUsersSumValid: {},
   enteredDescription: '',
@@ -53,7 +50,6 @@ const initialState: AddTransaction = {
   sumError: {},
   manualInputs: [],
   isMyselfIncluded: false,
-  myselfSum: undefined,
 };
 
 const addTransaction = createSlice({
@@ -104,9 +100,6 @@ const addTransaction = createSlice({
     setIsEnteredSumValid(state, action: PayloadAction<boolean>) {
       state.isEnteredSumValid = action.payload;
     },
-    setTotalSum(state, action: PayloadAction<number>) {
-      state.totalSum = action.payload;
-    },
     setEnteredUsersSum(state, action: PayloadAction<UsersSum>) {
       state.enteredUsersSum = action.payload;
     },
@@ -134,9 +127,6 @@ const addTransaction = createSlice({
     setIsMyselfIncluded(state, action: PayloadAction<boolean>) {
       state.isMyselfIncluded = action.payload;
     },
-    setMyselfSum(state, action: PayloadAction<string | undefined>) {
-      state.myselfSum = action.payload;
-    },
   },
 });
 
@@ -151,7 +141,6 @@ export const {
   setEnteredCurrency,
   setEnteredSum,
   setIsEnteredSumValid,
-  setTotalSum,
   setEnteredUsersSum,
   setIsEnteredUsersSumValid,
   setEnteredDescription,
@@ -161,5 +150,4 @@ export const {
   setSumError,
   setManualInputs,
   setIsMyselfIncluded,
-  setMyselfSum,
 } = actions;
