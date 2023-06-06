@@ -1,5 +1,4 @@
 import {
-  Grid,
   Box,
   Collapse,
   IconButton,
@@ -17,11 +16,15 @@ import { HistoryData } from './Summary';
 
 type SummaryRowProps = {
   name: string;
-  valueGain: string;
-  valueLost: string;
-  total: string;
+  valueGain: string[];
+  valueLost: string[];
+  total: string[];
   history: HistoryData[];
 };
+
+function printArr(arr: string[]) {
+  return arr.map((val) => <p key={nanoid()}>{val}</p>);
+}
 
 function SummaryRow({ row }: { row: SummaryRowProps }) {
   const [open, setOpen] = useState(false);
@@ -43,13 +46,9 @@ function SummaryRow({ row }: { row: SummaryRowProps }) {
         <TableCell component='th' scope='row'>
           {row.name}
         </TableCell>
-        <TableCell align='right'>
-          <Grid item xs={1} md={1} lg={1}>
-            {row.valueGain}
-          </Grid>
-        </TableCell>
-        <TableCell align='right'>{row.valueLost}</TableCell>
-        <TableCell align='right'>{row.total}</TableCell>
+        <TableCell align='right'>{printArr(row.valueGain)}</TableCell>
+        <TableCell align='right'>{printArr(row.valueLost)}</TableCell>
+        <TableCell align='right'>{printArr(row.total)}</TableCell>
       </TableRow>
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>

@@ -41,9 +41,9 @@ type UserSummaryData = {
 
 function createData(
   name: string,
-  valueGain: string,
-  valueLost: string,
-  total: string,
+  valueGain: string[],
+  valueLost: string[],
+  total: string[],
   history: HistoryData[],
 ) {
   return {
@@ -136,9 +136,8 @@ function Summary() {
     }) => {
       const totalOutput = Object.entries(totalSummaryData)
         .filter((e) => !isRoundingToZero(e[1])) // skip zeros
-        .map((e) => `${e[0]}: ${formatNumber(e[1])}`) // {'USD', 123456.789} => 'USD: 123 456,789'
-        .join(' / ');
-      return totalOutput || '-/-';
+        .map((e) => `${e[0]}: ${formatNumber(e[1])}`); // {'USD', 123456.789} => 'USD: 123 456,79'
+      return totalOutput.length > 0 ? totalOutput : ['-/-'];
     };
     return createData(
       userSummaryData.name,
