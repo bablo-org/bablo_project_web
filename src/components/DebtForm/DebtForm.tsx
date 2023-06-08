@@ -25,25 +25,18 @@ import {
 import { showSnackbarMessage } from '../../store/slices/snackbarMessage';
 import { SnackbarSeverity } from '../../models/enums/SnackbarSeverity';
 import {
-  UsersSum,
   clearAllSumErrors,
   clearForm,
   setEnteredCurrency,
-  setEnteredSum,
-  setIsEnteredSumValid,
-  setEnteredUsersSum,
   setEnteredDescription,
   setEnteredDate,
   setCurrenciesOptions,
-} from '../../store/slices/addTransaction';
+  validateAndSetEnteredSum,
+  setEnteredSumOnBlur,
+  shareSum,
+} from '../../store/slices/addTransactionForm';
 import SelectUsers from './SelectUser/SelectUsers';
-import {
-  isSumValid,
-  isAllManual,
-  roundSum,
-  choseSumTextHelper,
-  replaceComma,
-} from './Utils';
+import { isAllManual, choseSumTextHelper } from './Utils';
 import GroupTransaction from './GroupTransaction/GroupTransaction';
 
 function DebtForm() {
@@ -58,10 +51,8 @@ function DebtForm() {
     enteredDate,
     currenciesOptions,
     sumRemainsError,
-    sumError,
     manualInputs,
-    isMyselfIncluded,
-  } = useAppSelector((state) => state.addTransaction);
+  } = useAppSelector((state) => state.addTransactionForm);
 
   const dispatch = useAppDispatch();
 
@@ -79,35 +70,11 @@ function DebtForm() {
   const sumInputChangeHandler = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
-    dispatch(setIsEnteredSumValid(true));
-    const inputValue = replaceComma(event.target.value);
-
-    if (
-      !isSumValid(inputValue) &&
-      validationProps.sum.testSumInput(inputValue)
-    ) {
-      dispatch(setIsEnteredSumValid(false));
-    } else if (
-      !isSumValid(inputValue) &&
-      !validationProps.sum.testSumInput(inputValue) &&
-      inputValue !== ''
-    ) {
-      dispatch(setIsEnteredSumValid(false));
-      return;
-    }
-
-    dispatch(setEnteredSum(inputValue));
-    dispatch(setEnteredUsersSum({}));
-    dispatch(clearAllSumErrors({ clearManualInputs: true }));
+    dispatch(validateAndSetEnteredSum(event.target.value));
   };
 
   const sumInputBlurHandler = () => {
-    if (!isEnteredSumValid && isSumValid(enteredSum ?? '')) {
-      dispatch(setIsEnteredSumValid(true));
-    }
-    if (enteredSum === '0') {
-      dispatch(setEnteredSum(undefined));
-    }
+    dispatch(setEnteredSumOnBlur());
   };
 
   const descriptionInputChangeHandler = (
@@ -158,10 +125,7 @@ function DebtForm() {
 
   const submissionOfDebtHandler = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (
-      Object.keys(sumError).length > 0 ||
-      Object.keys(sumRemainsError).length > 0
-    ) {
+    if (Object.keys(sumRemainsError).length > 0) {
       return;
     }
     if (sender.length === 0) {
@@ -183,23 +147,8 @@ function DebtForm() {
     }
   };
 
-  const shareSum = () => {
-    let sharedSum: number;
-    const totalSum = enteredSum ? +enteredSum : 0;
-    const newUsersSum: UsersSum = {};
-
-    if (isMyselfIncluded) {
-      sharedSum = roundSum(totalSum, sender.length + 1);
-      newUsersSum[currentUserId!] = sharedSum.toString();
-    } else {
-      sharedSum = roundSum(totalSum, sender.length);
-    }
-
-    sender.forEach((id) => {
-      newUsersSum[id] = sharedSum.toString();
-    });
-    dispatch(clearAllSumErrors({ clearManualInputs: true }));
-    dispatch(setEnteredUsersSum(newUsersSum));
+  const shareSumHandler = () => {
+    dispatch(shareSum());
   };
 
   const currentUser = useMemo(
@@ -312,7 +261,6 @@ function DebtForm() {
                     }}
                     helperText={choseSumTextHelper(
                       sumRemainsError,
-                      sumError,
                       isEnteredSumValid,
                     )}
                     error={
@@ -329,7 +277,10 @@ function DebtForm() {
                 </FormControl>
               </Grid>
               {sender.length > 1 && (
-                <GroupTransaction users={users} shareSum={shareSum} />
+                <GroupTransaction
+                  users={users}
+                  shareSumHandler={shareSumHandler}
+                />
               )}
               <Grid item xs={12}>
                 <FormControl fullWidth required>

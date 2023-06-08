@@ -1,5 +1,5 @@
 import { validationProps } from '../../../utils/validationForm';
-import { SumError } from '../../../store/slices/addTransaction';
+import { SumError } from '../../../store/slices/addTransactionForm';
 
 export const replaceComma = (value: string) => {
   return value.replace(/,/g, '.');
@@ -19,7 +19,6 @@ export const roundSum = (sum: number, amount: number) => {
 
 export const choseSumTextHelper = (
   sumRemainsError: SumError,
-  sumError: SumError,
   isEnteredSumValid?: boolean,
   userId?: string,
 ) => {
@@ -28,9 +27,6 @@ export const choseSumTextHelper = (
   }
   if (!isEnteredSumValid) {
     return validationProps.sum.errorTitle;
-  }
-  if (userId && sumError[userId]) {
-    return validationProps.sum.errorRemainsSumTitle;
   }
   return validationProps.sum.title;
 };

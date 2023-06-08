@@ -1,13 +1,27 @@
-export const choseUsersId = ({ sender, receiver }, users, currentUserId) => {
-  const usersIds = Object.values(users).map((user) => user.id);
-  const filteredUserId = (filteredUserIdedId) => {
+import User from '../../../models/User';
+
+interface UserIdProps {
+  sender: string[];
+  receiver: string[];
+}
+
+export const choseUsersId = (
+  { sender, receiver }: UserIdProps,
+  users: User[] | undefined,
+  currentUserId: string | undefined,
+) => {
+  let newSender: string[] = [];
+  let newReceiver: string[] = [];
+  let newDisabledSender: string[] = [];
+  let newDisabledReceiver: string[] = [];
+
+  if (!users || !currentUserId) {
+    return { newSender, newReceiver, newDisabledSender, newDisabledReceiver };
+  }
+  const usersIds: string[] = Object.values(users).map((user) => user.id);
+  const filteredUserId = (filteredUserIdedId: string) => {
     return usersIds.filter((id) => id !== filteredUserIdedId);
   };
-
-  let newSender = [];
-  let newReceiver = [];
-  let newDisabledSender = [];
-  let newDisabledReceiver = [];
 
   // Chose sender
   if (sender.length === 1 && sender.includes(currentUserId)) {

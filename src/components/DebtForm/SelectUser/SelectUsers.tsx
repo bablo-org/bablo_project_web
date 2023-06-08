@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import AvatarsList from '../../AvatarsList/AvatarsList';
 import { choseUsersId } from './choseUsersId';
 import User from '../../../models/User';
-import { setSelectedUsers } from '../../../store/slices/addTransaction';
+import { setSelectedUsers } from '../../../store/slices/addTransactionForm';
 
 interface SelectedUsersProps {
   users: User[] | undefined;
@@ -17,7 +17,7 @@ function SelectUsers({
   isUserLoadingError,
 }: SelectedUsersProps) {
   const { sender, disabledSender, receiver, disabledReceiver } = useAppSelector(
-    (state) => state.addTransaction,
+    (state) => state.addTransactionForm,
   );
   const currentUserId = useAppSelector((state) => state.auth.user?.uid);
 
