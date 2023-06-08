@@ -10,6 +10,7 @@ import {
   IconButton,
   Typography,
   ButtonGroup,
+  IconButtonProps,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { ExpandMore, ArrowForward } from '@mui/icons-material';
@@ -23,8 +24,26 @@ import {
   useGetUsers,
 } from '../../queries';
 
-const ExpandMoreIcon = styled((props) => {
-  const { expand, ...other } = props;
+type TransactionItemProps = {
+  sender: string;
+  receiver: string;
+  description: string;
+  date: number;
+  status: string;
+  created: number;
+  updated: number;
+  currency: string;
+  amount: number;
+  id: string;
+  senderId: string;
+  recieverId: string;
+};
+
+interface ExpandMoreProps extends IconButtonProps {
+  expand: boolean;
+}
+
+const ExpandMoreIcon = styled(({ expand, ...other }: ExpandMoreProps) => {
   return <IconButton {...other} />;
 })(({ theme, expand }) => ({
   transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
@@ -47,9 +66,9 @@ function TransactionItem({
   id,
   senderId,
   recieverId,
-}) {
+}: TransactionItemProps) {
   const { data: users } = useGetUsers();
-  const currentUserId = auth.currentUser.uid;
+  const currentUserId = auth?.currentUser?.uid;
   const { mutate: putTransactionsApprove, status: approveStatus } =
     useApproveTransation();
   const { mutate: putTransactionsComplete, status: completeStatus } =
@@ -89,7 +108,7 @@ function TransactionItem({
             <UserAvatar
               name={sender}
               id={senderId}
-              avatarUrl={users.find((u) => u.id === senderId)?.avatar}
+              avatarUrl={users?.find((u) => u.id === senderId)?.avatar}
             />
             <ArrowForward
               fontSize='large'
@@ -99,7 +118,7 @@ function TransactionItem({
             <UserAvatar
               name={receiver}
               id={recieverId}
-              avatarUrl={users.find((u) => u.id === recieverId)?.avatar}
+              avatarUrl={users?.find((u) => u.id === recieverId)?.avatar}
             />
           </>
         }
@@ -114,7 +133,7 @@ function TransactionItem({
           {` ${description}`}
         </Typography>
         <Typography
-          variant='body3'
+          variant='body2'
           fontWeight='bold'
           color='#ad5502'
           fontSize='large'
