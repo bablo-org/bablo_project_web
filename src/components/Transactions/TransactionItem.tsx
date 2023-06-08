@@ -10,6 +10,7 @@ import {
   IconButton,
   Typography,
   ButtonGroup,
+  IconButtonProps,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { ExpandMore, ArrowForward } from '@mui/icons-material';
@@ -38,7 +39,11 @@ type TransactionItemProps = {
   recieverId: string;
 };
 
-const ExpandMoreIcon = styled(({ expand, ...other }: any) => {
+interface ExpandMoreProps extends IconButtonProps {
+  expand: boolean;
+}
+
+const ExpandMoreIcon = styled(({ expand, ...other }: ExpandMoreProps) => {
   return <IconButton {...other} />;
 })(({ theme, expand }) => ({
   transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
