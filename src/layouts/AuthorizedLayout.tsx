@@ -80,7 +80,7 @@ function AuthorizedLayout() {
 
   const pageHeader = useMemo(() => {
     switch (location.pathname) {
-      case '/':
+      case '/add':
       case PATHES.ADD_TRANSACTION:
         return 'Создать транзакцию';
       case PATHES.HISTORY:
