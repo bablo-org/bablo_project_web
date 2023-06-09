@@ -16,7 +16,8 @@ import Spinner from '../Spinner/Spinner';
 import { useGetUsers, useGetTransactions } from '../../queries';
 import { auth } from '../../services/firebase';
 import Transaction from '../../models/Transaction';
-import { formatNumber, isRoundingToZero } from '../../utils/NumberUtils';
+import Overall from './Overall';
+import { displayTotalIncomeData } from './utils/displayData';
 
 type HistoryData = {
   date: number;
@@ -37,6 +38,10 @@ type UserSummaryData = {
     [key: string]: number;
   };
   history: HistoryData[];
+};
+
+export type OverallTotal = {
+  [key: string]: number;
 };
 
 function createData(
@@ -71,6 +76,21 @@ function Summary() {
       ) ?? []
     );
   }, [transactions]);
+
+  const overallTotal: OverallTotal = useMemo(() => {
+    const total: OverallTotal = {};
+    summaryData.forEach((userSummary) => {
+      Object.entries(userSummary.total).forEach((currencyArr) => {
+        const [key, value] = currencyArr;
+        if (total[key]) {
+          total[key] += value;
+        } else {
+          total[key] = value;
+        }
+      });
+    });
+    return total;
+  }, [summaryData]);
 
   useEffect(() => {
     if (users?.length === 0 || approvedTransactions?.length === 0) return;
@@ -129,16 +149,7 @@ function Summary() {
     );
     setSummaryData(filteredSummaryData);
   }, [users, approvedTransactions]);
-
   const rows = summaryData.map((userSummaryData) => {
-    const displayTotalIncomeData = (totalSummaryData: {
-      [key: string]: number;
-    }) => {
-      const totalOutput = Object.entries(totalSummaryData)
-        .filter((e) => !isRoundingToZero(e[1])) // skip zeros
-        .map((e) => `${e[0]}: ${formatNumber(e[1])}`); // {'USD', 123456.789} => 'USD: 123 456,79'
-      return totalOutput.length > 0 ? totalOutput : ['-/-'];
-    };
     return createData(
       userSummaryData.name,
       displayTotalIncomeData(userSummaryData.totalIncoming),
@@ -149,7 +160,6 @@ function Summary() {
       }),
     );
   });
-
   if (isTransactionsFetching && transactions?.length === 0) {
     return <Spinner />;
   }
@@ -199,6 +209,7 @@ function Summary() {
           </TableBody>
         </Table>
       </TableContainer>
+      <Overall overall={displayTotalIncomeData(overallTotal)} />
     </>
   );
 }

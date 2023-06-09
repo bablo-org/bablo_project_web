@@ -13,21 +13,21 @@ function TransactionsList() {
     isRefetching: isTransactionsFetching,
   } = useGetTransactions();
 
-  const formatUserName = (incomingId) => {
-    const idToName = users.find((user) => user.id === incomingId)?.name;
+  const formatUserName = (incomingId: string) => {
+    const idToName = users?.find((user) => user.id === incomingId)?.name;
     return idToName;
   };
 
   const transformedTransactions = useMemo(() => {
-    const sortedTransactions = transactions.sort(
+    const sortedTransactions = transactions?.sort(
       (obj1, obj2) => obj2.date - obj1.date,
     );
-    return sortedTransactions.map((transaction) => (
+    return sortedTransactions?.map((transaction) => (
       <Grid item xs={12} md={6} lg={4} key={transaction.id}>
         <TransactionItem
           id={transaction.id}
-          sender={formatUserName(transaction.sender)}
-          receiver={formatUserName(transaction.receiver)}
+          sender={formatUserName(transaction.sender)!}
+          receiver={formatUserName(transaction.receiver)!}
           currency={transaction.currency}
           amount={transaction.amount}
           description={transaction.description}
@@ -42,10 +42,10 @@ function TransactionsList() {
     ));
   }, [transactions]);
 
-  if (isTransactionsFetching && transactions.length === 0) {
+  if (isTransactionsFetching && transactions?.length === 0) {
     return <Spinner />;
   }
-  if (!isTransactionsLoading && transactions.length === 0) {
+  if (!isTransactionsLoading && transactions?.length === 0) {
     return <p className={classes.noTransactionsAvailable}>Суй ананас в жопу</p>;
   }
 
