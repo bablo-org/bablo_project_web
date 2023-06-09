@@ -35,7 +35,7 @@ function SelectUsers({
     }
 
     // check for toggle between sender and receiver as current user
-    let secondUserIds = isSender ? receiver : sender;
+    let secondUserIds = isSender ? [...receiver] : [...sender];
     if (
       currentUserId &&
       selectedUserIds.includes(currentUserId) &&
