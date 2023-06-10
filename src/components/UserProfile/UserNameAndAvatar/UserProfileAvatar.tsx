@@ -32,7 +32,7 @@ function UserProfileAvatar({ currentUser, deleteAvatar }: Props) {
     >
       <UserAvatar
         xs={50}
-        sm={50}
+        sm={70}
         md={100}
         key={currentUser.id}
         name={currentUser.name}
