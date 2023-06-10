@@ -8,6 +8,9 @@ interface UserAvatarProps {
   isActive?: boolean;
   isDisabled?: boolean;
   avatarUrl?: string;
+  xs: number;
+  sm: number;
+  md: number;
 }
 
 function UserAvatar({
@@ -17,6 +20,9 @@ function UserAvatar({
   isActive = false,
   isDisabled,
   avatarUrl,
+  xs,
+  sm,
+  md,
 }: UserAvatarProps) {
   const onAvatarClicked = () => {
     toggleSelectedId?.(id);
@@ -50,8 +56,8 @@ function UserAvatar({
             xs: 'clamp(10px, 1.5vw, 14px)',
             md: 'clamp(12px, 2.5vw, 16px)',
           },
-          width: { xs: 50, sm: 70, md: 100 },
-          height: { xs: 50, sm: 70, md: 100 },
+          width: { xs, sm, md },
+          height: { xs, sm, md },
           marginLeft: { xs: 0.8, sm: 1.3, md: 4 },
           marginRight: { xs: 0.8, sm: 1.3, md: 4 },
           boxShadow: '3px 3px 15px rgba(0, 0, 0, 0.5)',
@@ -70,16 +76,20 @@ function UserAvatar({
         }}
         onClick={onAvatarClicked}
       >
-        <div
-          style={{
-            backgroundColor: 'rgba(0, 0, 0, 0.4)',
-            width: '90%',
-            borderRadius: '4px',
-            padding: '4px',
-          }}
-        >
-          {name}
-        </div>
+        {name === '' ? (
+          <div />
+        ) : (
+          <div
+            style={{
+              backgroundColor: 'rgba(0, 0, 0, 0.4)',
+              width: '90%',
+              borderRadius: '4px',
+              padding: '4px',
+            }}
+          >
+            {name}
+          </div>
+        )}
       </Avatar>
     </Badge>
   );

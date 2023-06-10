@@ -3,7 +3,7 @@ import BorderBox from '../UI/BorderBox';
 
 function HomePage() {
   return (
-    <BorderBox>
+    <BorderBox marginProp={2}>
       <>
         <Typography>Большегриб</Typography>
         <Box

@@ -22,6 +22,9 @@ function AvatarsList({
   const renderAvatar = (user: User) => {
     return (
       <UserAvatar
+        xs={50}
+        sm={50}
+        md={100}
         key={user.id}
         name={user.name}
         id={user.id}
