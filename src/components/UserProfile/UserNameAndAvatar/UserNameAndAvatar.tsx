@@ -230,7 +230,7 @@ function UserNameAndAvatar({ currentUser, showSkeleton }: Props) {
     />
   );
   return (
-    <BorderBox>
+    <BorderBox marginProp={2}>
       <Grid item xs={12} sx={{ m: 4 }}>
         <form onSubmit={validateAndSubmit}>
           <Grid container spacing={2} direction='column'>

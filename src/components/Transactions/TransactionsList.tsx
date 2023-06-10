@@ -23,7 +23,7 @@ function TransactionsList() {
       (obj1, obj2) => obj2.date - obj1.date,
     );
     return sortedTransactions?.map((transaction) => (
-      <Grid item xs={12} md={6} lg={4} key={transaction.id}>
+      <Grid item xs={12} md={10} lg={2} key={transaction.id}>
         <TransactionItem
           id={transaction.id}
           sender={formatUserName(transaction.sender)!}
@@ -33,8 +33,6 @@ function TransactionsList() {
           description={transaction.description}
           date={transaction.date}
           status={transaction.status}
-          created={transaction.created}
-          updated={transaction.updated}
           senderId={transaction.sender}
           recieverId={transaction.receiver}
         />

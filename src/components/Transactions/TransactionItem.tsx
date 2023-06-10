@@ -1,19 +1,13 @@
-import { useState } from 'react';
-import * as React from 'react';
-import { styled } from '@mui/material/styles';
 import {
   Card,
   CardHeader,
   CardContent,
-  CardActions,
-  Collapse,
-  IconButton,
   Typography,
   ButtonGroup,
-  IconButtonProps,
+  Box,
+  CardActions,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { ExpandMore, ArrowForward } from '@mui/icons-material';
 import { formatDate } from '../../utils/formatDate';
 import { auth } from '../../services/firebase';
 import UserAvatar from '../UserAvatar/UserAvatar';
@@ -23,6 +17,8 @@ import {
   useDeclineTransation,
   useGetUsers,
 } from '../../queries';
+import BorderBox from '../UI/BorderBox';
+import DescriptionTooltip from './DescriptionTooltip';
 
 type TransactionItemProps = {
   sender: string;
@@ -30,37 +26,18 @@ type TransactionItemProps = {
   description: string;
   date: number;
   status: string;
-  created: number;
-  updated: number;
   currency: string;
   amount: number;
   id: string;
   senderId: string;
   recieverId: string;
 };
-
-interface ExpandMoreProps extends IconButtonProps {
-  expand: boolean;
-}
-
-const ExpandMoreIcon = styled(({ expand, ...other }: ExpandMoreProps) => {
-  return <IconButton {...other} />;
-})(({ theme, expand }) => ({
-  transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
-  marginLeft: 'auto',
-  transition: theme.transitions.create('transform', {
-    duration: theme.transitions.duration.shortest,
-  }),
-}));
-
 function TransactionItem({
   sender,
   receiver,
   description,
   date,
   status,
-  created,
-  updated,
   currency,
   amount,
   id,
@@ -75,12 +52,6 @@ function TransactionItem({
     useCompleteTransation();
   const { mutate: putTransactionsDecline, status: declineStatus } =
     useDeclineTransation();
-  const [expanded, setExpanded] = useState(false);
-
-  const handleExpandClick = () => {
-    setExpanded(!expanded);
-  };
-
   const putTransactionsDeclineHandler = () => {
     putTransactionsDecline([id]);
   };
@@ -93,63 +64,91 @@ function TransactionItem({
     putTransactionsApprove([id]);
   };
   return (
-    <Card sx={{ marginBottom: 2, fontSize: 'small' }}>
-      <CardHeader
-        title={
-          <>
-            <Typography>Транзакция</Typography>
-            <Typography sx={{ marginBottom: 2 }}>
-              {JSON.stringify(formatDate(date))}
-            </Typography>
-          </>
-        }
-        subheader={
-          <>
-            <UserAvatar
-              name={sender}
-              id={senderId}
-              avatarUrl={users?.find((u) => u.id === senderId)?.avatar}
-            />
-            <ArrowForward
+    <BorderBox marginProp={0}>
+      <Card
+        sx={{
+          fontSize: 'small',
+          borderRadius: 8,
+        }}
+      >
+        <CardHeader
+          title={
+            <Box
+              sx={{
+                justifyContent: 'left',
+                alignContent: 'left',
+                display: 'flex',
+                flexDirection: 'row',
+              }}
+            >
+              <UserAvatar
+                xs={10}
+                sm={10}
+                md={30}
+                id={recieverId}
+                avatarUrl={users?.find((u) => u.id === recieverId)?.avatar}
+                name=''
+              />
+              <Typography align='left'>{receiver}</Typography>
+            </Box>
+          }
+        />
+        <CardContent>
+          <Typography align='left' marginBottom={1}>
+            {JSON.stringify(formatDate(date))}
+          </Typography>
+          <Typography align='left'>
+            Статус:
+            {` ${status}`}
+          </Typography>
+          <Typography align='left'>
+            Должник:
+            {` ${sender}`}
+          </Typography>
+          <Typography align='left'>
+            Описание:
+            {description.length > 10 ? (
+              <DescriptionTooltip tooltipDescription={description} />
+            ) : (
+              ` ${description}`
+            )}
+          </Typography>
+          {(currentUserId === senderId && status === 'PENDING') ||
+          (status === 'APPROVED' && recieverId === currentUserId) ? (
+            <Typography
+              variant='body2'
+              fontWeight='bold'
+              color={senderId === currentUserId ? 'red' : 'green'}
               fontSize='large'
-              color='action'
-              sx={{ margin: 'auto' }}
-            />
-            <UserAvatar
-              name={receiver}
-              id={recieverId}
-              avatarUrl={users?.find((u) => u.id === recieverId)?.avatar}
-            />
-          </>
-        }
-      />
-      <CardContent>
-        <Typography align='center'>
-          Статус:
-          {` ${status}`}
-        </Typography>
-        <Typography>
-          Описание:
-          {` ${description}`}
-        </Typography>
-        <Typography
-          variant='body2'
-          fontWeight='bold'
-          color='#ad5502'
-          fontSize='large'
-        >
-          Сумма: {`${amount} ${currency}`}
-        </Typography>
-      </CardContent>
-      <CardActions disableSpacing>
-        <ButtonGroup
-          size='small'
-          variant='contained'
-          aria-label='outlined primary button group'
-        >
+              align='left'
+              // marginTop={0.5}
+            >
+              Сумма: {`${amount} ${currency}`}
+            </Typography>
+          ) : (
+            <Typography
+              variant='body2'
+              fontWeight='bold'
+              color='white'
+              fontSize='large'
+              align='left'
+              // marginTop={0.5}
+            >
+              -
+            </Typography>
+          )}
+        </CardContent>
+        <CardActions>
           {currentUserId === senderId && status === 'PENDING' && (
-            <>
+            <ButtonGroup
+              fullWidth
+              sx={{ borderRadius: 8 }}
+              size='small'
+              variant='contained'
+              aria-label='outlined primary button group'
+            >
               <LoadingButton
+                sx={{ borderRadius: 8 }}
                 onClick={putTransactionsApproveHandler}
                 loading={approveStatus === 'loading'}
                 color='success'
@@ -158,6 +157,7 @@ function TransactionItem({
                 Подтвердить
               </LoadingButton>
               <LoadingButton
+                sx={{ borderRadius: 8 }}
                 loading={declineStatus === 'loading'}
                 onClick={putTransactionsDeclineHandler}
                 color='error'
@@ -165,10 +165,25 @@ function TransactionItem({
               >
                 Отклонить
               </LoadingButton>
-            </>
+            </ButtonGroup>
           )}
+          {!(currentUserId === senderId && status === 'PENDING') &&
+            !(status === 'APPROVED' && recieverId === currentUserId) && (
+              <Typography
+                variant='body2'
+                fontWeight='bold'
+                color={senderId === currentUserId ? 'red' : 'green'}
+                fontSize='large'
+                align='left'
+              >
+                Сумма: {`${amount} ${currency}`}
+              </Typography>
+            )}
           {status === 'APPROVED' && recieverId === currentUserId && (
             <LoadingButton
+              sx={{ borderRadius: 8 }}
+              fullWidth
+              size='small'
               loading={completeStatus === 'loading'}
               onClick={putTransactionsCompleteHandler}
               variant='outlined'
@@ -176,27 +191,9 @@ function TransactionItem({
               Завершить
             </LoadingButton>
           )}
-        </ButtonGroup>
-        <ExpandMoreIcon
-          expand={expanded}
-          onClick={handleExpandClick}
-          aria-expanded={expanded}
-          aria-label='show more'
-        >
-          <ExpandMore />
-        </ExpandMoreIcon>
-      </CardActions>
-      <Collapse in={expanded} timeout='auto' unmountOnExit>
-        <CardContent>
-          {[
-            `Создана: ${JSON.stringify(formatDate(created))}`,
-            `Обновлена: ${JSON.stringify(formatDate(updated))}`,
-          ].map((text) => (
-            <Typography key={text}>{text}</Typography>
-          ))}
-        </CardContent>
-      </Collapse>
-    </Card>
+        </CardActions>
+      </Card>
+    </BorderBox>
   );
 }
 

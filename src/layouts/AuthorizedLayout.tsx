@@ -17,10 +17,10 @@ import {
 import {
   Menu,
   AddBox,
-  History,
   Summarize,
   AccountCircle,
   Logout,
+  Payments,
 } from '@mui/icons-material/';
 import { useMemo, useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
@@ -58,7 +58,7 @@ function AuthorizedLayout() {
       {
         name: 'Все транзакции',
         path: PATHES.HISTORY,
-        icon: <History />,
+        icon: <Payments />,
       },
       {
         name: 'Итоги',
