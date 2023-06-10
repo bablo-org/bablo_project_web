@@ -69,6 +69,10 @@ function InputForm() {
 
   useEffect(() => {
     if (user) {
+      if (!user.emailVerified) {
+        navigate(PATHES.VERIFY_EMAIL);
+        return;
+      }
       navigate(PATHES.ADD_TRANSACTION);
     }
   }, [user, navigate]);

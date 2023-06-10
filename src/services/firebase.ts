@@ -9,6 +9,9 @@ import {
   browserLocalPersistence,
   signOut,
   Auth,
+  sendEmailVerification,
+  createUserWithEmailAndPassword,
+  applyActionCode,
 } from 'firebase/auth';
 import {
   getStorage,
@@ -23,6 +26,12 @@ import { firebaseConfig } from '../env';
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 
+enum FirebaseEmailAction {
+  RESET_PASSWORD = 'resetPassword',
+  VERIFY_EMAIL = 'verifyEmail',
+  RECOVER_EMAIL = 'recoverEmail',
+}
+
 let app: FirebaseApp | null = null;
 let auth: Auth | null = null;
 let storage: FirebaseStorage | null = null;
@@ -36,6 +45,27 @@ export const initializeFirebase = () => {
   setPersistence(auth, browserLocalPersistence);
 };
 
+const signUpWithEmailAndPassword = (email: string, password: string) => {
+  if (!auth) {
+    throw new Error('Firebase is not initialized');
+  }
+  return createUserWithEmailAndPassword(auth, email, password);
+};
+
+const sendEmailVerificationLink = () => {
+  if (!auth || !auth.currentUser) {
+    throw new Error('Firebase is not initialized');
+  }
+  return sendEmailVerification(auth.currentUser);
+};
+
+const verifyEmail = (oobCode: string) => {
+  if (!auth) {
+    throw new Error('Firebase is not initialized');
+  }
+  return applyActionCode(auth, oobCode);
+};
+
 // export services for future usage
 export {
   app,
@@ -46,4 +76,8 @@ export {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut,
+  signUpWithEmailAndPassword,
+  sendEmailVerificationLink,
+  verifyEmail,
+  FirebaseEmailAction,
 };

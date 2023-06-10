@@ -37,6 +37,7 @@ function App() {
           setUser({
             uid: currentUser.uid,
             email: currentUser.email,
+            emailVerified: currentUser.emailVerified,
           }),
         );
         // ...
