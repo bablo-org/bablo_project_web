@@ -123,7 +123,8 @@ function TransactionItem({
               align='left'
               // marginTop={0.5}
             >
-              {senderId === currentUserId ? '-' : '+'} {`${amount} ${currency}`}
+              {senderId === currentUserId ? '-' : '+'}
+              {`${amount} ${currency}`}
             </Typography>
           ) : (
             <Typography
@@ -176,7 +177,8 @@ function TransactionItem({
                 fontSize='large'
                 align='left'
               >
-                Сумма: {`${amount} ${currency}`}
+                {senderId === currentUserId ? '-' : '+'}
+                {`${amount} ${currency}`}
               </Typography>
             )}
           {status === 'APPROVED' && recieverId === currentUserId && (
