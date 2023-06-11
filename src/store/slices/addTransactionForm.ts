@@ -95,10 +95,7 @@ const addTransactionForm = createSlice({
       const inputValue = replaceComma(action.payload.inputValue!);
 
       // clear inputErrors
-      state.sumRemainsError = {
-        ...state.sumRemainsError,
-        [user.id]: false,
-      };
+      state.sumRemainsError = {};
       state.isEnteredUsersSumValid = {
         ...state.isEnteredUsersSumValid,
         [user.id]: true,
@@ -193,9 +190,10 @@ const addTransactionForm = createSlice({
       state.manualInputs = [];
       return state;
     },
-    clearForm: () => {
+    clearForm: (state) => {
       return {
         ...initialState,
+        currenciesOptions: state.currenciesOptions,
       };
     },
     setSelectedUsers(
