@@ -1,4 +1,4 @@
-import { Avatar, Badge } from '@mui/material';
+import { Avatar, Badge, SxProps, Theme } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 interface UserAvatarProps {
@@ -11,6 +11,7 @@ interface UserAvatarProps {
   xs: number;
   sm: number;
   md: number;
+  style?: SxProps<Theme>;
 }
 
 function UserAvatar({
@@ -23,6 +24,7 @@ function UserAvatar({
   xs,
   sm,
   md,
+  style = {},
 }: UserAvatarProps) {
   const onAvatarClicked = () => {
     toggleSelectedId?.(id);
@@ -73,6 +75,7 @@ function UserAvatar({
               transform: 'scale(1.1)',
             },
           },
+          ...style,
         }}
         onClick={onAvatarClicked}
       >

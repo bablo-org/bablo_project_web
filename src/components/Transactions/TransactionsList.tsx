@@ -3,31 +3,23 @@ import { Grid, Box } from '@mui/material';
 import TransactionItem from './TransactionItem';
 import classes from './TransactionsList.module.css';
 import Spinner from '../Spinner/Spinner';
-import { useGetTransactions, useGetUsers } from '../../queries';
+import { useGetTransactions } from '../../queries';
 
 function TransactionsList() {
-  const { data: users } = useGetUsers();
   const {
     data: transactions,
     isLoading: isTransactionsLoading,
     isRefetching: isTransactionsFetching,
   } = useGetTransactions();
 
-  const formatUserName = (incomingId: string) => {
-    const idToName = users?.find((user) => user.id === incomingId)?.name;
-    return idToName;
-  };
-
   const transformedTransactions = useMemo(() => {
     const sortedTransactions = transactions?.sort(
       (obj1, obj2) => obj2.date - obj1.date,
     );
     return sortedTransactions?.map((transaction) => (
-      <Grid item xs={12} md={10} lg={2} key={transaction.id}>
+      <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={transaction.id}>
         <TransactionItem
           id={transaction.id}
-          sender={formatUserName(transaction.sender)!}
-          receiver={formatUserName(transaction.receiver)!}
           currency={transaction.currency}
           amount={transaction.amount}
           description={transaction.description}
