@@ -1,26 +1,29 @@
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-} from '@mui/material';
-import { printArr } from './utils/displayData';
+import { Paper } from '@mui/material';
 
-type Props = string[];
-function Overall({ overall }: { overall: Props }) {
+interface Props {
+  totals: { [key: string]: number };
+}
+function Overall({ totals }: Props) {
   return (
-    <TableContainer>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell align='center'>Overall</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>{printArr(overall)}</TableBody>
-      </Table>
-    </TableContainer>
+    <Paper
+      sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 4,
+        paddingLeft: 2,
+        paddingRight: 2,
+      }}
+    >
+      <div>Итоговая сумма</div>
+      <div>
+        {Object.entries(totals).map((entry) => (
+          <p>
+            {entry[0]}: {entry[1]}
+          </p>
+        ))}
+      </div>
+    </Paper>
   );
 }
 

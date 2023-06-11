@@ -16,8 +16,8 @@ import Spinner from '../Spinner/Spinner';
 import { useGetUsers, useGetTransactions } from '../../queries';
 import { auth } from '../../services/firebase';
 import Transaction from '../../models/Transaction';
-import Overall from './Overall';
 import { displayTotalIncomeData } from './utils/displayData';
+import Overall from './Overall';
 
 type HistoryData = {
   date: number;
@@ -209,7 +209,7 @@ function Summary() {
           </TableBody>
         </Table>
       </TableContainer>
-      <Overall overall={displayTotalIncomeData(overallTotal)} />
+      <Overall totals={overallTotal} />
     </>
   );
 }
