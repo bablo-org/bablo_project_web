@@ -123,7 +123,7 @@ function TransactionItem({
               align='left'
               // marginTop={0.5}
             >
-              Сумма: {`${amount} ${currency}`}
+              {senderId === currentUserId ? '-' : '+'} {`${amount} ${currency}`}
             </Typography>
           ) : (
             <Typography
