@@ -55,14 +55,20 @@ function AuthorizedLayout() {
 
   const handleClick = () => {
     if (
-      (open && location.pathname !== '/actual') ||
-      (open && '/declined') ||
-      (open && '/completed')
+      (open &&
+        location.pathname !==
+          `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_ACTUAL}`) ||
+      (open &&
+        `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_COMPLETED}`) ||
+      (open &&
+        `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_DECLINED}`)
     ) {
       setOpen(!open);
       return;
     }
-    navigate('/actual');
+    navigate(
+      `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_ACTUAL}`,
+    );
     setOpen(!open);
   };
 
@@ -71,17 +77,17 @@ function AuthorizedLayout() {
     () => [
       {
         name: 'Актуальные',
-        path: PATHES.HISTORY_ACTUAL,
+        path: `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_ACTUAL}`,
         icon: <Done />,
       },
       {
         name: 'Отклоненные',
-        path: PATHES.HISTORY_DECLINED,
+        path: `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_DECLINED}`,
         icon: <Block />,
       },
       {
         name: 'Завершенные',
-        path: PATHES.HISTORY_COMPLETED,
+        path: `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_COMPLETED}`,
         icon: <History />,
       },
     ],
@@ -117,11 +123,11 @@ function AuthorizedLayout() {
       case '/add':
       case PATHES.ADD_TRANSACTION:
         return 'Создать транзакцию';
-      case PATHES.HISTORY_ACTUAL:
+      case `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_ACTUAL}`:
         return 'Актуальные транзакции';
-      case PATHES.HISTORY_COMPLETED:
+      case `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_COMPLETED}`:
         return 'Завершенные транзакции';
-      case PATHES.HISTORY_DECLINED:
+      case `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_DECLINED}`:
         return 'Отклоненные транзакции';
       case PATHES.SUMMARY:
         return 'Итоги';
