@@ -11,7 +11,10 @@ import HomePage from '../components/HomePage/HomePage';
 export const PATHES = {
   LOGIN: '/login',
   ADD_TRANSACTION: '/add',
-  HISTORY: '/history',
+  HISTORY_APPROVED: '/approved',
+  HISTORY_DECLINED: '/declined',
+  HISTORY_PENDING: '/pending',
+  HISTORY_COMPLETED: '/completed',
   SUMMARY: '/summary',
   PROFILE: '/profile',
   HOME_PAGE: '/',
@@ -38,7 +41,19 @@ export default createBrowserRouter([
         element: <AddTransactionPage />,
       },
       {
-        path: PATHES.HISTORY,
+        path: PATHES.HISTORY_APPROVED,
+        element: <HistoryPage />,
+      },
+      {
+        path: PATHES.HISTORY_COMPLETED,
+        element: <HistoryPage />,
+      },
+      {
+        path: PATHES.HISTORY_DECLINED,
+        element: <HistoryPage />,
+      },
+      {
+        path: PATHES.HISTORY_PENDING,
         element: <HistoryPage />,
       },
       {
