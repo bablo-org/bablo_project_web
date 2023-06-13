@@ -24,7 +24,6 @@ import {
   ExpandLess,
   ExpandMore,
   Done,
-  Pending,
   Block,
   History,
 } from '@mui/icons-material/';
@@ -56,15 +55,14 @@ function AuthorizedLayout() {
 
   const handleClick = () => {
     if (
-      (open && location.pathname !== '/approved') ||
+      (open && location.pathname !== '/actual') ||
       (open && '/declined') ||
-      (open && '/completed') ||
-      (open && '/pending')
+      (open && '/completed')
     ) {
       setOpen(!open);
       return;
     }
-    navigate('/approved');
+    navigate('/actual');
     setOpen(!open);
   };
 
@@ -72,14 +70,9 @@ function AuthorizedLayout() {
   const transctionsItemButtons = useMemo(
     () => [
       {
-        name: 'Подтвержденные',
-        path: PATHES.HISTORY_APPROVED,
+        name: 'Актуальные',
+        path: PATHES.HISTORY_ACTUAL,
         icon: <Done />,
-      },
-      {
-        name: 'Ожидающие',
-        path: PATHES.HISTORY_PENDING,
-        icon: <Pending />,
       },
       {
         name: 'Отклоненные',
@@ -124,14 +117,12 @@ function AuthorizedLayout() {
       case '/add':
       case PATHES.ADD_TRANSACTION:
         return 'Создать транзакцию';
-      case PATHES.HISTORY_APPROVED:
-        return 'Подтверженные транзакции';
+      case PATHES.HISTORY_ACTUAL:
+        return 'Актуальные транзакции';
       case PATHES.HISTORY_COMPLETED:
         return 'Завершенные транзакции';
       case PATHES.HISTORY_DECLINED:
         return 'Отклоненные транзакции';
-      case PATHES.HISTORY_PENDING:
-        return 'Ожидающие транзакции';
       case PATHES.SUMMARY:
         return 'Итоги';
       case PATHES.PROFILE:
