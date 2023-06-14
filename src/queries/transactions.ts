@@ -63,7 +63,11 @@ const useApproveTransation = () => {
         },
       });
     },
-    onSuccess: () => queryClient.invalidateQueries(['transactions']),
+    onSuccess: () => {
+      return queryClient.invalidateQueries([
+        `transactions?status=${TransactionStatus.APPROVED},${TransactionStatus.PENDING}`,
+      ]);
+    },
   });
 };
 
@@ -80,7 +84,16 @@ const useDeclineTransation = () => {
         },
       });
     },
-    onSuccess: () => queryClient.invalidateQueries(['transactions']),
+    onSuccess: () => {
+      return Promise.all([
+        queryClient.invalidateQueries([
+          `transactions?status=${TransactionStatus.DECLINED}`,
+        ]),
+        queryClient.invalidateQueries([
+          `transactions?status=${TransactionStatus.APPROVED},${TransactionStatus.PENDING}`,
+        ]),
+      ]);
+    },
   });
 };
 
@@ -97,7 +110,11 @@ const useCompleteTransation = () => {
         },
       });
     },
-    onSuccess: () => queryClient.invalidateQueries(['transactions']),
+    onSuccess: () => {
+      return queryClient.invalidateQueries([
+        `transactions?status=${TransactionStatus.COMPLETED}`,
+      ]);
+    },
   });
 };
 
