@@ -1,16 +1,33 @@
 import { useMemo } from 'react';
 import { Grid, Box } from '@mui/material';
+import { useLocation } from 'react-router-dom';
 import TransactionItem from './TransactionItem';
 import classes from './TransactionsList.module.css';
 import Spinner from '../Spinner/Spinner';
 import { useGetTransactions } from '../../queries';
+import { TransactionStatus } from '../../models/enums/TransactionStatus';
+import { PATHES } from '../../routes';
 
 function TransactionsList() {
+  const location = useLocation();
+
+  const statuses = useMemo(() => {
+    switch (location.pathname) {
+      case `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_DECLINED}`:
+        return [TransactionStatus.DECLINED];
+      case `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_COMPLETED}`:
+        return [TransactionStatus.COMPLETED];
+      case `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_ACTUAL}`:
+      default:
+        return [TransactionStatus.APPROVED, TransactionStatus.PENDING];
+    }
+  }, [location]);
+
   const {
     data: transactions,
     isLoading: isTransactionsLoading,
     isRefetching: isTransactionsFetching,
-  } = useGetTransactions();
+  } = useGetTransactions(statuses);
 
   const transformedTransactions = useMemo(() => {
     const sortedTransactions = transactions?.sort(
