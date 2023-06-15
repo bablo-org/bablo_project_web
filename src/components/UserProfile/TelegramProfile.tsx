@@ -125,10 +125,12 @@ function TelegramProfile({ currentUser }: Props) {
   };
 
   useEffect(() => {
-    if (user?.settings) {
-      setIsNotificationOn(user?.settings?.enableTelegramNotifications!);
+    if (user?.privateData?.settings) {
+      setIsNotificationOn(
+        user?.privateData?.settings?.enableTelegramNotifications!,
+      );
     }
-  }, [user?.settings]);
+  }, [user?.privateData?.settings]);
 
   return (
     <form onSubmit={updateTgUserName}>
@@ -177,14 +179,14 @@ function TelegramProfile({ currentUser }: Props) {
             }
             icon={undefined}
           />
-          {user?.telegramUser && (
+          {user?.privateData?.telegramUser && (
             <>
               <Grid item xs={12}>
                 <Typography
                   variant='body1'
                   sx={{ width: '200px', fontWeight: 'bold' }}
                 >
-                  {`@${user?.telegramUser}`}
+                  {`@${user?.privateData?.telegramUser}`}
                 </Typography>
               </Grid>
               <Grid item xs={12}>
@@ -214,7 +216,7 @@ function TelegramProfile({ currentUser }: Props) {
               divider={<Divider orientation='vertical' flexItem />}
             >
               <Typography variant='body1' sx={{ width: '200px' }}>
-                Привязать {user?.telegramUser && 'другой'} аккаунт
+                Привязать {user?.privateData?.telegramUser && 'другой'} аккаунт
               </Typography>
               <Button
                 onClick={() => {

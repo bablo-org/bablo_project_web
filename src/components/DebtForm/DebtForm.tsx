@@ -170,7 +170,11 @@ function DebtForm() {
     }
     const options = currencies
       .map((obj) => {
-        if (currentUser.settings?.favoriteCurrencies?.includes(obj.id)) {
+        if (
+          currentUser.privateData?.settings?.favoriteCurrencies?.includes(
+            obj.id,
+          )
+        ) {
           return { ...obj, group: 'Избранные валюты' };
         }
         if (popularCurrencies.includes(obj.id)) {
