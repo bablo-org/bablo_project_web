@@ -1,7 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom';
 import ProtectedRoute from '../utils/ProtectedRoute';
 import AddTransactionPage from './AddTransactionPage';
-import HistoryPage from './HistoryPage';
+import HistoryPage from './TransactionPage';
 import SummaryPage from './SummaryPage';
 import LoginPage from './LoginPage';
 import AuthorizedLayout from '../layouts/AuthorizedLayout';

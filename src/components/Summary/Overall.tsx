@@ -1,4 +1,4 @@
-import { Paper } from '@mui/material';
+import { Box, Paper, Typography } from '@mui/material';
 
 interface Props {
   totals: { [key: string]: number };
@@ -16,13 +16,23 @@ function Overall({ totals }: Props) {
       }}
     >
       <div>Итоговая сумма</div>
-      <div>
+      <Box
+        sx={{
+          paddingTop: 2,
+          paddingBottom: 2,
+        }}
+      >
         {Object.entries(totals).map((entry) => (
-          <p>
+          <Typography
+            key={entry[0]}
+            padding={0.5}
+            variant='body2'
+            align='right'
+          >
             {entry[0]}: {entry[1]}
-          </p>
+          </Typography>
         ))}
-      </div>
+      </Box>
     </Paper>
   );
 }
