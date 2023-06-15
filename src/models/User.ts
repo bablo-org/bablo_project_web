@@ -7,6 +7,7 @@ export interface PrivateData {
   telegramUser?: string;
   telegramId?: string;
   settings?: UserSettings;
+  email: string;
 }
 
 interface User {
@@ -14,7 +15,6 @@ interface User {
   name: string;
   avatar?: string;
   created: number;
-  email: string;
   privateData?: PrivateData;
   active?: boolean;
 }

@@ -15,8 +15,8 @@ const useGetUsers = () => {
         name: user.name,
         avatar: user.avatar,
         created: user.created,
-        email: user.email,
         privateData: {
+          email: user.privateData.email,
           telegramId: user.privateData.telegramId,
           telegramUser: user.privateData.telegramUser,
           settings: {
