@@ -32,6 +32,10 @@ function TransactionsList({ transactions, wrapperBox }: TransactionsListProps) {
     </Box>
   );
 
+  if (!transactions.length) {
+    return null;
+  }
+
   return wrapperBox?.title ? (
     <BorderBox
       borderRadius={2}
