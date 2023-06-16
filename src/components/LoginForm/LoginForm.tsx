@@ -1,21 +1,39 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Grid, TextField, FormControl, Box } from '@mui/material';
+import {
+  Container,
+  Grid,
+  TextField,
+  FormControl,
+  Box,
+  Collapse,
+  Switch,
+  FormControlLabel,
+} from '@mui/material';
 import LoginIcon from '@mui/icons-material/Login';
 import LoadingButton from '@mui/lab/LoadingButton';
+import { UserCredential } from 'firebase/auth';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { auth, signInWithEmailAndPassword } from '../../services/firebase';
+import {
+  auth,
+  sendEmailVerificationLink,
+  signInWithEmailAndPassword,
+  signUpWithEmailAndPassword,
+} from '../../services/firebase';
 import { PATHES } from '../../routes';
 import classes from './LoginForm.module.css';
 import Logo from '../../BabloLogo.png';
 import { validationProps } from '../../utils/validationForm';
 import { showSnackbarMessage } from '../../store/slices/snackbarMessage';
 import { SnackbarSeverity } from '../../models/enums/SnackbarSeverity';
+import { RegistrationError } from '../../models/enums/RegistrationError';
 
 function InputForm() {
   const navigate = useNavigate();
   const [enteredEmail, setEnteredEmail] = useState<string>('');
   const [enteredPassword, setEnteredPassword] = useState<string>('');
+  const [passwordConfirmation, setPasswordConfirmation] = useState('');
+  const [isNewUser, setIsNewUser] = useState(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean | string>(false);
   const { user } = useAppSelector((state) => state.auth);
@@ -63,8 +81,55 @@ function InputForm() {
     setLoading(true);
     setError(false);
     signInWithEmailAndPassword(auth, enteredEmail, enteredPassword)
-      .catch((err) => setError(err.code))
+      .catch((err) => {
+        setError(err.code);
+        // console.error(err.code);
+      })
       .finally(() => setLoading(false));
+  };
+
+  const createUserWithEmailAndPassword = (): Promise<UserCredential> => {
+    const isEmailValid =
+      !validationProps.email.testEmail(enteredEmail) && enteredEmail.length > 0;
+    const isPasswordValid = enteredPassword.length >= 6;
+
+    if (!isEmailValid) {
+      throw new Error(RegistrationError.TYPED_INCORRECT_EMAIL);
+    }
+    if (!isPasswordValid) {
+      throw new Error(RegistrationError.TYPED_INCORRECT_PASSWORD);
+    }
+    if (enteredPassword !== passwordConfirmation) {
+      throw new Error(RegistrationError.PASSWORDS_DO_NOT_MATCH);
+    }
+    return signUpWithEmailAndPassword(enteredEmail, enteredPassword);
+  };
+
+  const sendVerificationEmail = async () => {
+    try {
+      await sendEmailVerificationLink();
+    } catch (err: any) {
+      throw new Error(RegistrationError.ERROR_WHILE_SENDING_VERIFICATION_EMAIL);
+    }
+  };
+
+  const handleRegistration = async () => {
+    try {
+      setLoading(true);
+      await createUserWithEmailAndPassword();
+      await sendVerificationEmail();
+      navigate('/verify-email');
+    } catch (err: any) {
+      dispatch(
+        showSnackbarMessage({
+          message:
+            err?.code || err?.message || RegistrationError.INTERNAL_AUTH_ERROR,
+          severity: SnackbarSeverity.ERROR,
+        }),
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -145,16 +210,57 @@ function InputForm() {
                 </FormControl>
               </Grid>
               <Grid item xs={12}>
-                <LoadingButton
-                  loading={loading}
-                  variant='contained'
-                  color='success'
-                  type='submit'
-                  endIcon={<LoginIcon />}
-                  size='large'
-                >
-                  Войти
-                </LoadingButton>
+                <Collapse in={isNewUser} sx={{ paddingTop: 1 }}>
+                  <FormControl fullWidth>
+                    <TextField
+                      label='Подтвердите пароль'
+                      type='password'
+                      id='password-confirmation'
+                      value={passwordConfirmation}
+                      onChange={(e) => setPasswordConfirmation(e.target.value)}
+                      required={!!isNewUser}
+                      InputLabelProps={{ shrink: true }}
+                      className={enteredPassword && classes.valid}
+                    />
+                  </FormControl>
+                </Collapse>
+              </Grid>
+              <Grid item xs={12}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={isNewUser}
+                      onChange={() => setIsNewUser((p) => !p)}
+                    />
+                  }
+                  label='Новый пользователь?'
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Collapse in={isNewUser}>
+                  <LoadingButton
+                    loading={loading}
+                    variant='contained'
+                    color='primary'
+                    endIcon={<LoginIcon />}
+                    size='large'
+                    onClick={handleRegistration}
+                  >
+                    Зарегистрироваться
+                  </LoadingButton>
+                </Collapse>
+                <Collapse in={!isNewUser}>
+                  <LoadingButton
+                    loading={loading}
+                    variant='contained'
+                    color='success'
+                    type='submit'
+                    endIcon={<LoginIcon />}
+                    size='large'
+                  >
+                    Войти
+                  </LoadingButton>
+                </Collapse>
               </Grid>
             </Grid>
           </form>

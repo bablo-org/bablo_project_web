@@ -17,4 +17,5 @@ export enum RegistrationError {
   TYPED_INCORRECT_PASSWORD = 'typed-incorrect-password',
   ERROR_WHILE_SENDING_VERIFICATION_EMAIL = 'error-while-sending-verification-email',
   INTERNAL_AUTH_ERROR = 'internal-error',
+  PASSWORDS_DO_NOT_MATCH = 'passwords-do-not-match',
 }
