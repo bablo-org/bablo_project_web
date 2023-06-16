@@ -136,7 +136,9 @@ function UserCurrency({ currentUser }: Props) {
 
   useEffect(() => {
     if (currentUser) {
-      setFavoriteCurrenciesId(currentUser.settings?.favoriteCurrencies!);
+      setFavoriteCurrenciesId(
+        currentUser.privateData?.settings?.favoriteCurrencies!,
+      );
     }
   }, [currentUser]);
 
@@ -213,7 +215,7 @@ function UserCurrency({ currentUser }: Props) {
                   variant='outlined'
                   onClick={() => {
                     setFavoriteCurrenciesId(
-                      currentUser.settings?.favoriteCurrencies!,
+                      currentUser.privateData?.settings?.favoriteCurrencies!,
                     );
                     setIsCurrenciesUpdated(false);
                   }}

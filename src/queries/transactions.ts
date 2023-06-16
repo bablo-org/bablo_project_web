@@ -111,8 +111,13 @@ const useCompleteTransation = () => {
       });
     },
     onSuccess: () => {
-      return queryClient.invalidateQueries([
-        `transactions?status=${TransactionStatus.COMPLETED}`,
+      return Promise.all([
+        queryClient.invalidateQueries([
+          `transactions?status=${TransactionStatus.COMPLETED}`,
+          queryClient.invalidateQueries([
+            `transactions?status=${TransactionStatus.APPROVED},${TransactionStatus.PENDING}`,
+          ]),
+        ]),
       ]);
     },
   });

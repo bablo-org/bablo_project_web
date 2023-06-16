@@ -15,14 +15,17 @@ const useGetUsers = () => {
         name: user.name,
         avatar: user.avatar,
         created: user.created,
-        email: user.email,
-        settings: {
-          enableTelegramNotifications:
-            user.settings.enableTelegramNotifications,
-          favoriteCurrencies: user.settings.favoriteCurrencies,
+        privateData: {
+          email: user.privateData.email,
+          telegramId: user.privateData.telegramId,
+          telegramUser: user.privateData.telegramUser,
+          settings: {
+            enableTelegramNotifications:
+              user.privateData.settings.enableTelegramNotifications,
+            favoriteCurrencies: user.privateData.settings.favoriteCurrencies,
+          },
         },
-        telegramId: user.telegramId,
-        telegramUser: user.telegramUser,
+        active: user.active,
       })) as User[];
     },
   });
