@@ -1,67 +1,65 @@
-import { useMemo } from 'react';
-import { Grid, Box } from '@mui/material';
-import { useLocation } from 'react-router-dom';
+import { Grid, Box, Typography, Divider } from '@mui/material';
 import TransactionItem from './TransactionItem';
-import classes from './TransactionsList.module.css';
-import Spinner from '../Spinner/Spinner';
-import { useGetTransactions } from '../../queries';
-import { TransactionStatus } from '../../models/enums/TransactionStatus';
-import { PATHES } from '../../routes';
+import BorderBox from '../UI/BorderBox';
+import Transaction from '../../models/Transaction';
 
-function TransactionsList() {
-  const location = useLocation();
+interface TransactionsListProps {
+  transactions: Transaction[];
+  wrapperBox?: {
+    title: string;
+  };
+}
 
-  const statuses = useMemo(() => {
-    switch (location.pathname) {
-      case `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_DECLINED}`:
-        return [TransactionStatus.DECLINED];
-      case `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_COMPLETED}`:
-        return [TransactionStatus.COMPLETED];
-      case `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_ACTUAL}`:
-      default:
-        return [TransactionStatus.APPROVED, TransactionStatus.PENDING];
-    }
-  }, [location]);
-
-  const {
-    data: transactions,
-    isLoading: isTransactionsLoading,
-    isRefetching: isTransactionsFetching,
-  } = useGetTransactions(statuses);
-
-  const transformedTransactions = useMemo(() => {
-    const sortedTransactions = transactions?.sort(
-      (obj1, obj2) => obj2.date - obj1.date,
-    );
-    return sortedTransactions?.map((transaction) => (
-      <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={transaction.id}>
-        <TransactionItem
-          id={transaction.id}
-          currency={transaction.currency}
-          amount={transaction.amount}
-          description={transaction.description}
-          date={transaction.date}
-          status={transaction.status}
-          senderId={transaction.sender}
-          recieverId={transaction.receiver}
-        />
-      </Grid>
-    ));
-  }, [transactions]);
-
-  if (isTransactionsFetching && transactions?.length === 0) {
-    return <Spinner />;
-  }
-  if (!isTransactionsLoading && transactions?.length === 0) {
-    return <p className={classes.noTransactionsAvailable}>Суй ананас в жопу</p>;
-  }
-
-  return (
+function TransactionsList({ transactions, wrapperBox }: TransactionsListProps) {
+  const renderTransactions = () => (
     <Box sx={{ flexGrow: 1 }}>
       <Grid container spacing={2}>
-        {transformedTransactions}
+        {transactions.map((transaction) => (
+          <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={transaction.id}>
+            <TransactionItem
+              id={transaction.id}
+              currency={transaction.currency}
+              amount={transaction.amount}
+              description={transaction.description}
+              date={transaction.date}
+              status={transaction.status}
+              senderId={transaction.sender}
+              recieverId={transaction.receiver}
+            />
+          </Grid>
+        ))}
       </Grid>
     </Box>
+  );
+
+  if (!transactions.length) {
+    return null;
+  }
+
+  return wrapperBox?.title ? (
+    <BorderBox
+      borderRadius={2}
+      marginProp={4}
+      style={{
+        padding: 4,
+      }}
+    >
+      <>
+        <Typography
+          marginBottom={2}
+          variant='h6'
+          gutterBottom
+          component='div'
+          align='left'
+        >
+          {wrapperBox.title}
+          <Divider sx={{ marginTop: 1 }} />
+        </Typography>
+        {renderTransactions()}
+      </>
+    </BorderBox>
+  ) : (
+    renderTransactions()
   );
 }
 

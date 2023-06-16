@@ -61,7 +61,7 @@ function AuthorizedLayout() {
     return location.pathname === item.path;
   };
 
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
 
   const handleClick = () => {
     if (
