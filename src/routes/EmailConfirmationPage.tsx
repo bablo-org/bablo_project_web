@@ -48,7 +48,13 @@ function EmailConfirmation() {
       dispatch(verifyEmailAction());
       navigate(PATHES.ADD_TRANSACTION);
     } catch (error: any) {
-      console.warn(error);
+      // will be dispatched on dev every time as useEffect called twice in strict mode
+      dispatch(
+        showSnackbarMessage({
+          message: 'Email verification error',
+          severity: SnackbarSeverity.ERROR,
+        }),
+      );
     }
   };
 
