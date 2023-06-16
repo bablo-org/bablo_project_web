@@ -16,6 +16,8 @@ import Spinner from '../Spinner/Spinner';
 import { useGetUsers, useGetTransactions } from '../../queries';
 import { auth } from '../../services/firebase';
 import Transaction from '../../models/Transaction';
+import { displayTotalIncomeData } from './utils/displayData';
+import Overall from './Overall';
 
 type HistoryData = {
   date: number;
@@ -38,11 +40,15 @@ type UserSummaryData = {
   history: HistoryData[];
 };
 
+export type OverallTotal = {
+  [key: string]: number;
+};
+
 function createData(
   name: string,
-  valueGain: (string | number)[],
-  valueLost: (string | number)[],
-  total: (string | number)[],
+  valueGain: string[],
+  valueLost: string[],
+  total: string[],
   history: HistoryData[],
 ) {
   return {
@@ -70,6 +76,21 @@ function Summary() {
       ) ?? []
     );
   }, [transactions]);
+
+  const overallTotal: OverallTotal = useMemo(() => {
+    const total: OverallTotal = {};
+    summaryData.forEach((userSummary) => {
+      Object.entries(userSummary.total).forEach((currencyArr) => {
+        const [key, value] = currencyArr;
+        if (total[key]) {
+          total[key] += value;
+        } else {
+          total[key] = value;
+        }
+      });
+    });
+    return total;
+  }, [summaryData]);
 
   useEffect(() => {
     if (users?.length === 0 || approvedTransactions?.length === 0) return;
@@ -128,29 +149,17 @@ function Summary() {
     );
     setSummaryData(filteredSummaryData);
   }, [users, approvedTransactions]);
-
-  const rows = summaryData.map((userSumamryData) => {
-    const displayTotalIncomeData = (totalSummaryData: {
-      [key: string]: number;
-    }) => {
-      const totalOutput: (string | number)[] = [];
-      Object.entries(totalSummaryData).forEach((entry) => {
-        const [key, value] = entry;
-        totalOutput.push(key, ': ', value, ' ');
-      });
-      return totalOutput;
-    };
+  const rows = summaryData.map((userSummaryData) => {
     return createData(
-      userSumamryData.name,
-      displayTotalIncomeData(userSumamryData.totalIncoming),
-      displayTotalIncomeData(userSumamryData.totalOutcoming),
-      displayTotalIncomeData(userSumamryData.total),
-      userSumamryData.history.sort((obj1: HistoryData, obj2: HistoryData) => {
+      userSummaryData.name,
+      displayTotalIncomeData(userSummaryData.totalIncoming),
+      displayTotalIncomeData(userSummaryData.totalOutcoming),
+      displayTotalIncomeData(userSummaryData.total),
+      userSummaryData.history.sort((obj1: HistoryData, obj2: HistoryData) => {
         return obj2.date - obj1.date;
       }),
     );
   });
-
   if (isTransactionsFetching && transactions?.length === 0) {
     return <Spinner />;
   }
@@ -200,6 +209,7 @@ function Summary() {
           </TableBody>
         </Table>
       </TableContainer>
+      <Overall totals={overallTotal} />
     </>
   );
 }

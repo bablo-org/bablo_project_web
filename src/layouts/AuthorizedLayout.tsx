@@ -1,7 +1,7 @@
-import * as React from 'react';
 import {
   AppBar,
   Box,
+  Collapse,
   CssBaseline,
   Divider,
   Drawer,
@@ -17,10 +17,15 @@ import {
 import {
   Menu,
   AddBox,
-  History,
   Summarize,
   AccountCircle,
   Logout,
+  Payments,
+  ExpandLess,
+  ExpandMore,
+  Done,
+  Block,
+  History,
 } from '@mui/icons-material/';
 import { useMemo, useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
@@ -56,19 +61,54 @@ function AuthorizedLayout() {
     return location.pathname === item.path;
   };
 
-  const dispatch = useAppDispatch();
+  const [open, setOpen] = useState(true);
 
+  const handleClick = () => {
+    if (
+      (open &&
+        location.pathname !==
+          `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_ACTUAL}`) ||
+      (open &&
+        `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_COMPLETED}`) ||
+      (open &&
+        `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_DECLINED}`)
+    ) {
+      setOpen(!open);
+      return;
+    }
+    navigate(
+      `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_ACTUAL}`,
+    );
+    setOpen(!open);
+  };
+
+  const dispatch = useAppDispatch();
+  const transctionsItemButtons = useMemo(
+    () => [
+      {
+        name: 'Актуальные',
+        path: `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_ACTUAL}`,
+        icon: <Done />,
+      },
+      {
+        name: 'Отклоненные',
+        path: `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_DECLINED}`,
+        icon: <Block />,
+      },
+      {
+        name: 'Завершенные',
+        path: `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_COMPLETED}`,
+        icon: <History />,
+      },
+    ],
+    [],
+  );
   const listItemButtons = useMemo(
     () => [
       {
         name: 'Добавить транзакцию',
         path: PATHES.ADD_TRANSACTION,
         icon: <AddBox />,
-      },
-      {
-        name: 'История',
-        path: PATHES.HISTORY,
-        icon: <History />,
       },
       {
         name: 'Итоги',
@@ -90,11 +130,15 @@ function AuthorizedLayout() {
 
   const pageHeader = useMemo(() => {
     switch (location.pathname) {
-      case '/':
+      case '/add':
       case PATHES.ADD_TRANSACTION:
         return 'Создать транзакцию';
-      case PATHES.HISTORY:
-        return 'История';
+      case `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_ACTUAL}`:
+        return 'Актуальные транзакции';
+      case `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_COMPLETED}`:
+        return 'Завершенные транзакции';
+      case `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_DECLINED}`:
+        return 'Отклоненные транзакции';
       case PATHES.SUMMARY:
         return 'Итоги';
       case PATHES.PROFILE:
@@ -142,6 +186,40 @@ function AuthorizedLayout() {
             </ListItemButton>
           </ListItem>
         ))}
+        <ListItemButton onClick={handleClick}>
+          <ListItemIcon>
+            <Payments />
+          </ListItemIcon>
+          <ListItemText primary='Транзакции' />
+          {open ? <ExpandLess /> : <ExpandMore />}
+        </ListItemButton>
+        <Collapse in={open} timeout='auto' unmountOnExit>
+          <List component='div' disablePadding>
+            {transctionsItemButtons.map((item) => (
+              <ListItem key={item.name} disablePadding>
+                <ListItemButton
+                  sx={{ pl: 4 }}
+                  onClick={() => {
+                    navigate(item.path);
+                    if (mobileOpen) {
+                      setMobileOpen(false);
+                    }
+                  }}
+                  selected={isCurrentLocation(item)}
+                >
+                  <ListItemIcon
+                    sx={
+                      isCurrentLocation(item) ? { color: '#1976d2' } : undefined
+                    }
+                  >
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText primary={item.name} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </Collapse>
       </List>
       <Divider />
       <List>

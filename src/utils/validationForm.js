@@ -1,6 +1,7 @@
 export const validationProps = {
   sum: {
     testSum: (enteredSum) => /^(?:0|[1-9]\d*)(?:\.\d{1,2})?$/.test(enteredSum),
+    testSumInput: (enteredSum) => /^\d+(\.\d{0,2})?$/.test(enteredSum),
     inputPropsPattern: '(?:0|[1-9]\\d*)(?:\\.\\d{1,2})?',
     title: 'Введите сумму',
     errorTitle:

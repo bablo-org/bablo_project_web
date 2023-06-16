@@ -19,7 +19,7 @@ import {
   AddCircleOutline as AddCircleOutlineIcon,
 } from '@mui/icons-material';
 import { useState, useMemo, useEffect, FormEvent, useRef } from 'react';
-import { useAppDispatch } from '../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import TransitionsModal from '../modal/modal';
 import { useGetCurrencies, useUpdateUserSettings } from '../../queries';
 import { showSnackbarMessage } from '../../store/slices/snackbarMessage';
@@ -28,18 +28,17 @@ import CurrenciesSkeleton from './Skeleton/CurrenciesSkeleton';
 import Currency from '../../models/Currency';
 import User from '../../models/User';
 import { UserSettings } from '../../models/User';
+import { profileActions } from '../../store/slices/profileForm';
 
 interface Props {
   currentUser: User;
 }
 
 function UserCurrency({ currentUser }: Props) {
-  const [selectedCurrencies, setSelectedCurrencis] = useState<Currency[]>([]);
   const [favoriteCurrenciesId, setFavoriteCurrenciesId] = useState<string[]>(
     [],
   );
   const [isCurrenciesUpdated, setIsCurrenciesUpdated] = useState(false);
-  const [addCurrienseOff, setAddCurrienseOff] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const { data: currencies, isFetching: currenciesLoading } =
     useGetCurrencies();
@@ -47,14 +46,19 @@ function UserCurrency({ currentUser }: Props) {
     useUpdateUserSettings();
   const dispatch = useAppDispatch();
   const bottomRef = useRef<HTMLDivElement>(null);
-
+  const selectedCurrencies = useAppSelector(
+    (state) => state.profileForm.selectedCurrencies,
+  );
+  const showTgCollapse = useAppSelector(
+    (state) => state.profileForm.showCurrenciesCollapse,
+  );
   const favoriteCurrencies = useMemo(() => {
     if (favoriteCurrenciesId && !currenciesLoading)
       return favoriteCurrenciesId.map((item) => {
         return currencies?.find((e) => e.id === item);
       });
     return undefined;
-  }, [favoriteCurrenciesId, currencies]);
+  }, [favoriteCurrenciesId, currencies, currenciesLoading]);
 
   const removeFavoriteCurrencies = (currencyId: string[]) => {
     const updatedCurrencies = favoriteCurrenciesId.filter(
@@ -112,7 +116,7 @@ function UserCurrency({ currentUser }: Props) {
         }),
       );
     } finally {
-      setSelectedCurrencis([]);
+      dispatch(profileActions.setCurrencies([]));
       setConfirmModalOpen(false);
       setIsCurrenciesUpdated(false);
     }
@@ -273,7 +277,7 @@ function UserCurrency({ currentUser }: Props) {
             <Button
               color='success'
               onClick={() => {
-                setAddCurrienseOff(!addCurrienseOff);
+                dispatch(profileActions.toggleCurrenciesCollapse());
               }}
             >
               <AddCircleOutlineIcon color='success' />
@@ -281,7 +285,7 @@ function UserCurrency({ currentUser }: Props) {
           </Stack>
         </Grid>
       </Grid>
-      <Collapse in={addCurrienseOff} onEntered={executeScroll}>
+      <Collapse in={showTgCollapse} onEntered={executeScroll}>
         <form onSubmit={addNewCurrencies}>
           <Grid
             container
@@ -295,7 +299,7 @@ function UserCurrency({ currentUser }: Props) {
                 multiple
                 value={selectedCurrencies}
                 onChange={(event, newValue) => {
-                  setSelectedCurrencis(newValue);
+                  dispatch(profileActions.setCurrencies(newValue));
                 }}
                 id='currencis'
                 options={
@@ -321,7 +325,7 @@ function UserCurrency({ currentUser }: Props) {
               <Stack direction='row' spacing={2}>
                 <Button
                   variant='outlined'
-                  onClick={() => setSelectedCurrencis([])}
+                  onClick={() => dispatch(profileActions.setCurrencies([]))}
                   color='error'
                   endIcon={<ClearIcon />}
                   disabled={selectedCurrencies.length < 1}

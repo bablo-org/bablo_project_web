@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { Check as CheckIcon, Clear as ClearIcon } from '@mui/icons-material';
-import { useAppDispatch } from '../../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { useUpdateUser, useUpdateUserAvatar } from '../../../queries';
 import { getDownloadURL, storage, ref } from '../../../services/firebase';
 import classes from '../UserProfile.module.css';
@@ -20,6 +20,8 @@ import { showSnackbarMessage } from '../../../store/slices/snackbarMessage';
 import { SnackbarSeverity } from '../../../models/enums/SnackbarSeverity';
 import ResponsibleContent from './ResponsibleContent';
 import User from '../../../models/User';
+import { profileActions } from '../../../store/slices/profileForm';
+import BorderBox from '../../UI/BorderBox';
 
 interface Props {
   currentUser: User;
@@ -34,16 +36,15 @@ function UserNameAndAvatar({ currentUser, showSkeleton }: Props) {
   const [encodedImageName, setEncodedImageName] = useState<string>('');
   const [encodedImageCode, setEncodedImageCode] = useState<string | void>();
   const [updatedUser, setUpdatedUser] = useState<Partial<User>>({});
-  const [name, setName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | void>();
   const [isAvatarDeleted, setIsAvatarDeleted] = useState(false);
   const [loadingUserInfo, setLoadingUserInfo] = useState(false);
   const inputFileValue = useRef<HTMLTextAreaElement>();
   const dispatch = useAppDispatch();
   const { avatar } = validationProps;
-
+  const name = useAppSelector((state) => state.profileForm.userName);
   const clearForm = () => {
-    setName('');
+    dispatch(profileActions.setUserName(''));
     setAvatarUrl();
     inputFileValue.current!.value = '';
     setUpdatedUser(currentUser);
@@ -61,14 +62,16 @@ function UserNameAndAvatar({ currentUser, showSkeleton }: Props) {
     setIsAvatarDeleted(true);
   };
 
-  const changeUserName = (e: FormEvent) => {
+  const changeUserName = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const updateUserName = { ...updatedUser };
-    if ((e.target as HTMLTextAreaElement).value !== '') {
-      updateUserName.name = (e.target as HTMLTextAreaElement).value;
-      setName((e.target as HTMLTextAreaElement).value);
+    if (e.target.value !== '') {
+      updateUserName.name = e.target.value;
+      dispatch(profileActions.setUserName(e.target.value));
     } else {
       updateUserName.name = currentUser.name;
-      setName('');
+      dispatch(profileActions.setUserName(''));
     }
     setUpdatedUser(updateUserName);
   };
@@ -227,47 +230,49 @@ function UserNameAndAvatar({ currentUser, showSkeleton }: Props) {
     />
   );
   return (
-    <Grid item xs={12}>
-      <form onSubmit={validateAndSubmit}>
-        <Grid container spacing={2} direction='column'>
-          <Grid item xs={12}>
-            <Typography variant='h6' gutterBottom sx={{ textAlign: 'left' }}>
-              Имя и Аватар
-            </Typography>
-            <Divider />
+    <BorderBox marginProp={2}>
+      <Grid item xs={12} sx={{ m: 4 }}>
+        <form onSubmit={validateAndSubmit}>
+          <Grid container spacing={2} direction='column'>
+            <Grid item xs={12}>
+              <Typography variant='h6' gutterBottom sx={{ textAlign: 'left' }}>
+                Имя и Аватар
+              </Typography>
+              <Divider />
+            </Grid>
+            <ResponsibleContent
+              avatarBlock={avatarBlock}
+              inputAvatar={inputAvatar}
+              inputName={inputName}
+            />
+            <Grid item xs={12}>
+              <Stack direction='row' spacing={2}>
+                <Button
+                  variant='outlined'
+                  color='error'
+                  onClick={clearForm}
+                  endIcon={<ClearIcon />}
+                  disabled={isDisabledButton}
+                >
+                  Очистить
+                </Button>
+                <LoadingButton
+                  loading={loadingUserInfo}
+                  variant='contained'
+                  color='success'
+                  type='submit'
+                  endIcon={<CheckIcon />}
+                  onSubmit={validateAndSubmit}
+                  disabled={isDisabledButton}
+                >
+                  Сохранить
+                </LoadingButton>
+              </Stack>
+            </Grid>
           </Grid>
-          <ResponsibleContent
-            avatarBlock={avatarBlock}
-            inputAvatar={inputAvatar}
-            inputName={inputName}
-          />
-          <Grid item xs={12}>
-            <Stack direction='row' spacing={2}>
-              <Button
-                variant='outlined'
-                color='error'
-                onClick={clearForm}
-                endIcon={<ClearIcon />}
-                disabled={isDisabledButton}
-              >
-                Очистить
-              </Button>
-              <LoadingButton
-                loading={loadingUserInfo}
-                variant='contained'
-                color='success'
-                type='submit'
-                endIcon={<CheckIcon />}
-                onSubmit={validateAndSubmit}
-                disabled={isDisabledButton}
-              >
-                Сохранить
-              </LoadingButton>
-            </Stack>
-          </Grid>
-        </Grid>
-      </form>
-    </Grid>
+        </form>
+      </Grid>
+    </BorderBox>
   );
 }
 

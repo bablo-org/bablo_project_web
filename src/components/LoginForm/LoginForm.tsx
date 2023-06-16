@@ -73,7 +73,7 @@ function InputForm() {
         navigate(PATHES.VERIFY_EMAIL);
         return;
       }
-      navigate(PATHES.ADD_TRANSACTION);
+      navigate(PATHES.HOME_PAGE);
     }
   }, [user, navigate]);
 

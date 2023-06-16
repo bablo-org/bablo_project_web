@@ -7,14 +7,21 @@ import LoginPage from './LoginPage';
 import AuthorizedLayout from '../layouts/AuthorizedLayout';
 import UserProfilePage from './UserProfilePage';
 import EmailConfirmationPage from './EmailConfirmationPage';
+import HomePage from '../components/HomePage/HomePage';
 
 export const PATHES = {
   LOGIN: '/login',
   ADD_TRANSACTION: '/add',
-  HISTORY: '/history',
+  HISTORY_HOME: {
+    HOME: '/transactions',
+    HISTORY_ACTUAL: 'actual',
+    HISTORY_DECLINED: 'declined',
+    HISTORY_COMPLETED: 'completed',
+  },
   SUMMARY: '/summary',
   PROFILE: '/profile',
   VERIFY_EMAIL: '/verify-email/*',
+  HOME_PAGE: '/',
 };
 export default createBrowserRouter([
   {
@@ -35,16 +42,31 @@ export default createBrowserRouter([
     children: [
       {
         index: true,
-        element: <AddTransactionPage />,
+        element: <HomePage />,
       },
       {
         path: PATHES.ADD_TRANSACTION,
         element: <AddTransactionPage />,
       },
       {
-        path: PATHES.HISTORY,
-        element: <HistoryPage />,
+        path: PATHES.HISTORY_HOME.HOME,
+        children: [
+          {
+            path: PATHES.HISTORY_HOME.HISTORY_ACTUAL,
+            element: <HistoryPage />,
+            index: true,
+          },
+          {
+            path: PATHES.HISTORY_HOME.HISTORY_COMPLETED,
+            element: <HistoryPage />,
+          },
+          {
+            path: PATHES.HISTORY_HOME.HISTORY_DECLINED,
+            element: <HistoryPage />,
+          },
+        ],
       },
+
       {
         path: PATHES.SUMMARY,
         element: <SummaryPage />,

@@ -1,10 +1,16 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { defaultQueryFn } from '.';
 import Transaction from '../models/Transaction';
+import { TransactionStatus } from '../models/enums/TransactionStatus';
 
-const useGetTransactions = () => {
+const useGetTransactions = (statuses?: TransactionStatus[]) => {
+  let queryParam: string = '';
+  if (statuses && statuses.length > 0) {
+    queryParam = `?status=${statuses?.join(',')}`;
+  }
+
   return useQuery({
-    queryKey: ['transactions'],
+    queryKey: [`transactions${queryParam}`],
     placeholderData: [],
     select: (data: any) => {
       return data.map((transaction: any) => ({
@@ -57,7 +63,11 @@ const useApproveTransation = () => {
         },
       });
     },
-    onSuccess: () => queryClient.invalidateQueries(['transactions']),
+    onSuccess: () => {
+      return queryClient.invalidateQueries([
+        `transactions?status=${TransactionStatus.APPROVED},${TransactionStatus.PENDING}`,
+      ]);
+    },
   });
 };
 
@@ -74,7 +84,16 @@ const useDeclineTransation = () => {
         },
       });
     },
-    onSuccess: () => queryClient.invalidateQueries(['transactions']),
+    onSuccess: () => {
+      return Promise.all([
+        queryClient.invalidateQueries([
+          `transactions?status=${TransactionStatus.DECLINED}`,
+        ]),
+        queryClient.invalidateQueries([
+          `transactions?status=${TransactionStatus.APPROVED},${TransactionStatus.PENDING}`,
+        ]),
+      ]);
+    },
   });
 };
 
@@ -91,7 +110,11 @@ const useCompleteTransation = () => {
         },
       });
     },
-    onSuccess: () => queryClient.invalidateQueries(['transactions']),
+    onSuccess: () => {
+      return queryClient.invalidateQueries([
+        `transactions?status=${TransactionStatus.COMPLETED}`,
+      ]);
+    },
   });
 };
 
