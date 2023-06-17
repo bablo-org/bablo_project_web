@@ -16,7 +16,7 @@ import {
   signInWithEmailAndPassword,
   // auth,
 } from '../services/firebase';
-import { useAppDispatch } from '../store/hooks';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { showSnackbarMessage } from '../store/slices/snackbarMessage';
 import { PATHES } from '.';
 import { verifyEmail as verifyEmailAction } from '../store/slices/auth';
