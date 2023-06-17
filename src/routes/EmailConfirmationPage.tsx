@@ -4,6 +4,7 @@ import { Box, FormControl, Grid, TextField, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import ReplayIcon from '@mui/icons-material/Replay';
 import LogoutIcon from '@mui/icons-material/Logout';
+import LoginIcon from '@mui/icons-material/Login';
 import { RegistrationError } from '../models/enums/RegistrationError';
 import { SnackbarSeverity } from '../models/enums/SnackbarSeverity';
 import {
@@ -212,7 +213,7 @@ function EmailConfirmation() {
                     variant='contained'
                     color='success'
                     onClick={finishRegistrationHandler}
-                    endIcon={<ReplayIcon />}
+                    endIcon={<LoginIcon />}
                     size='large'
                     sx={{ marginTop: 2, marginRight: 2 }}
                   >
