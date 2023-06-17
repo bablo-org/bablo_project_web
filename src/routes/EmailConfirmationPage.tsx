@@ -1,5 +1,5 @@
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Box, FormControl, Grid, TextField, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import ReplayIcon from '@mui/icons-material/Replay';
@@ -29,7 +29,7 @@ import classes from '../components/LoginForm/LoginForm.module.css';
 function EmailConfirmation() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  // const { user } = useAppSelector((state) => state.auth);
+  const { user } = useAppSelector((state) => state.auth);
   const { mutateAsync: registerUser } = useRegisterUser();
   const [searchParams] = useSearchParams();
   const [loading, setIsLoading] = useState(false);
@@ -140,6 +140,12 @@ function EmailConfirmation() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (user && user.emailVerified) {
+      navigate(PATHES.ADD_TRANSACTION);
+    }
+  }, [user]);
 
   return (
     <Grid container justifyContent='center'>
