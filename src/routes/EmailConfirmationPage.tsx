@@ -71,9 +71,21 @@ function EmailConfirmation() {
     }
   };
 
-  const veryfyEmailHandler = async (oobCode: string) => {
+  const registerUserHandler = async () => {
     try {
       await registerUser();
+    } catch (err: any) {
+      if (err.message === '500') {
+        console.log('User already exists');
+      } else {
+        throw err;
+      }
+    }
+  };
+
+  const veryfyEmailHandler = async (oobCode: string) => {
+    try {
+      await registerUserHandler();
       await verifyEmail(oobCode);
       dispatch(
         showSnackbarMessage({
@@ -83,7 +95,7 @@ function EmailConfirmation() {
       );
       dispatch(verifyEmailAction());
       navigate(PATHES.ADD_TRANSACTION);
-    } catch (error: any) {
+    } catch (err: any) {
       // will be dispatched on dev every time as useEffect called twice in strict mode
       dispatch(
         showSnackbarMessage({
