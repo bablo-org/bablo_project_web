@@ -8,6 +8,8 @@ import AuthorizedLayout from '../layouts/AuthorizedLayout';
 import UserProfilePage from './UserProfilePage';
 import EmailConfirmationPage from './EmailConfirmationPage';
 import HomePage from '../components/HomePage/HomePage';
+import UserInfoPage from './UserInfoPage';
+import ContactsPage from './ContactsPage';
 
 export const PATHES = {
   LOGIN: '/login',
@@ -18,11 +20,15 @@ export const PATHES = {
     HISTORY_DECLINED: 'declined',
     HISTORY_COMPLETED: 'completed',
   },
+  USER_INFO: '/user/:id',
+  CONTACTS: '/contacts',
   SUMMARY: '/summary',
   PROFILE: '/profile',
   VERIFY_EMAIL: '/verify-email/*',
   HOME_PAGE: '/',
 };
+export type UserInfoParams = Record<'id', string>;
+
 export default createBrowserRouter([
   {
     path: PATHES.LOGIN,
@@ -74,6 +80,14 @@ export default createBrowserRouter([
       {
         path: PATHES.PROFILE,
         element: <UserProfilePage />,
+      },
+      {
+        path: PATHES.USER_INFO,
+        element: <UserInfoPage />,
+      },
+      {
+        path: PATHES.CONTACTS,
+        element: <ContactsPage />,
       },
     ],
   },

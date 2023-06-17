@@ -24,6 +24,9 @@ const useGetUsers = () => {
               user.privateData.settings.enableTelegramNotifications,
             favoriteCurrencies: user.privateData.settings.favoriteCurrencies,
           },
+          network: {
+            partners: user.privateData.network.partners,
+          },
         },
         active: user.active,
       })) as User[];

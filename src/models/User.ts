@@ -8,6 +8,11 @@ export interface PrivateData {
   telegramId?: string;
   settings?: UserSettings;
   email: string;
+  network?: {
+    partners?: {
+      [userId: string]: string[];
+    };
+  };
 }
 
 interface User {
