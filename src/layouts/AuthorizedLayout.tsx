@@ -29,7 +29,7 @@ import {
 } from '@mui/icons-material/';
 import { useMemo, useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { auth, signOut } from '../services/firebase';
+import { logout } from '../services/firebase';
 import { PATHES } from '../routes';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { showSnackbarMessage } from '../store/slices/snackbarMessage';
@@ -225,17 +225,15 @@ function AuthorizedLayout() {
       <List>
         <ListItem key='Выйти' disablePadding>
           <ListItemButton
-            onClick={() => {
-              if (!auth) {
+            onClick={async () => {
+              logout().catch(() => {
                 dispatch(
                   showSnackbarMessage({
                     severity: SnackbarSeverity.ERROR,
                     message: 'Ошибка, попробуйте позднее...',
                   }),
                 );
-                return;
-              }
-              signOut(auth);
+              });
             }}
           >
             <ListItemIcon>

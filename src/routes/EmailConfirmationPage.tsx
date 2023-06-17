@@ -10,8 +10,7 @@ import {
   FirebaseEmailAction,
   sendEmailVerificationLink,
   verifyEmail,
-  auth,
-  signOut,
+  logout,
 } from '../services/firebase';
 import { useAppDispatch } from '../store/hooks';
 import { showSnackbarMessage } from '../store/slices/snackbarMessage';
@@ -55,13 +54,9 @@ function EmailConfirmation() {
   };
 
   const logoutHandler = async () => {
-    if (auth === null) {
-      navigate(PATHES.LOGIN);
-      return;
-    }
     try {
       setIsLoggingOut(true);
-      await signOut(auth);
+      await logout();
       navigate(PATHES.LOGIN);
     } catch (err: any) {
       dispatch(

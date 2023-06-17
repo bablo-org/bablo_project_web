@@ -20,6 +20,7 @@ import {
   FirebaseStorage,
 } from 'firebase/storage';
 import { firebaseConfig } from '../env';
+import { queryClient } from '../App';
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -59,6 +60,18 @@ const sendEmailVerificationLink = () => {
   return sendEmailVerification(auth.currentUser);
 };
 
+const logout = async () => {
+  if (!auth) {
+    throw new Error('Firebase is not initialized');
+  }
+  try {
+    await signOut(auth);
+    queryClient.clear();
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const verifyEmail = (oobCode: string) => {
   if (!auth) {
     throw new Error('Firebase is not initialized');
@@ -75,7 +88,7 @@ export {
   getDownloadURL,
   onAuthStateChanged,
   signInWithEmailAndPassword,
-  signOut,
+  logout,
   signUpWithEmailAndPassword,
   sendEmailVerificationLink,
   verifyEmail,
