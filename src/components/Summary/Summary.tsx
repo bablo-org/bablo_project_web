@@ -9,20 +9,35 @@ import {
   Box,
   Typography,
   Grid,
+  Autocomplete,
+  TextField,
+  CircularProgress,
 } from '@mui/material';
 import { useMemo, useState, useEffect } from 'react';
 import SummaryRow from './SummaryRow';
 import Spinner from '../Spinner/Spinner';
-import { useGetUsers, useGetTransactions } from '../../queries';
+import {
+  useGetUsers,
+  useGetTransactions,
+  useGetCurrencies,
+} from '../../queries';
 import { auth } from '../../services/firebase';
 import Transaction from '../../models/Transaction';
 import { displayTotalIncomeData } from './utils/displayData';
 import Overall from './Overall';
+import Currency from '../../models/Currency';
+import { roundSum } from '../DebtForm/Utils';
+import { groupCurrencies } from '../../utils/groupCurrencies';
+
+interface GroupedCurrency extends Currency {
+  group: string;
+}
 
 type HistoryData = {
   date: number;
   description: string;
-  amount: string | number;
+  amount: number;
+  currency: string;
 };
 
 type UserSummaryData = {
@@ -59,6 +74,14 @@ function createData(
     history,
   };
 }
+const defaulConvertertValue = {
+  group: '',
+  id: '',
+  name: 'Все валюты',
+  rate: 0,
+  symbol: '',
+  updated: 0,
+};
 
 function Summary() {
   const currentUserId = auth?.currentUser?.uid;
@@ -69,6 +92,19 @@ function Summary() {
     isRefetching: isTransactionsFetching,
   } = useGetTransactions();
   const [summaryData, setSummaryData] = useState<UserSummaryData[]>([]);
+  const [enteredCurrency, setEnteredCurrency] =
+    useState<GroupedCurrency | null>(defaulConvertertValue);
+  const [currenciesOptions, setCurrenciesOptions] = useState<GroupedCurrency[]>(
+    [],
+  );
+  const { data: currencies, isFetching: loadingCurrencies } =
+    useGetCurrencies();
+
+  const currentUser = useMemo(
+    () => users?.find((u) => u.id === currentUserId),
+    [users, currentUserId],
+  );
+
   const approvedTransactions: Transaction[] = useMemo(() => {
     return (
       transactions?.filter(
@@ -87,26 +123,25 @@ function Summary() {
         } else {
           total[key] = value;
         }
+        total[key] = roundSum(total[key], 1);
       });
     });
     return total;
   }, [summaryData]);
 
-  useEffect(() => {
-    if (users?.length === 0 || approvedTransactions?.length === 0) return;
-
-    const currencies: { [key: string]: number } = {};
+  const updateSummaryData = () => {
+    const summaryCurrencies: { [key: string]: number } = {};
     approvedTransactions?.forEach((transaction) => {
-      currencies[transaction.currency] = 0;
+      summaryCurrencies[transaction.currency] = 0;
     });
 
     const updatedSummaryData: UserSummaryData[] =
       users?.map((user) => ({
         userId: user.id,
         name: user.name,
-        total: { ...currencies },
-        totalOutcoming: { ...currencies },
-        totalIncoming: { ...currencies },
+        total: { ...summaryCurrencies },
+        totalOutcoming: { ...summaryCurrencies },
+        totalIncoming: { ...summaryCurrencies },
         history: [],
       })) ?? [];
     approvedTransactions.forEach((transaction) => {
@@ -120,17 +155,19 @@ function Summary() {
         const historyClone: HistoryData = {
           date: 0,
           description: '',
-          amount: '',
+          amount: 0,
+          currency: '',
         };
 
         historyClone.description = `${transaction.description}`;
 
         historyClone.date = transaction.date;
         if (transaction.sender !== currentUserId) {
-          historyClone.amount = `+${transaction.amount} ${transaction.currency}`;
+          historyClone.amount = transaction.amount;
         } else {
-          historyClone.amount = `-${transaction.amount} ${transaction.currency}`;
+          historyClone.amount = -transaction.amount;
         }
+        historyClone.currency = transaction.currency;
         updatedSummaryData[index].history.push(historyClone);
       };
       updateSummaryHistoryData(senderIndex);
@@ -144,11 +181,80 @@ function Summary() {
       updatedSummaryData[senderIndex].total[transaction.currency] +=
         transaction.amount;
     });
-    const filteredSummaryData = updatedSummaryData.filter(
-      (data) => data.userId !== currentUserId,
-    );
-    setSummaryData(filteredSummaryData);
+    return updatedSummaryData;
+  };
+
+  const convertSummaryDate = (data: UserSummaryData[]) => {
+    if (!enteredCurrency || !currencies) {
+      return [];
+    }
+
+    const convertedData = data.map((userData) => {
+      const { total, totalIncoming, totalOutcoming, history } = userData;
+
+      const convertedTotal: UserSummaryData['total'] = {};
+      const convertedTotalIncoming: UserSummaryData['total'] = {};
+      const convertedTotalOutcoming: UserSummaryData['total'] = {};
+
+      const rate = (id: string) => {
+        return currencies.find((item) => item.id === id)?.rate ?? 1;
+      };
+
+      const convert = (currenciesObj: { [key: string]: number }) => {
+        let sum = 0;
+
+        Object.keys(currenciesObj).forEach((id) => {
+          if (id !== enteredCurrency?.id) {
+            sum += (currenciesObj[id] / rate(id)) * enteredCurrency.rate;
+          } else {
+            sum += currenciesObj[id];
+          }
+        });
+
+        return roundSum(sum, 1);
+      };
+
+      const convertedHistory = history.map((item) => {
+        const convertedAmount =
+          (item.amount / rate(item.currency)) * enteredCurrency.rate;
+        return {
+          ...item,
+          amount: roundSum(convertedAmount, 1),
+          currency: enteredCurrency.id,
+        };
+      });
+
+      convertedTotal[enteredCurrency.id] = convert(total);
+      convertedTotalIncoming[enteredCurrency.id] = convert(totalIncoming);
+      convertedTotalOutcoming[enteredCurrency.id] = convert(totalOutcoming);
+
+      return {
+        ...userData,
+        total: convertedTotal,
+        totalIncoming: convertedTotalIncoming,
+        totalOutcoming: convertedTotalOutcoming,
+        history: convertedHistory,
+      };
+    });
+    return convertedData;
+  };
+
+  const filteredSummaryData = useMemo(() => {
+    if (users?.length === 0 || approvedTransactions?.length === 0) {
+      return [];
+    }
+    return updateSummaryData().filter((data) => data.userId !== currentUserId);
   }, [users, approvedTransactions]);
+
+  useEffect(() => {
+    if (filteredSummaryData.length === 0) return;
+    if (!enteredCurrency || enteredCurrency.name === 'Все валюты') {
+      setSummaryData(filteredSummaryData);
+    } else {
+      setSummaryData(convertSummaryDate(filteredSummaryData));
+    }
+  }, [filteredSummaryData, enteredCurrency]);
+
   const rows = summaryData.map((userSummaryData) => {
     return createData(
       userSummaryData.name,
@@ -160,6 +266,17 @@ function Summary() {
       }),
     );
   });
+
+  useEffect(() => {
+    if (!currentUser || !currencies) {
+      return;
+    }
+    const options = groupCurrencies(currencies, currentUser);
+    options.unshift(defaulConvertertValue);
+
+    setCurrenciesOptions(options);
+  }, [currentUser, currencies]);
+
   if (isTransactionsFetching && transactions?.length === 0) {
     return <Spinner />;
   }
@@ -185,11 +302,50 @@ function Summary() {
       </Grid>
     );
   }
+
   return (
     <>
       <Typography variant='h6' gutterBottom component='div'>
         Подтвержденные транзакции
       </Typography>
+      <Autocomplete
+        id='currencyAuto'
+        value={enteredCurrency}
+        options={currenciesOptions}
+        onChange={(event, newValue) => {
+          setEnteredCurrency(newValue);
+        }}
+        loading={loadingCurrencies}
+        loadingText='Загрузка...'
+        noOptionsText='Ничего не найдено'
+        groupBy={(option) => option.group}
+        getOptionLabel={(option) => {
+          if (option.name === 'Все валюты') {
+            return option.name;
+          }
+          const currencyName = `${option.id} - ${option.name}`;
+          return currencyName;
+        }}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label='Конвертер валют'
+            helperText='Выберите валюту'
+            required
+            InputProps={{
+              ...params.InputProps,
+              endAdornment: (
+                <>
+                  {loadingCurrencies ? (
+                    <CircularProgress color='inherit' size={20} />
+                  ) : null}
+                  {params.InputProps.endAdornment}
+                </>
+              ),
+            }}
+          />
+        )}
+      />
       <TableContainer component={Paper}>
         <Table aria-label='collapsible table'>
           <TableHead>

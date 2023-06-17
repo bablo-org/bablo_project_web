@@ -29,6 +29,13 @@ function printArr(arr: string[]) {
 function SummaryRow({ row }: { row: SummaryRowProps }) {
   const [open, setOpen] = useState(false);
 
+  const addPlus = (amount: number) => {
+    if (amount < 0) {
+      return amount;
+    }
+    return `+${amount}`;
+  };
+
   return (
     <>
       <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
@@ -69,7 +76,9 @@ function SummaryRow({ row }: { row: SummaryRowProps }) {
                         {formatDate(historyRow.date)}
                       </TableCell>
                       <TableCell>{historyRow.description}</TableCell>
-                      <TableCell align='right'>{historyRow.amount}</TableCell>
+                      <TableCell align='right'>
+                        {addPlus(historyRow.amount)} {historyRow.currency}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

@@ -242,7 +242,7 @@ function AuthorizedLayout() {
                 dispatch(
                   showSnackbarMessage({
                     severity: SnackbarSeverity.ERROR,
-                    message: 'Ошибка, попробуйте позднее...',
+                    message: 'Ошибка, попробуйте позже...',
                   }),
                 );
               });

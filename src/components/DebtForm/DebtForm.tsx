@@ -38,6 +38,7 @@ import {
 import SelectUsers from './SelectUser/SelectUsers';
 import { isAllManual, choseSumTextHelper } from './Utils';
 import GroupTransaction from './GroupTransaction/GroupTransaction';
+import { groupCurrencies } from '../../utils/groupCurrencies';
 
 function DebtForm() {
   const {
@@ -156,8 +157,6 @@ function DebtForm() {
     [users, currentUserId],
   );
 
-  const popularCurrencies = ['USD', 'EUR'];
-
   useEffect(() => {
     if (isAllManual(manualInputs, sender.length)) {
       dispatch(clearAllSumErrors({ clearManualInputs: false }));
@@ -168,28 +167,7 @@ function DebtForm() {
     if (!currentUser || !currencies) {
       return;
     }
-    const options = currencies
-      .map((obj) => {
-        if (
-          currentUser.privateData?.settings?.favoriteCurrencies?.includes(
-            obj.id,
-          )
-        ) {
-          return { ...obj, group: 'Избранные валюты' };
-        }
-        if (popularCurrencies.includes(obj.id)) {
-          return { ...obj, group: 'Популярные валюты' };
-        }
-        return { ...obj, group: 'Остальные валюты' };
-      })
-      .sort((a, b) => {
-        const groupOrder: { [key: string]: number } = {
-          'Избранные валюты': 1,
-          'Популярные валюты': 2,
-          'Остальные валюты': 3,
-        };
-        return groupOrder[a.group] - groupOrder[b.group];
-      });
+    const options = groupCurrencies(currencies, currentUser);
 
     dispatch(setCurrenciesOptions(options));
   }, [currentUser, currencies]);
