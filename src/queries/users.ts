@@ -104,10 +104,27 @@ const useUpdateUserSettings = () => {
   });
 };
 
+const useRegisterUser = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => {
+      return defaultQueryFn({
+        queryKey: ['registration/register'],
+        requestOptions: {
+          method: 'POST',
+        },
+      });
+    },
+    onSuccess: () => queryClient.invalidateQueries(['users']),
+  });
+};
+
 export {
   useGetUsers,
   useUpdateUser,
   useUpdateUserAvatar,
   useUpdateTgUserName,
   useUpdateUserSettings,
+  useRegisterUser,
 };

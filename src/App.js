@@ -14,7 +14,7 @@ import { setUser, clearUser } from './store/slices/auth';
 import SnackbarMessage from './components/SnackbarMessage/SnackbarMessage';
 
 initializeFirebase();
-const queryClient = new QueryClient({
+export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       queryFn: defaultQueryFn,
@@ -37,6 +37,7 @@ function App() {
           setUser({
             uid: currentUser.uid,
             email: currentUser.email,
+            emailVerified: currentUser.emailVerified,
           }),
         );
         // ...
