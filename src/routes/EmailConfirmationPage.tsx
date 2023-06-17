@@ -11,6 +11,7 @@ import {
   sendEmailVerificationLink,
   verifyEmail,
   logout,
+  auth,
 } from '../services/firebase';
 import { useAppDispatch } from '../store/hooks';
 import { showSnackbarMessage } from '../store/slices/snackbarMessage';
@@ -97,6 +98,7 @@ function EmailConfirmation() {
       navigate(PATHES.ADD_TRANSACTION);
     } catch (err: any) {
       // will be dispatched on dev every time as useEffect called twice in strict mode
+      console.log(err);
       dispatch(
         showSnackbarMessage({
           message: 'Email verification error',
@@ -107,12 +109,13 @@ function EmailConfirmation() {
   };
 
   useEffect(() => {
+    if (auth === null) return;
     const mode = searchParams.get('mode');
     const oobCode = searchParams.get('oobCode');
     if (mode === FirebaseEmailAction.VERIFY_EMAIL && oobCode) {
       veryfyEmailHandler(oobCode);
     }
-  }, []);
+  }, [auth]);
 
   return (
     <Grid container justifyContent='center'>
