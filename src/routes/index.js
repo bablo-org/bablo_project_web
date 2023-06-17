@@ -6,6 +6,7 @@ import SummaryPage from './SummaryPage';
 import LoginPage from './LoginPage';
 import AuthorizedLayout from '../layouts/AuthorizedLayout';
 import UserProfilePage from './UserProfilePage';
+import EmailConfirmationPage from './EmailConfirmationPage';
 import HomePage from '../components/HomePage/HomePage';
 
 export const PATHES = {
@@ -19,12 +20,17 @@ export const PATHES = {
   },
   SUMMARY: '/summary',
   PROFILE: '/profile',
+  VERIFY_EMAIL: '/verify-email/*',
   HOME_PAGE: '/',
 };
 export default createBrowserRouter([
   {
     path: PATHES.LOGIN,
     element: <LoginPage />,
+  },
+  {
+    path: PATHES.VERIFY_EMAIL,
+    element: <EmailConfirmationPage />,
   },
   {
     element: (

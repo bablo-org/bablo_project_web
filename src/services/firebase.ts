@@ -9,6 +9,9 @@ import {
   browserLocalPersistence,
   signOut,
   Auth,
+  sendEmailVerification,
+  createUserWithEmailAndPassword,
+  applyActionCode,
 } from 'firebase/auth';
 import {
   getStorage,
@@ -17,11 +20,18 @@ import {
   FirebaseStorage,
 } from 'firebase/storage';
 import { firebaseConfig } from '../env';
+import { queryClient } from '../App';
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+
+enum FirebaseEmailAction {
+  RESET_PASSWORD = 'resetPassword',
+  VERIFY_EMAIL = 'verifyEmail',
+  RECOVER_EMAIL = 'recoverEmail',
+}
 
 let app: FirebaseApp | null = null;
 let auth: Auth | null = null;
@@ -36,6 +46,39 @@ export const initializeFirebase = () => {
   setPersistence(auth, browserLocalPersistence);
 };
 
+const signUpWithEmailAndPassword = (email: string, password: string) => {
+  if (!auth) {
+    throw new Error('Firebase is not initialized');
+  }
+  return createUserWithEmailAndPassword(auth, email, password);
+};
+
+const sendEmailVerificationLink = () => {
+  if (!auth || !auth.currentUser) {
+    throw new Error('Firebase is not initialized');
+  }
+  return sendEmailVerification(auth.currentUser);
+};
+
+const logout = async () => {
+  if (!auth) {
+    throw new Error('Firebase is not initialized');
+  }
+  try {
+    await signOut(auth);
+    queryClient.clear();
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const verifyEmail = (oobCode: string) => {
+  if (!auth) {
+    throw new Error('Firebase is not initialized');
+  }
+  return applyActionCode(auth, oobCode);
+};
+
 // export services for future usage
 export {
   app,
@@ -45,5 +88,9 @@ export {
   getDownloadURL,
   onAuthStateChanged,
   signInWithEmailAndPassword,
-  signOut,
+  logout,
+  signUpWithEmailAndPassword,
+  sendEmailVerificationLink,
+  verifyEmail,
+  FirebaseEmailAction,
 };

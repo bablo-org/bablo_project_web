@@ -29,12 +29,14 @@ import {
 } from '@mui/icons-material/';
 import { useMemo, useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { auth, signOut } from '../services/firebase';
+import { logout } from '../services/firebase';
 import { PATHES } from '../routes';
-import { useAppDispatch } from '../store/hooks';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { showSnackbarMessage } from '../store/slices/snackbarMessage';
 import { SnackbarSeverity } from '../models/enums/SnackbarSeverity';
 import Logo from '../BabloLogo.png';
+import RequestNameDialog from '../components/RequestNameDialog/RequestNameDialog';
+import { useGetUsers } from '../queries';
 
 interface ItemButton {
   name: string;
@@ -47,6 +49,14 @@ function AuthorizedLayout() {
   const [mobileOpen, setMobileOpen] = useState<boolean>(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const { data: users, isFetched } = useGetUsers();
+  const { user } = useAppSelector((state) => state.auth);
+  const currentUser = useMemo(
+    () => users?.find((item) => item.id === user?.uid),
+    [users, user],
+  );
+
   const isCurrentLocation = (item: ItemButton) => {
     return location.pathname === item.path;
   };
@@ -215,17 +225,15 @@ function AuthorizedLayout() {
       <List>
         <ListItem key='Выйти' disablePadding>
           <ListItemButton
-            onClick={() => {
-              if (!auth) {
+            onClick={async () => {
+              logout().catch(() => {
                 dispatch(
                   showSnackbarMessage({
                     severity: SnackbarSeverity.ERROR,
-                    message: 'Ошибка, попробуйте позднее...',
+                    message: 'Ошибка, попробуйте позже...',
                   }),
                 );
-                return;
-              }
-              signOut(auth);
+              });
             }}
           >
             <ListItemIcon>
@@ -239,79 +247,82 @@ function AuthorizedLayout() {
   );
 
   return (
-    <Box sx={{ display: 'flex' }}>
-      <CssBaseline />
-      <AppBar
-        position='fixed'
-        sx={{
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          ml: { sm: `${drawerWidth}px` },
-        }}
-      >
-        <Toolbar>
-          <IconButton
-            color='inherit'
-            aria-label='open drawer'
-            edge='start'
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
+    <>
+      <RequestNameDialog open={!currentUser?.name && isFetched} />
+      <Box sx={{ display: 'flex' }}>
+        <CssBaseline />
+        <AppBar
+          position='fixed'
+          sx={{
+            width: { sm: `calc(100% - ${drawerWidth}px)` },
+            ml: { sm: `${drawerWidth}px` },
+          }}
+        >
+          <Toolbar>
+            <IconButton
+              color='inherit'
+              aria-label='open drawer'
+              edge='start'
+              onClick={handleDrawerToggle}
+              sx={{ mr: 2, display: { sm: 'none' } }}
+            >
+              <Menu />
+            </IconButton>
+            <Typography variant='h6' noWrap component='div'>
+              {pageHeader}
+            </Typography>
+          </Toolbar>
+        </AppBar>
+        <Box
+          component='nav'
+          sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+          aria-label='mailbox folders'
+        >
+          {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+          <Drawer
+            variant='temporary'
+            open={mobileOpen}
+            onClose={handleDrawerToggle}
+            ModalProps={{
+              keepMounted: true, // Better open performance on mobile.
+            }}
+            sx={{
+              display: { xs: 'block', sm: 'none' },
+              '& .MuiDrawer-paper': {
+                boxSizing: 'border-box',
+                width: drawerWidth,
+              },
+            }}
           >
-            <Menu />
-          </IconButton>
-          <Typography variant='h6' noWrap component='div'>
-            {pageHeader}
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Box
-        component='nav'
-        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-        aria-label='mailbox folders'
-      >
-        {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
-        <Drawer
-          variant='temporary'
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
-          ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
-          }}
+            {drawer}
+          </Drawer>
+          <Drawer
+            variant='permanent'
+            sx={{
+              display: { xs: 'none', sm: 'block' },
+              '& .MuiDrawer-paper': {
+                boxSizing: 'border-box',
+                width: drawerWidth,
+              },
+            }}
+            open
+          >
+            {drawer}
+          </Drawer>
+        </Box>
+        <Box
+          component='main'
           sx={{
-            display: { xs: 'block', sm: 'none' },
-            '& .MuiDrawer-paper': {
-              boxSizing: 'border-box',
-              width: drawerWidth,
-            },
+            flexGrow: 1,
+            p: 3,
+            width: { sm: `calc(100% - ${drawerWidth}px)` },
           }}
         >
-          {drawer}
-        </Drawer>
-        <Drawer
-          variant='permanent'
-          sx={{
-            display: { xs: 'none', sm: 'block' },
-            '& .MuiDrawer-paper': {
-              boxSizing: 'border-box',
-              width: drawerWidth,
-            },
-          }}
-          open
-        >
-          {drawer}
-        </Drawer>
+          <Toolbar />
+          <Outlet />
+        </Box>
       </Box>
-      <Box
-        component='main'
-        sx={{
-          flexGrow: 1,
-          p: 3,
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-        }}
-      >
-        <Toolbar />
-        <Outlet />
-      </Box>
-    </Box>
+    </>
   );
 }
 
