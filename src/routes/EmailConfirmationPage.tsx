@@ -34,7 +34,7 @@ function EmailConfirmation() {
       await sendEmailVerificationLink();
       dispatch(
         showSnackbarMessage({
-          message: 'Ссылка отправлена на твой emeil',
+          message: 'Ссылка отправлена на ваш emeil',
           severity: SnackbarSeverity.SUCCESS,
         }),
       );
@@ -125,14 +125,14 @@ function EmailConfirmation() {
             />
             <Typography variant='h5'>Подтверждение email</Typography>
             <Typography variant='body1' marginTop={2}>
-              Проверь свой email, для подтверждения необходимо перейти по ссылке
-              из письма
+              Проверьте ваш email, для подтверждения необходимо перейти по
+              ссылке
             </Typography>
             <Typography variant='body1' marginTop={2}>
-              Если письмо не пришло, проверь папку спама
+              Если не видите письмо, проверьте &quot;Спам&quot;
             </Typography>
             <Typography variant='body1'>
-              Или попробуй отправить ссылку снова
+              Или попробуйте отправить ссылку снова
             </Typography>
             <LoadingButton
               loading={loading}
