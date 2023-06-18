@@ -14,7 +14,6 @@ import {
   logout,
   auth,
   signInWithEmailAndPassword,
-  // auth,
 } from '../services/firebase';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { showSnackbarMessage } from '../store/slices/snackbarMessage';
