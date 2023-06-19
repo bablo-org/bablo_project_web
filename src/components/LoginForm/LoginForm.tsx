@@ -115,8 +115,12 @@ function InputForm() {
 
   const handleRegistration = async () => {
     try {
+      if (!auth) {
+        throw new Error(RegistrationError.INTERNAL_AUTH_ERROR);
+      }
       setLoading(true);
       await createUserWithEmailAndPassword();
+      await signInWithEmailAndPassword(auth, enteredEmail, enteredPassword);
       await sendVerificationEmail();
       navigate('/verify-email');
     } catch (err: any) {

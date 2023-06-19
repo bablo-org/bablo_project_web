@@ -26,6 +26,7 @@ import {
   Done,
   Block,
   History,
+  People,
 } from '@mui/icons-material/';
 import { useMemo, useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
@@ -120,6 +121,11 @@ function AuthorizedLayout() {
         path: PATHES.PROFILE,
         icon: <AccountCircle />,
       },
+      {
+        name: 'Контакты',
+        path: PATHES.CONTACTS,
+        icon: <People />,
+      },
     ],
     [],
   );
@@ -129,6 +135,10 @@ function AuthorizedLayout() {
   };
 
   const pageHeader = useMemo(() => {
+    if (location.pathname.includes('/user/')) {
+      return 'Профиль пользователя';
+    }
+
     switch (location.pathname) {
       case '/add':
       case PATHES.ADD_TRANSACTION:
@@ -143,6 +153,8 @@ function AuthorizedLayout() {
         return 'Итоги';
       case PATHES.PROFILE:
         return 'Профиль';
+      case PATHES.CONTACTS:
+        return 'Контакты';
       default:
         return 'Bablo Project';
     }

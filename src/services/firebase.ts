@@ -5,8 +5,6 @@ import {
   getAuth,
   onAuthStateChanged,
   signInWithEmailAndPassword,
-  setPersistence,
-  browserLocalPersistence,
   signOut,
   Auth,
   sendEmailVerification,
@@ -42,8 +40,6 @@ export const initializeFirebase = () => {
   app = initializeApp(firebaseConfig);
   auth = getAuth(app);
   storage = getStorage(app, 'gs://bablo-project.appspot.com');
-  // Do NOT sign out user in current browser
-  setPersistence(auth, browserLocalPersistence);
 };
 
 const signUpWithEmailAndPassword = (email: string, password: string) => {
