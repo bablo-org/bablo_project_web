@@ -19,7 +19,13 @@ const defaulConvertertValue = {
   updated: 0,
 };
 
-function CurrencyAutocomplete({ users }: { users: User[] | undefined }) {
+function CurrencyAutocomplete({
+  users,
+  onChange,
+}: {
+  users: User[] | undefined;
+  onChange: (currency: string | null) => void;
+}) {
   const currentUserId = auth?.currentUser?.uid;
   const { data: currencies, isFetching: loadingCurrencies } =
     useGetCurrencies();
@@ -47,6 +53,7 @@ function CurrencyAutocomplete({ users }: { users: User[] | undefined }) {
       options={currenciesOptions}
       onChange={(event, newValue) => {
         setEnteredCurrency(newValue);
+        onChange(newValue?.id || null);
       }}
       loading={loadingCurrencies}
       loadingText='Загрузка...'

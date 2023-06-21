@@ -7,6 +7,13 @@ import FilterCollapse from './FilterAndSort/FilterCollapse';
 import SearchField from './FilterAndSort/FIlterFields/SearchField';
 import { useGetUsers } from '../../queries';
 import SortMenu from './FilterAndSort/SortFields/SortMenu';
+import { auth } from '../../services/firebase';
+
+export enum TransactionType {
+  ALL = 'ALL',
+  INCOMING = 'INCOMING',
+  OUTCOMING = 'OUTCOMING',
+}
 
 interface TransactionsListProps {
   transactions: Transaction[];
@@ -19,15 +26,47 @@ interface TransactionsListProps {
 function TransactionsList({ transactions, wrapperBox }: TransactionsListProps) {
   const [checked, setChecked] = useState(false);
   const [searchString, setSearchString] = useState('');
+  const [selectedType, setSelectedType] = useState<TransactionType>(
+    TransactionType.ALL,
+  );
+  const [selectedCurrency, setSelectedCurrency] = useState<string | null>('');
   const { data: users } = useGetUsers();
 
   const filteredTransactions = useMemo(() => {
-    return transactions.filter((transaction) => {
+    let sortedTransactions: Transaction[] = [...transactions];
+
+    // firstly filter by type (incoming, outcoming, all)
+    switch (selectedType) {
+      case TransactionType.INCOMING:
+        sortedTransactions = transactions.filter(
+          (transaction) => transaction.sender === auth?.currentUser?.uid,
+        );
+        break;
+      case TransactionType.OUTCOMING:
+        sortedTransactions = transactions.filter(
+          (transaction) => transaction.receiver === auth?.currentUser?.uid,
+        );
+        break;
+      case TransactionType.ALL:
+      default:
+        sortedTransactions = transactions;
+        break;
+    }
+
+    // then filter by currency
+    if (selectedCurrency) {
+      sortedTransactions = sortedTransactions.filter(
+        (transaction) => transaction.currency === selectedCurrency,
+      );
+    }
+
+    // then filter by search string
+    return sortedTransactions.filter((transaction) => {
       return transaction.description
         .toLowerCase()
         .includes(searchString.toLowerCase());
     });
-  }, [transactions, searchString]);
+  }, [transactions, searchString, selectedType, auth, selectedCurrency]);
 
   const handleChange = () => {
     setChecked((prev) => !prev);
@@ -123,7 +162,13 @@ function TransactionsList({ transactions, wrapperBox }: TransactionsListProps) {
             </Grid>
           </Grid>
         </Box>
-        <FilterCollapse checked={checked} users={users} />
+        <FilterCollapse
+          checked={checked}
+          users={users}
+          setTransactionType={setSelectedType}
+          selectedTransactionType={selectedType}
+          setSelectedCurrency={setSelectedCurrency}
+        />
         <Divider sx={{ marginTop: 1, marginBottom: 2 }} />
         {renderTransactions()}
       </>

@@ -1,18 +1,16 @@
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import { useState } from 'react';
+import { TransactionType } from '../../TransactionsList';
 
-enum TransactionType {
-  ALL = 'ALL',
-  INCOMING = 'INCOMING',
-  OUTCOMING = 'OUTCOMING',
+interface IncomingOutcomingFilterProps {
+  onChange: (type: TransactionType) => void;
+  selectedTransactionType: TransactionType;
 }
 
-function IncomingOutcomingFilter() {
-  const [alignment, setAlignment] = useState<TransactionType>(
-    TransactionType.ALL,
-  );
-
+function IncomingOutcomingFilter({
+  onChange,
+  selectedTransactionType,
+}: IncomingOutcomingFilterProps) {
   const getButtonTitle = (type: TransactionType) => {
     switch (type) {
       case TransactionType.ALL:
@@ -31,13 +29,13 @@ function IncomingOutcomingFilter() {
     newAlignment: TransactionType,
   ) => {
     if (!newAlignment) return;
-    setAlignment(newAlignment);
+    onChange(newAlignment);
   };
 
   return (
     <ToggleButtonGroup
       color='primary'
-      value={alignment}
+      value={selectedTransactionType}
       exclusive
       onChange={handleChange}
       aria-label='Platform'

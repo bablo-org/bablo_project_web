@@ -4,13 +4,20 @@ import UserAutocomplete from './FIlterFields/UserAutocomplete';
 import CurrencyAutocomplete from './FIlterFields/CurrencyAutocomplete';
 import IncomingOutcomingFilter from './FIlterFields/IncomingOutcomingFilter';
 import User from '../../../models/User';
+import { TransactionType } from '../TransactionsList';
 
 function FilterCollapse({
   checked,
   users,
+  setTransactionType,
+  selectedTransactionType,
+  setSelectedCurrency,
 }: {
   checked: boolean;
   users: User[] | undefined;
+  selectedTransactionType: TransactionType;
+  setTransactionType: (type: TransactionType) => void;
+  setSelectedCurrency: (currency: string | null) => void;
 }) {
   return (
     <Collapse in={checked}>
@@ -31,10 +38,16 @@ function FilterCollapse({
               <UserAutocomplete users={users} />
             </Grid>
             <Grid sx={{ padding: 1 }} item xs={12} sm={12} md={6} lg={4}>
-              <IncomingOutcomingFilter />
+              <IncomingOutcomingFilter
+                onChange={setTransactionType}
+                selectedTransactionType={selectedTransactionType}
+              />
             </Grid>
             <Grid sx={{ padding: 1 }} item xs={12} sm={12} md={6} lg={4}>
-              <CurrencyAutocomplete users={users} />
+              <CurrencyAutocomplete
+                onChange={setSelectedCurrency}
+                users={users}
+              />
             </Grid>
           </Grid>
         </Box>
