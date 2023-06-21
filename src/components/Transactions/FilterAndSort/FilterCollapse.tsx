@@ -5,29 +5,36 @@ import CurrencyAutocomplete from './FIlterFields/CurrencyAutocomplete';
 import IncomingOutcomingFilter from './FIlterFields/IncomingOutcomingFilter';
 import User from '../../../models/User';
 
-function FilterAnim({
+function FilterCollapse({
   checked,
   users,
 }: {
   checked: boolean;
   users: User[] | undefined;
 }) {
-  const currencyAutocompleteField = <CurrencyAutocomplete users={users} />;
-  const userAutocompleteField = <UserAutocomplete users={users} />;
-  const IncomingOutcomingFilterField = <IncomingOutcomingFilter />;
   return (
     <Collapse in={checked}>
       <Box>
         <Box sx={{ marginY: 2, display: 'flex', flexDirection: 'row' }}>
-          <Grid container direction='row' justifyContent='center'>
-            <Grid sx={{ padding: 1 }} item xs={12} md={4}>
-              {userAutocompleteField}
+          <Grid
+            container
+            direction='row'
+            sx={{
+              justifyContent: {
+                md: 'flex-start',
+                sm: 'center',
+              },
+            }}
+            justifyContent='center'
+          >
+            <Grid sx={{ padding: 1 }} item xs={12} sm={12} md={6} lg={4}>
+              <UserAutocomplete users={users} />
             </Grid>
-            <Grid sx={{ padding: 1 }} item xs={12} md={4}>
-              {IncomingOutcomingFilterField}
+            <Grid sx={{ padding: 1 }} item xs={12} sm={12} md={6} lg={4}>
+              <IncomingOutcomingFilter />
             </Grid>
-            <Grid sx={{ padding: 1 }} item xs={12} md={4}>
-              {currencyAutocompleteField}
+            <Grid sx={{ padding: 1 }} item xs={12} sm={12} md={6} lg={4}>
+              <CurrencyAutocomplete users={users} />
             </Grid>
           </Grid>
         </Box>
@@ -36,4 +43,4 @@ function FilterAnim({
   );
 }
 
-export default FilterAnim;
+export default FilterCollapse;

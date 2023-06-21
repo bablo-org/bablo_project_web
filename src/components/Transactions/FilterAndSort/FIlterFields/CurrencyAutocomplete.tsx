@@ -1,12 +1,10 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Autocomplete, TextField, CircularProgress } from '@mui/material';
 import { useGetCurrencies } from '../../../../queries';
 import { groupCurrencies } from '../../../../utils/groupCurrencies';
 import { auth } from '../../../../services/firebase';
 import Currency from '../../../../models/Currency';
 import User from '../../../../models/User';
-
-const currentUserId = auth?.currentUser?.uid;
 
 interface GroupedCurrency extends Currency {
   group: string;
@@ -22,26 +20,26 @@ const defaulConvertertValue = {
 };
 
 function CurrencyAutocomplete({ users }: { users: User[] | undefined }) {
+  const currentUserId = auth?.currentUser?.uid;
   const { data: currencies, isFetching: loadingCurrencies } =
     useGetCurrencies();
   const [enteredCurrency, setEnteredCurrency] =
     useState<GroupedCurrency | null>(defaulConvertertValue);
-  const [currenciesOptions, setCurrenciesOptions] = useState<GroupedCurrency[]>(
-    [],
-  );
+
   const currentUser = useMemo(
     () => users?.find((u) => u.id === currentUserId),
     [users, currentUserId],
   );
-  useEffect(() => {
-    if (!currentUser || !currencies) {
-      return;
-    }
-    const options = groupCurrencies(currencies, currentUser);
-    options.unshift(defaulConvertertValue);
 
-    setCurrenciesOptions(options);
+  const currenciesOptions = useMemo(() => {
+    if (!currentUser || !currencies) {
+      return [];
+    }
+
+    const options = groupCurrencies(currencies, currentUser);
+    return options;
   }, [currentUser, currencies]);
+
   return (
     <Autocomplete
       id='currencyAuto'

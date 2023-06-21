@@ -13,17 +13,16 @@ function UserAutocomplete({ users }: { users: User[] | undefined }): any {
       options={users}
       getOptionLabel={(option) => option.name}
       defaultValue={[]}
-      renderTags={(value, getTagProps) =>
-        // eslint-disable-next-line implicit-arrow-linebreak
-        value.map((option, index) => (
+      renderTags={(value, getTagProps) => {
+        return value.map((option, index) => (
           <Chip
             avatar={<Avatar alt='' src={option.avatar} />}
             variant='outlined'
             label={option.name}
             {...getTagProps({ index })}
           />
-        ))
-      }
+        ));
+      }}
       renderOption={(props, option) => (
         <Box
           component='li'
@@ -39,7 +38,11 @@ function UserAutocomplete({ users }: { users: User[] | undefined }): any {
         </Box>
       )}
       renderInput={(params) => (
-        <TextField {...params} label='Фильтр педиков' placeholder='Педики' />
+        <TextField
+          {...params}
+          label='Фильтр контактов'
+          placeholder='Контакты'
+        />
       )}
     />
   );

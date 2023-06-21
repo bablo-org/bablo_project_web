@@ -1,9 +1,9 @@
 import { Grid, Box, Typography, Divider, Button } from '@mui/material';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import TransactionItem from './TransactionItem';
 import BorderBox from '../UI/BorderBox';
 import Transaction from '../../models/Transaction';
-import FilterAnim from './FilterAndSort/FilterCollapse';
+import FilterCollapse from './FilterAndSort/FilterCollapse';
 import SearchField from './FilterAndSort/FIlterFields/SearchField';
 import { useGetUsers } from '../../queries';
 import SortMenu from './FilterAndSort/SortFields/SortMenu';
@@ -11,44 +11,64 @@ import SortMenu from './FilterAndSort/SortFields/SortMenu';
 interface TransactionsListProps {
   transactions: Transaction[];
   wrapperBox?: {
-    title: string;
+    title?: string;
+    showWithoutTitle?: boolean;
   };
 }
 
 function TransactionsList({ transactions, wrapperBox }: TransactionsListProps) {
   const [checked, setChecked] = useState(false);
+  const [searchString, setSearchString] = useState('');
   const { data: users } = useGetUsers();
+
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter((transaction) => {
+      return transaction.description
+        .toLowerCase()
+        .includes(searchString.toLowerCase());
+    });
+  }, [transactions, searchString]);
 
   const handleChange = () => {
     setChecked((prev) => !prev);
   };
-  const renderTransactions = () => (
-    <Box sx={{ flexGrow: 1 }}>
-      <Grid container spacing={2}>
-        {transactions.map((transaction) => (
-          <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={transaction.id}>
-            <TransactionItem
-              id={transaction.id}
-              currency={transaction.currency}
-              amount={transaction.amount}
-              description={transaction.description}
-              date={transaction.date}
-              status={transaction.status}
-              senderId={transaction.sender}
-              recieverId={transaction.receiver}
-              users={users}
-            />
-          </Grid>
-        ))}
-      </Grid>
-    </Box>
-  );
+  const renderTransactions = () => {
+    if (filteredTransactions.length === 0 && searchString) {
+      return (
+        <Typography padding={2}>
+          Транзакций не найдено, попробуйте другое ключевое слово
+        </Typography>
+      );
+    }
+
+    return (
+      <Box sx={{ flexGrow: 1 }}>
+        <Grid container spacing={2}>
+          {filteredTransactions.map((transaction) => (
+            <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={transaction.id}>
+              <TransactionItem
+                id={transaction.id}
+                currency={transaction.currency}
+                amount={transaction.amount}
+                description={transaction.description}
+                date={transaction.date}
+                status={transaction.status}
+                senderId={transaction.sender}
+                recieverId={transaction.receiver}
+                users={users}
+              />
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
+    );
+  };
 
   if (!transactions.length) {
     return null;
   }
 
-  return wrapperBox?.title ? (
+  return wrapperBox?.title || wrapperBox?.showWithoutTitle ? (
     <BorderBox
       borderRadius={2}
       marginProp={4}
@@ -83,6 +103,9 @@ function TransactionsList({ transactions, wrapperBox }: TransactionsListProps) {
                     variant={checked ? 'contained' : 'outlined'}
                     size='medium'
                     onClick={handleChange}
+                    sx={{
+                      height: '41px',
+                    }}
                   >
                     Фильтр
                   </Button>
@@ -91,13 +114,16 @@ function TransactionsList({ transactions, wrapperBox }: TransactionsListProps) {
                   <SortMenu />
                 </Grid>
                 <Grid item xs='auto'>
-                  <SearchField />
+                  <SearchField
+                    searchString={searchString}
+                    setSearchString={setSearchString}
+                  />
                 </Grid>
               </Grid>
             </Grid>
           </Grid>
         </Box>
-        <FilterAnim checked={checked} users={users} />
+        <FilterCollapse checked={checked} users={users} />
         <Divider sx={{ marginTop: 1, marginBottom: 2 }} />
         {renderTransactions()}
       </>

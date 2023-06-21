@@ -21,6 +21,9 @@ function SortMenu() {
         endIcon={open ? <ExpandLess /> : <ExpandMore />}
         variant={open ? 'contained' : 'outlined'}
         onClick={handleClick}
+        sx={{
+          height: '41px',
+        }}
       >
         Сортировать
       </Button>

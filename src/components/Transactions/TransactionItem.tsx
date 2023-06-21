@@ -16,7 +16,6 @@ import {
   useApproveTransation,
   useCompleteTransation,
   useDeclineTransation,
-  // useGetUsers,
 } from '../../queries';
 import BorderBox from '../UI/BorderBox';
 import DescriptionTooltip from './DescriptionTooltip';

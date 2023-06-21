@@ -45,7 +45,12 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-function SearchField() {
+interface SearchFieldProps {
+  setSearchString: React.Dispatch<React.SetStateAction<string>>;
+  searchString: string;
+}
+
+function SearchField({ setSearchString, searchString }: SearchFieldProps) {
   return (
     <Search>
       <SearchIconWrapper>
@@ -54,6 +59,12 @@ function SearchField() {
       <StyledInputBase
         placeholder='Search…'
         inputProps={{ 'aria-label': 'search' }}
+        value={searchString}
+        onChange={(e) => setSearchString(e.target.value)}
+        sx={{
+          border: '1px solid #ced4da',
+          borderRadius: 1,
+        }}
       />
     </Search>
   );

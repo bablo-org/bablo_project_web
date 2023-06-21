@@ -76,7 +76,7 @@ function TransactionPage() {
         <TransactionsList
           transactions={transactions}
           wrapperBox={{
-            title: ' ',
+            showWithoutTitle: true,
           }}
         />
       );
