@@ -72,7 +72,14 @@ function TransactionPage() {
   switch (currentPage.page) {
     case Pages.DECLINED:
     case Pages.COMPLETED:
-      return <TransactionsList transactions={transactions} />;
+      return (
+        <TransactionsList
+          transactions={transactions}
+          wrapperBox={{
+            title: ' ',
+          }}
+        />
+      );
 
     case Pages.ACTUAL:
     default:

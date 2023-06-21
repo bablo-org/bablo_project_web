@@ -16,7 +16,7 @@ import {
   useApproveTransation,
   useCompleteTransation,
   useDeclineTransation,
-  useGetUsers,
+  // useGetUsers,
 } from '../../queries';
 import BorderBox from '../UI/BorderBox';
 import DescriptionTooltip from './DescriptionTooltip';
@@ -25,6 +25,7 @@ import {
   getStatusColor,
   getStatusString,
 } from '../../models/enums/TransactionStatus';
+import User from '../../models/User';
 
 type TransactionItemProps = {
   description: string;
@@ -35,6 +36,7 @@ type TransactionItemProps = {
   id: string;
   senderId: string;
   recieverId: string;
+  users: User[] | undefined;
 };
 function TransactionItem({
   description,
@@ -45,8 +47,9 @@ function TransactionItem({
   id,
   senderId,
   recieverId,
+  users,
 }: TransactionItemProps) {
-  const { data: users } = useGetUsers();
+  // const { data: users } = useGetUsers();
   const currentUserId = auth?.currentUser?.uid;
 
   const showButtonContainer = useMemo(() => {
