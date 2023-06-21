@@ -7,6 +7,7 @@ import FilterCollapse from './FilterAndSort/FilterCollapse';
 import SearchField from './FilterAndSort/FIlterFields/SearchField';
 import { useGetUsers } from '../../queries';
 import SortMenu from './FilterAndSort/SortFields/SortMenu';
+import { auth } from '../../services/firebase';
 
 interface TransactionsListProps {
   transactions: Transaction[];
@@ -19,21 +20,56 @@ interface TransactionsListProps {
 function TransactionsList({ transactions, wrapperBox }: TransactionsListProps) {
   const [checked, setChecked] = useState(false);
   const [searchString, setSearchString] = useState('');
+  const [IncomingOutcoming, setIncomingOutcoming] = useState('');
   const { data: users } = useGetUsers();
+  const currentUserId = auth?.currentUser?.uid;
 
+  // const IncomingOutcomingFilteredTransactions = useMemo(() => {
+  //   switch (IncomingOutcoming) {
+  //     case IncomingOutcoming === 'Все':
+  //       return transactions;
+  //     case IncomingOutcoming === 'ВХОДЯЩИЕ':
+  //       return transactions.filter(
+  //         (transaction) => transaction.sender === currentUserId;
+  //       );
+  //     case IncomingOutcoming === 'ИСХОДЯЩИЕ':
+  //       return transactions.filter(
+  //         (transaction) => transaction.sender !== currentUserId;
+  //       );
+  //     default:
+  //       return transactions;;
+  //   }
+  // }, [transactions, IncomingOutcoming]);
   const filteredTransactions = useMemo(() => {
-    return transactions.filter((transaction) => {
+    return transactions?.filter((transaction) => {
       return transaction.description
         .toLowerCase()
         .includes(searchString.toLowerCase());
     });
-  }, [transactions, searchString]);
+  }, [transactions, searchString, IncomingOutcoming]);
+
+  const IncomingOutcomingFilteredTransactions = useMemo(() => {
+    if (IncomingOutcoming === 'ALL') {
+      return filteredTransactions;
+    }
+    if (IncomingOutcoming === 'INCOMING') {
+      return filteredTransactions.filter((transaction) => {
+        return transaction.sender === currentUserId;
+      });
+    }
+    if (IncomingOutcoming === 'OUTCOMING') {
+      return filteredTransactions.filter((transaction) => {
+        return transaction.sender !== currentUserId;
+      });
+    }
+    return filteredTransactions;
+  }, [transactions, IncomingOutcoming, searchString]);
 
   const handleChange = () => {
     setChecked((prev) => !prev);
   };
   const renderTransactions = () => {
-    if (filteredTransactions.length === 0 && searchString) {
+    if (filteredTransactions?.length === 0 && searchString) {
       return (
         <Typography padding={2}>
           Транзакций не найдено, попробуйте другое ключевое слово
@@ -44,7 +80,7 @@ function TransactionsList({ transactions, wrapperBox }: TransactionsListProps) {
     return (
       <Box sx={{ flexGrow: 1 }}>
         <Grid container spacing={2}>
-          {filteredTransactions.map((transaction) => (
+          {IncomingOutcomingFilteredTransactions?.map((transaction) => (
             <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={transaction.id}>
               <TransactionItem
                 id={transaction.id}
@@ -123,7 +159,11 @@ function TransactionsList({ transactions, wrapperBox }: TransactionsListProps) {
             </Grid>
           </Grid>
         </Box>
-        <FilterCollapse checked={checked} users={users} />
+        <FilterCollapse
+          setIncomingOutcoming={setIncomingOutcoming}
+          checked={checked}
+          users={users}
+        />
         <Divider sx={{ marginTop: 1, marginBottom: 2 }} />
         {renderTransactions()}
       </>

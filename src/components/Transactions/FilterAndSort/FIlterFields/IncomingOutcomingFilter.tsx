@@ -8,7 +8,13 @@ enum TransactionType {
   OUTCOMING = 'OUTCOMING',
 }
 
-function IncomingOutcomingFilter() {
+interface IncomingOutcomingFilterProps {
+  setIncomingOutcoming: React.Dispatch<React.SetStateAction<string>>;
+}
+
+function IncomingOutcomingFilter({
+  setIncomingOutcoming,
+}: IncomingOutcomingFilterProps) {
   const [alignment, setAlignment] = useState<TransactionType>(
     TransactionType.ALL,
   );
@@ -32,8 +38,8 @@ function IncomingOutcomingFilter() {
   ) => {
     if (!newAlignment) return;
     setAlignment(newAlignment);
+    setIncomingOutcoming(newAlignment);
   };
-
   return (
     <ToggleButtonGroup
       color='primary'

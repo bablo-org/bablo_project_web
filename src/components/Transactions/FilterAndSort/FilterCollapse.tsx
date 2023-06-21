@@ -5,13 +5,17 @@ import CurrencyAutocomplete from './FIlterFields/CurrencyAutocomplete';
 import IncomingOutcomingFilter from './FIlterFields/IncomingOutcomingFilter';
 import User from '../../../models/User';
 
+interface FilterCollapseProps {
+  setIncomingOutcoming: React.Dispatch<React.SetStateAction<string>>;
+  checked: boolean;
+  users: User[] | undefined;
+}
+
 function FilterCollapse({
   checked,
   users,
-}: {
-  checked: boolean;
-  users: User[] | undefined;
-}) {
+  setIncomingOutcoming,
+}: FilterCollapseProps) {
   return (
     <Collapse in={checked}>
       <Box>
@@ -31,7 +35,9 @@ function FilterCollapse({
               <UserAutocomplete users={users} />
             </Grid>
             <Grid sx={{ padding: 1 }} item xs={12} sm={12} md={6} lg={4}>
-              <IncomingOutcomingFilter />
+              <IncomingOutcomingFilter
+                setIncomingOutcoming={setIncomingOutcoming}
+              />
             </Grid>
             <Grid sx={{ padding: 1 }} item xs={12} sm={12} md={6} lg={4}>
               <CurrencyAutocomplete users={users} />
