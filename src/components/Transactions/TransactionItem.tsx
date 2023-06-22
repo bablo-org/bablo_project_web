@@ -48,7 +48,6 @@ function TransactionItem({
   recieverId,
   users,
 }: TransactionItemProps) {
-  // const { data: users } = useGetUsers();
   const currentUserId = auth?.currentUser?.uid;
 
   const showButtonContainer = useMemo(() => {

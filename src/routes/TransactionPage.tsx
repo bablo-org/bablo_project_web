@@ -42,16 +42,9 @@ function TransactionPage() {
     isRefetching: isTransactionsFetching,
   } = useGetTransactions(currentPage.queryParam);
 
-  const sortedTransactions = useMemo(
-    () => transactions?.sort((obj1, obj2) => obj2.date - obj1.date),
-    [transactions],
-  );
-
   const transactionsFilteredByStatus = (status: TransactionStatus) => {
     return (
-      sortedTransactions?.filter(
-        (transaction) => transaction.status === status,
-      ) ?? []
+      transactions?.filter((transaction) => transaction.status === status) ?? []
     );
   };
 
