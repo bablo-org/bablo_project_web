@@ -6,7 +6,7 @@ import Transaction from '../../models/Transaction';
 import FilterCollapse from './FilterAndSort/FilterCollapse';
 import SearchField from './FilterAndSort/FIlterFields/SearchField';
 import { useGetUsers } from '../../queries';
-import SortMenu from './FilterAndSort/SortFields/SortMenu';
+// import SortMenu from './FilterAndSort/SortFields/SortMenu';
 import { auth } from '../../services/firebase';
 
 export enum TransactionType {
@@ -26,6 +26,7 @@ interface TransactionsListProps {
 function TransactionsList({ transactions, wrapperBox }: TransactionsListProps) {
   const [checked, setChecked] = useState(false);
   const [searchString, setSearchString] = useState('');
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [selectedType, setSelectedType] = useState<TransactionType>(
     TransactionType.ALL,
   );
@@ -59,6 +60,15 @@ function TransactionsList({ transactions, wrapperBox }: TransactionsListProps) {
         (transaction) => transaction.currency === selectedCurrency,
       );
     }
+    // then filter by users
+    if (selectedUsers.length > 0) {
+      sortedTransactions = sortedTransactions.filter((transaction) => {
+        return (
+          selectedUsers.includes(transaction.receiver) ||
+          selectedUsers.includes(transaction.sender)
+        );
+      });
+    }
 
     // then filter by search string
     return sortedTransactions.filter((transaction) => {
@@ -66,7 +76,14 @@ function TransactionsList({ transactions, wrapperBox }: TransactionsListProps) {
         .toLowerCase()
         .includes(searchString.toLowerCase());
     });
-  }, [transactions, searchString, selectedType, auth, selectedCurrency]);
+  }, [
+    transactions,
+    searchString,
+    selectedType,
+    auth,
+    selectedCurrency,
+    selectedUsers,
+  ]);
 
   const handleChange = () => {
     setChecked((prev) => !prev);
@@ -150,7 +167,7 @@ function TransactionsList({ transactions, wrapperBox }: TransactionsListProps) {
                   </Button>
                 </Grid>
                 <Grid item xs='auto'>
-                  <SortMenu />
+                  {/* <SortMenu /> */}
                 </Grid>
                 <Grid item xs='auto'>
                   <SearchField
@@ -168,6 +185,7 @@ function TransactionsList({ transactions, wrapperBox }: TransactionsListProps) {
           setTransactionType={setSelectedType}
           selectedTransactionType={selectedType}
           setSelectedCurrency={setSelectedCurrency}
+          onChange={setSelectedUsers}
         />
         <Divider sx={{ marginTop: 1, marginBottom: 2 }} />
         {renderTransactions()}

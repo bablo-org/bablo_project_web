@@ -12,12 +12,14 @@ function FilterCollapse({
   setTransactionType,
   selectedTransactionType,
   setSelectedCurrency,
+  onChange,
 }: {
   checked: boolean;
   users: User[] | undefined;
   selectedTransactionType: TransactionType;
   setTransactionType: (type: TransactionType) => void;
   setSelectedCurrency: (currency: string | null) => void;
+  onChange: (userId: string[]) => void;
 }) {
   return (
     <Collapse in={checked}>
@@ -35,7 +37,7 @@ function FilterCollapse({
             justifyContent='center'
           >
             <Grid sx={{ padding: 1 }} item xs={12} sm={12} md={6} lg={4}>
-              <UserAutocomplete users={users} />
+              <UserAutocomplete users={users} onChange={onChange} />
             </Grid>
             <Grid sx={{ padding: 1 }} item xs={12} sm={12} md={6} lg={4}>
               <IncomingOutcomingFilter

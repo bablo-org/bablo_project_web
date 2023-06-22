@@ -1,18 +1,39 @@
 import { Autocomplete, Avatar, Box, Chip, TextField } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { auth } from '../../../../services/firebase';
 import User from '../../../../models/User';
 
-function UserAutocomplete({ users }: { users: User[] | undefined }): any {
+function UserAutocomplete({
+  users,
+  onChange,
+}: {
+  users: User[] | undefined;
+  onChange: (userId: string[]) => void;
+}) {
   if (!users) {
     return null;
   }
+
+  const [selectedInputUsers, setSelectedInputUsers] = useState<User[]>([]);
+  const filteredUsers = users.filter(
+    (user) => user.id !== auth?.currentUser?.uid,
+  );
+
+  useEffect(() => {
+    onChange(selectedInputUsers.map((user) => user.id));
+  }, [selectedInputUsers]);
 
   return (
     <Autocomplete
       multiple
       id='Dunkin-DoDicks'
-      options={users}
+      options={filteredUsers}
       getOptionLabel={(option) => option.name}
       defaultValue={[]}
+      value={selectedInputUsers}
+      onChange={(_, value) => {
+        setSelectedInputUsers(value);
+      }}
       renderTags={(value, getTagProps) => {
         return value.map((option, index) => (
           <Chip
