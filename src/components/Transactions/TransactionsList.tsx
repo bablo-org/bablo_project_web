@@ -8,6 +8,7 @@ import SearchField from './FilterAndSort/FIlterFields/SearchField';
 import { useGetUsers, useGetCurrencies } from '../../queries';
 import SortMenu from './FilterAndSort/SortFields/SortMenu';
 import { auth } from '../../services/firebase';
+import User from '../../models/User';
 
 export enum TransactionType {
   ALL = 'ALL',
@@ -28,14 +29,13 @@ function TransactionsList({ transactions, wrapperBox }: TransactionsListProps) {
   const [searchString, setSearchString] = useState('');
   const [sortBySum, setSortBySum] = useState(false);
   const [sortByDate, setSortByDate] = useState(true);
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
   const [selectedType, setSelectedType] = useState<TransactionType>(
     TransactionType.ALL,
   );
   const [selectedCurrency, setSelectedCurrency] = useState<string | null>('');
   const { data: users } = useGetUsers();
   const { data: currencies } = useGetCurrencies();
-  console.log(currencies);
   const filteredTransactions = useMemo(() => {
     let sortedTransactions: Transaction[] = [...transactions];
 
@@ -65,10 +65,11 @@ function TransactionsList({ transactions, wrapperBox }: TransactionsListProps) {
     }
     // then filter by users
     if (selectedUsers.length > 0) {
+      const selectedUsersIds = selectedUsers.map((user) => user.id);
       sortedTransactions = sortedTransactions.filter((transaction) => {
         return (
-          selectedUsers.includes(transaction.receiver) ||
-          selectedUsers.includes(transaction.sender)
+          selectedUsersIds.includes(transaction.receiver) ||
+          selectedUsersIds.includes(transaction.sender)
         );
       });
     }
@@ -244,6 +245,8 @@ function TransactionsList({ transactions, wrapperBox }: TransactionsListProps) {
           selectedTransactionType={selectedType}
           setSelectedCurrency={setSelectedCurrency}
           onChange={setSelectedUsers}
+          selectedUsers={selectedUsers}
+          selectedCurrency={selectedCurrency}
         />
         <Divider sx={{ marginTop: 1, marginBottom: 2 }} />
         {renderTransactions()}

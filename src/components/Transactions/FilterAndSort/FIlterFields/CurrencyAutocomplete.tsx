@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Autocomplete, TextField, CircularProgress } from '@mui/material';
 import { useGetCurrencies } from '../../../../queries';
 import { groupCurrencies } from '../../../../utils/groupCurrencies';
@@ -22,9 +22,11 @@ const defaulConvertertValue = {
 function CurrencyAutocomplete({
   users,
   onChange,
+  selectedCurrency,
 }: {
   users: User[] | undefined;
   onChange: (currency: string | null) => void;
+  selectedCurrency: string | null;
 }) {
   const currentUserId = auth?.currentUser?.uid;
   const { data: currencies, isFetching: loadingCurrencies } =
@@ -45,6 +47,12 @@ function CurrencyAutocomplete({
     const options = groupCurrencies(currencies, currentUser);
     return options;
   }, [currentUser, currencies]);
+
+  useEffect(() => {
+    if (!selectedCurrency) {
+      setEnteredCurrency(defaulConvertertValue);
+    }
+  }, [selectedCurrency]);
 
   return (
     <Autocomplete
