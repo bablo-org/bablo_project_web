@@ -5,8 +5,8 @@ import BorderBox from '../UI/BorderBox';
 import Transaction from '../../models/Transaction';
 import FilterCollapse from './FilterAndSort/FilterCollapse';
 import SearchField from './FilterAndSort/FIlterFields/SearchField';
-import { useGetUsers } from '../../queries';
-// import SortMenu from './FilterAndSort/SortFields/SortMenu';
+import { useGetUsers, useGetCurrencies } from '../../queries';
+import SortMenu from './FilterAndSort/SortFields/SortMenu';
 import { auth } from '../../services/firebase';
 
 export enum TransactionType {
@@ -26,13 +26,16 @@ interface TransactionsListProps {
 function TransactionsList({ transactions, wrapperBox }: TransactionsListProps) {
   const [checked, setChecked] = useState(false);
   const [searchString, setSearchString] = useState('');
+  const [sortBySum, setSortBySum] = useState(false);
+  const [sortByDate, setSortByDate] = useState(true);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [selectedType, setSelectedType] = useState<TransactionType>(
     TransactionType.ALL,
   );
   const [selectedCurrency, setSelectedCurrency] = useState<string | null>('');
   const { data: users } = useGetUsers();
-
+  const { data: currencies } = useGetCurrencies();
+  console.log(currencies);
   const filteredTransactions = useMemo(() => {
     let sortedTransactions: Transaction[] = [...transactions];
 
@@ -70,6 +73,25 @@ function TransactionsList({ transactions, wrapperBox }: TransactionsListProps) {
       });
     }
 
+    // then sort by date
+    if (sortByDate) {
+      sortedTransactions?.sort((obj1, obj2) => obj2.date - obj1.date);
+    }
+    if (!currencies) {
+      return [];
+    }
+    // then sort by sum
+    if (sortBySum) {
+      sortedTransactions.sort((obj1, obj2) => {
+        return (
+          obj2.amount /
+            currencies.find((currency) => currency.id === obj2.currency)!.rate -
+          obj1.amount /
+            currencies.find((currency) => currency.id === obj1.currency)!.rate
+        );
+      });
+    }
+
     // then filter by search string
     return sortedTransactions.filter((transaction) => {
       return transaction.description
@@ -83,6 +105,8 @@ function TransactionsList({ transactions, wrapperBox }: TransactionsListProps) {
     auth,
     selectedCurrency,
     selectedUsers,
+    sortByDate,
+    sortBySum,
   ]);
 
   const isFitlered = useMemo(() => {
@@ -196,7 +220,12 @@ function TransactionsList({ transactions, wrapperBox }: TransactionsListProps) {
                   </Button>
                 </Grid>
                 <Grid item xs='auto'>
-                  {/* <SortMenu /> */}
+                  <SortMenu
+                    setSortByDate={setSortByDate}
+                    setSortBySum={setSortBySum}
+                    sortByDate={sortByDate}
+                    sortBySum={sortBySum}
+                  />
                 </Grid>
                 <Grid item xs='auto'>
                   <SearchField
