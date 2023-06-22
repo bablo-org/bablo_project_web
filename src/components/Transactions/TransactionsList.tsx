@@ -109,15 +109,44 @@ function TransactionsList({ transactions, wrapperBox }: TransactionsListProps) {
     sortBySum,
   ]);
 
+  const isFitlered = useMemo(() => {
+    return (
+      searchString ||
+      selectedUsers.length > 0 ||
+      selectedType !== TransactionType.ALL ||
+      selectedCurrency
+    );
+  }, [searchString, selectedUsers, selectedType, selectedCurrency]);
+
   const handleChange = () => {
     setChecked((prev) => !prev);
   };
+
+  const clearFilters = () => {
+    setSelectedType(TransactionType.ALL);
+    setSelectedCurrency('');
+    setSelectedUsers([]);
+    setSearchString('');
+  };
+
   const renderTransactions = () => {
-    if (filteredTransactions.length === 0 && searchString) {
+    if (filteredTransactions.length === 0 && isFitlered) {
       return (
-        <Typography padding={2}>
-          Транзакций не найдено, попробуйте другое ключевое слово
-        </Typography>
+        <>
+          <Typography padding={2}>
+            Транзакций не найдено, попробуйте изменить настройки фильтрации
+          </Typography>
+          <Button
+            variant='contained'
+            size='medium'
+            onClick={clearFilters}
+            sx={{
+              height: '41px',
+            }}
+          >
+            Сбросить фильтр
+          </Button>
+        </>
       );
     }
 
