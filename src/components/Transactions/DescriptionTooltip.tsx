@@ -11,7 +11,15 @@ function DescriptionTooltip({ tooltipDescription }: DescriptionTooltipProps) {
       }}
       title={<Typography fontSize={17}>{tooltipDescription}</Typography>}
     >
-      <div>{tooltipDescription}</div>
+      <Typography
+        align='left'
+        sx={{
+          display: '-webkit-box',
+          overflow: 'hidden',
+        }}
+      >
+        {tooltipDescription}
+      </Typography>
     </Tooltip>
   );
 }

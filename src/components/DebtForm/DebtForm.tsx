@@ -8,6 +8,8 @@ import {
   Grid,
   Autocomplete,
   CircularProgress,
+  Typography,
+  Divider,
 } from '@mui/material';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -34,11 +36,15 @@ import {
   validateAndSetEnteredSum,
   setEnteredSumOnBlur,
   shareSum,
+  toogleIsBillcalculation,
 } from '../../store/slices/addTransactionForm';
 import SelectUsers from './SelectUser/SelectUsers';
 import { isAllManual, choseSumTextHelper } from './Utils';
 import GroupTransaction from './GroupTransaction/GroupTransaction';
 import { groupCurrencies } from '../../utils/groupCurrencies';
+import ItemsList from './GroupTransaction/ItemsList';
+import RenderPreview from './RenderPreview';
+import BorderBox from '../UI/BorderBox';
 
 function DebtForm() {
   const {
@@ -53,6 +59,9 @@ function DebtForm() {
     currenciesOptions,
     sumRemainsError,
     manualInputs,
+    isbillcalculation,
+    usedBillItemUsersDescription,
+    billItemUsersDescription,
   } = useAppSelector((state) => state.addTransactionForm);
 
   const dispatch = useAppDispatch();
@@ -100,7 +109,9 @@ function DebtForm() {
         receiver: receiver[0],
         currency: enteredCurrency?.id,
         amount: sender.length === 1 ? +enteredSum! : +enteredUsersSum[id],
-        description: enteredDescription,
+        description: usedBillItemUsersDescription
+          ? billItemUsersDescription[id]
+          : enteredDescription,
         date: enteredDate?.valueOf(),
       };
     });
@@ -157,6 +168,10 @@ function DebtForm() {
     [users, currentUserId],
   );
 
+  const toogleTransactionMethod = () => {
+    dispatch(toogleIsBillcalculation());
+  };
+
   useEffect(() => {
     if (isAllManual(manualInputs, sender.length)) {
       dispatch(clearAllSumErrors({ clearManualInputs: false }));
@@ -173,163 +188,217 @@ function DebtForm() {
   }, [currentUser, currencies]);
 
   return (
-    <Container maxWidth='md'>
-      <Grid container spacing={2} direction='column'>
-        <SelectUsers
-          users={users}
-          isUsersLoading={isUsersLoading}
-          isUserLoadingError={isUserLoadingError}
-        />
-        <Grid item xs={12}>
-          <form onSubmit={submissionOfDebtHandler}>
-            <Grid
-              container
-              spacing={2}
-              direction='column'
-              sx={{ marginTop: '15px' }}
-            >
-              <Grid item xs={12}>
-                <Autocomplete
-                  id='currencyAuto'
-                  value={enteredCurrency}
-                  options={currenciesOptions}
-                  onChange={(event, newValue) => {
-                    dispatch(setEnteredCurrency(newValue));
-                  }}
-                  loading={loadingCurrencies}
-                  loadingText='Загрузка...'
-                  noOptionsText='Ничего не найдено'
-                  groupBy={(option) => option.group}
-                  getOptionLabel={(option) => {
-                    const currencyName = `${option.id} - ${option.name}`;
-                    return currencyName;
-                  }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label='Валюта'
-                      helperText='Выберите валюту'
-                      required
-                      InputProps={{
-                        ...params.InputProps,
-                        endAdornment: (
-                          <>
-                            {loadingCurrencies ? (
-                              <CircularProgress color='inherit' size={20} />
-                            ) : null}
-                            {params.InputProps.endAdornment}
-                          </>
-                        ),
-                      }}
-                    />
-                  )}
-                  className={enteredCurrency ? classes.valid : undefined}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <FormControl fullWidth required>
-                  <TextField
-                    variant='outlined'
-                    label='Сумма'
-                    value={enteredSum || ''}
-                    type='text'
-                    id='sum'
-                    onChange={sumInputChangeHandler}
-                    onBlur={sumInputBlurHandler}
-                    inputProps={{
-                      inputMode: 'numeric',
-                      pattern: validationProps.sum.inputPropsPattern,
-                      title: validationProps.sum.errorTitle,
+    <BorderBox
+      borderRadius={2}
+      marginProp={4}
+      style={{
+        padding: 4,
+      }}
+    >
+      <Container maxWidth='md'>
+        <Grid container spacing={2} direction='column'>
+          <Grid item xs={12}>
+            <Stack direction='row' spacing={2} sx={{ justifyContent: 'end' }}>
+              <Button
+                variant={!isbillcalculation ? 'contained' : 'outlined'}
+                onClick={toogleTransactionMethod}
+              >
+                Расчет по участникам
+              </Button>
+              <Button
+                variant={isbillcalculation ? 'contained' : 'outlined'}
+                onClick={toogleTransactionMethod}
+              >
+                Расчет по чеку
+              </Button>
+            </Stack>
+          </Grid>
+          {!isbillcalculation && (
+            <SelectUsers
+              users={users}
+              isUsersLoading={isUsersLoading}
+              isUserLoadingError={isUserLoadingError}
+            />
+          )}
+          <Grid item xs={12}>
+            <form onSubmit={submissionOfDebtHandler}>
+              <Grid
+                container
+                spacing={2}
+                direction='column'
+                sx={{ marginTop: '15px' }}
+              >
+                <Grid item xs={12}>
+                  <Stack direction='column' spacing={2}>
+                    <Typography variant='h6' sx={{ textAlign: 'left' }}>
+                      Конструктор транзакций
+                    </Typography>
+                    <Divider />
+                  </Stack>
+                </Grid>
+                <Grid item xs={12}>
+                  <Autocomplete
+                    id='currencyAuto'
+                    value={enteredCurrency}
+                    options={currenciesOptions}
+                    onChange={(event, newValue) => {
+                      dispatch(setEnteredCurrency(newValue));
                     }}
-                    helperText={choseSumTextHelper(
-                      sumRemainsError,
-                      isEnteredSumValid,
+                    loading={loadingCurrencies}
+                    loadingText='Загрузка...'
+                    noOptionsText='Ничего не найдено'
+                    groupBy={(option) => option.group}
+                    getOptionLabel={(option) => {
+                      const currencyName = `${option.id} - ${option.name}`;
+                      return currencyName;
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label='Валюта'
+                        helperText='Выберите валюту'
+                        required
+                        InputProps={{
+                          ...params.InputProps,
+                          endAdornment: (
+                            <>
+                              {loadingCurrencies ? (
+                                <CircularProgress color='inherit' size={20} />
+                              ) : null}
+                              {params.InputProps.endAdornment}
+                            </>
+                          ),
+                        }}
+                      />
                     )}
-                    error={
-                      !!(
-                        (enteredSum &&
-                          !validationProps.sum.testSum(enteredSum)) ||
-                        !isEnteredSumValid
-                      )
-                    }
-                    style={{ whiteSpace: 'pre-wrap' }}
-                    className={enteredSum ? classes.valid : undefined}
-                    required={sender.length < 2}
+                    className={enteredCurrency ? classes.valid : undefined}
                   />
-                </FormControl>
-              </Grid>
-              {sender.length > 1 && (
-                <GroupTransaction
-                  users={users}
-                  shareSumHandler={shareSumHandler}
-                />
-              )}
-              <Grid item xs={12}>
-                <FormControl fullWidth required>
-                  <TextField
-                    variant='outlined'
-                    label='Описание'
-                    value={enteredDescription}
-                    type='text'
-                    id='description'
-                    onChange={descriptionInputChangeHandler}
-                    helperText={validationProps.description.title}
-                    style={{ whiteSpace: 'pre-wrap' }}
-                    className={enteredDescription && classes.valid}
-                    required
-                  />
-                </FormControl>
-              </Grid>
-              <Grid item xs={12}>
-                <Grid container spacing={2}>
-                  <Grid item md={4} xs={12}>
-                    <FormControl fullWidth>
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DatePicker
-                          label='Дата'
-                          value={enteredDate ? dayjs(enteredDate) : null}
-                          onChange={dateInputChangeHandler}
-                          disableFuture
-                          closeOnSelect
-                          className={enteredDate ? classes.valid : undefined}
-                          slotProps={{
-                            textField: {
-                              required: true,
-                              helperText: validationProps.date.title,
-                            },
-                          }}
-                        />
-                      </LocalizationProvider>
+                </Grid>
+                {isbillcalculation && (
+                  <ItemsList users={users} currentUserId={currentUserId} />
+                )}
+                {!isbillcalculation && (
+                  <Grid item xs={12}>
+                    <FormControl fullWidth required>
+                      <TextField
+                        variant='outlined'
+                        label='Сумма'
+                        value={enteredSum || ''}
+                        type='text'
+                        id='sum'
+                        onChange={sumInputChangeHandler}
+                        onBlur={sumInputBlurHandler}
+                        inputProps={{
+                          inputMode: 'numeric',
+                          pattern: validationProps.sum.inputPropsPattern,
+                          title: validationProps.sum.errorTitle,
+                        }}
+                        helperText={choseSumTextHelper(
+                          sumRemainsError,
+                          isEnteredSumValid,
+                        )}
+                        error={
+                          !!(
+                            (enteredSum &&
+                              !validationProps.sum.testSum(enteredSum)) ||
+                            !isEnteredSumValid
+                          )
+                        }
+                        style={{ whiteSpace: 'pre-wrap' }}
+                        className={enteredSum ? classes.valid : undefined}
+                        required={sender.length < 2}
+                      />
                     </FormControl>
                   </Grid>
+                )}
+                {sender.length > 1 && !isbillcalculation && (
+                  <GroupTransaction
+                    users={users}
+                    shareSumHandler={shareSumHandler}
+                  />
+                )}
+                <Grid item xs={12}>
+                  <FormControl fullWidth required>
+                    <TextField
+                      variant='outlined'
+                      label={
+                        usedBillItemUsersDescription
+                          ? 'Общее описание'
+                          : 'Описание'
+                      }
+                      value={enteredDescription}
+                      type='text'
+                      id='description'
+                      onChange={descriptionInputChangeHandler}
+                      helperText={validationProps.description.title}
+                      style={{ whiteSpace: 'pre-wrap' }}
+                      className={enteredDescription && classes.valid}
+                      required={!usedBillItemUsersDescription}
+                    />
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12}>
+                  <Grid container spacing={2}>
+                    <Grid item md={4} xs={12}>
+                      <FormControl fullWidth>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DatePicker
+                            label='Дата'
+                            value={enteredDate ? dayjs(enteredDate) : null}
+                            onChange={dateInputChangeHandler}
+                            disableFuture
+                            closeOnSelect
+                            className={enteredDate ? classes.valid : undefined}
+                            slotProps={{
+                              textField: {
+                                required: true,
+                                helperText: validationProps.date.title,
+                              },
+                            }}
+                          />
+                        </LocalizationProvider>
+                      </FormControl>
+                    </Grid>
+                  </Grid>
+                </Grid>
+                {sender.length > 0 && (
+                  <Grid item xs={12}>
+                    <RenderPreview
+                      users={users}
+                      startIndex={0}
+                      quantity={4}
+                      gridSize={{ xs: 12, md: 6 }}
+                      currentUserId={currentUserId}
+                    />
+                  </Grid>
+                )}
+                <Grid item xs={12}>
+                  <Stack direction='row' spacing={2}>
+                    <Button
+                      variant='outlined'
+                      color='error'
+                      onClick={cancelingOfDebtHandler}
+                      endIcon={<ClearIcon />}
+                    >
+                      Отмена
+                    </Button>
+                    <LoadingButton
+                      loading={isAddingNewTransaction}
+                      variant='contained'
+                      color='success'
+                      type='submit'
+                      endIcon={<CheckIcon />}
+                    >
+                      Отправить
+                    </LoadingButton>
+                  </Stack>
                 </Grid>
               </Grid>
-              <Grid item xs={12}>
-                <Stack direction='row' spacing={2}>
-                  <Button
-                    variant='outlined'
-                    color='error'
-                    onClick={cancelingOfDebtHandler}
-                    endIcon={<ClearIcon />}
-                  >
-                    Отмена
-                  </Button>
-                  <LoadingButton
-                    loading={isAddingNewTransaction}
-                    variant='contained'
-                    color='success'
-                    type='submit'
-                    endIcon={<CheckIcon />}
-                  >
-                    Отправить
-                  </LoadingButton>
-                </Stack>
-              </Grid>
-            </Grid>
-          </form>
+            </form>
+          </Grid>
         </Grid>
-      </Grid>
-    </Container>
+      </Container>
+    </BorderBox>
   );
 }
 

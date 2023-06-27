@@ -1,4 +1,4 @@
-import { Grid } from '@mui/material';
+import { Divider, Grid, Stack, Typography } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import AvatarsList from '../../AvatarsList/AvatarsList';
 import { choseUsersId } from './choseUsersId';
@@ -69,25 +69,38 @@ function SelectUsers({
   return (
     <>
       <Grid item xs={12}>
-        <AvatarsList
-          users={users}
-          loading={isUsersLoading}
-          error={isUserLoadingError}
-          selectedUserIds={sender}
-          disabledUserIds={disabledSender}
-          toggleSelectedId={(id: string) => toggleSelectedId(id, true)}
-        />
-      </Grid>
-      {(sender.length > 0 || receiver.length > 0) && (
-        <Grid item xs={12}>
+        <Stack direction='column' spacing={2}>
+          <Typography variant='h6' sx={{ textAlign: 'left' }}>
+            Должник
+          </Typography>
+          <Divider />
           <AvatarsList
             users={users}
             loading={isUsersLoading}
             error={isUserLoadingError}
-            selectedUserIds={receiver}
-            disabledUserIds={disabledReceiver}
-            toggleSelectedId={(id: string) => toggleSelectedId(id, false)}
+            selectedUserIds={sender}
+            disabledUserIds={disabledSender}
+            toggleSelectedId={(id: string) => toggleSelectedId(id, true)}
           />
+        </Stack>
+      </Grid>
+
+      {(sender.length > 0 || receiver.length > 0) && (
+        <Grid item xs={12}>
+          <Stack direction='column' spacing={2}>
+            <Typography variant='h6' sx={{ textAlign: 'left' }}>
+              Получатель
+            </Typography>
+            <Divider />
+            <AvatarsList
+              users={users}
+              loading={isUsersLoading}
+              error={isUserLoadingError}
+              selectedUserIds={receiver}
+              disabledUserIds={disabledReceiver}
+              toggleSelectedId={(id: string) => toggleSelectedId(id, false)}
+            />
+          </Stack>
         </Grid>
       )}
     </>

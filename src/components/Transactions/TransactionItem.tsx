@@ -148,15 +148,7 @@ function TransactionItem({
                 padding: 1,
               }}
             >
-              <Typography
-                align='left'
-                sx={{
-                  display: '-webkit-box',
-                  overflow: 'hidden',
-                }}
-              >
-                <DescriptionTooltip tooltipDescription={`${description}`} />
-              </Typography>
+              <DescriptionTooltip tooltipDescription={`${description}`} />
             </Box>
           </CardContent>
         </Box>
