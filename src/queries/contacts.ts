@@ -49,7 +49,7 @@ const useAcceptContactRequest = () => {
     onSuccess: () => {
       return Promise.all([
         queryClient.invalidateQueries(['partnershipRequests']),
-        queryClient.invalidateQueries(['users']),
+        queryClient.invalidateQueries(['users?filter=partners']),
       ]);
     },
   });
