@@ -3,7 +3,7 @@ import Skeleton from '@mui/material/Skeleton';
 import { nanoid } from '@reduxjs/toolkit';
 import BorderBox from '../../UI/BorderBox';
 
-function ListSkeleton() {
+function TransactionsListSkeleton() {
   return (
     <BorderBox
       borderRadius={2}
@@ -92,4 +92,4 @@ function ListSkeleton() {
   );
 }
 
-export default ListSkeleton;
+export default TransactionsListSkeleton;
