@@ -4,7 +4,7 @@ import User, { UserSettings } from '../models/User';
 
 const useGetUsers = () => {
   return useQuery({
-    queryKey: ['users'],
+    queryKey: ['users?filter=partners'],
     placeholderData: [],
     refetchOnReconnect: 'always',
     refetchOnWindowFocus: 'always',
@@ -53,7 +53,7 @@ const useUpdateUserAvatar = () => {
         },
       });
     },
-    onSuccess: () => queryClient.invalidateQueries(['users']),
+    onSuccess: () => queryClient.invalidateQueries(['users?filter=partners']),
   });
 };
 
@@ -70,7 +70,7 @@ const useUpdateUser = () => {
         },
       });
     },
-    onSuccess: () => queryClient.invalidateQueries(['users']),
+    onSuccess: () => queryClient.invalidateQueries(['users?filter=partners']),
   });
 };
 
@@ -86,7 +86,7 @@ const useUpdateTgUserName = () => {
         },
       });
     },
-    onSuccess: () => queryClient.invalidateQueries(['users']),
+    onSuccess: () => queryClient.invalidateQueries(['users?filter=partners']),
   });
 };
 
@@ -103,7 +103,7 @@ const useUpdateUserSettings = () => {
         },
       });
     },
-    onSuccess: () => queryClient.invalidateQueries(['users']),
+    onSuccess: () => queryClient.invalidateQueries(['users?filter=partners']),
   });
 };
 
@@ -119,7 +119,7 @@ const useRegisterUser = () => {
         },
       });
     },
-    onSuccess: () => queryClient.invalidateQueries(['users']),
+    onSuccess: () => queryClient.invalidateQueries(['users?filter=partners']),
   });
 };
 

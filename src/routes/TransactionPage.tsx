@@ -42,16 +42,9 @@ function TransactionPage() {
     isRefetching: isTransactionsFetching,
   } = useGetTransactions(currentPage.queryParam);
 
-  const sortedTransactions = useMemo(
-    () => transactions?.sort((obj1, obj2) => obj2.date - obj1.date),
-    [transactions],
-  );
-
   const transactionsFilteredByStatus = (status: TransactionStatus) => {
     return (
-      sortedTransactions?.filter(
-        (transaction) => transaction.status === status,
-      ) ?? []
+      transactions?.filter((transaction) => transaction.status === status) ?? []
     );
   };
 
@@ -72,7 +65,14 @@ function TransactionPage() {
   switch (currentPage.page) {
     case Pages.DECLINED:
     case Pages.COMPLETED:
-      return <TransactionsList transactions={transactions} />;
+      return (
+        <TransactionsList
+          transactions={transactions}
+          wrapperBox={{
+            showWithoutTitle: true,
+          }}
+        />
+      );
 
     case Pages.ACTUAL:
     default:

@@ -106,10 +106,16 @@ function Summary() {
   );
 
   const approvedTransactions: Transaction[] = useMemo(() => {
+    const userIds = users?.map((user) => user.id);
     return (
-      transactions?.filter(
-        (transaction) => transaction.status === 'APPROVED',
-      ) ?? []
+      transactions
+        ?.filter((transaction) => {
+          return (
+            userIds?.includes(transaction.sender) &&
+            userIds?.includes(transaction.receiver)
+          );
+        })
+        .filter((transaction) => transaction.status === 'APPROVED') ?? []
     );
   }, [transactions]);
 
