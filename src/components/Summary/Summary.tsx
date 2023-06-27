@@ -6,7 +6,6 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Box,
   Typography,
   Grid,
   Autocomplete,
@@ -28,6 +27,7 @@ import Overall from './Overall';
 import Currency from '../../models/Currency';
 import { roundSum } from '../DebtForm/Utils';
 import { groupCurrencies } from '../../utils/groupCurrencies';
+import BorderBox from '../UI/BorderBox';
 
 interface GroupedCurrency extends Currency {
   group: string;
@@ -289,22 +289,24 @@ function Summary() {
 
   if (approvedTransactions.length === 0 && !isTransactionsLoading) {
     return (
-      <Grid container alignItems='center' justifyContent='center'>
-        <Box
-          sx={{
-            border: 3,
-            borderColor: '#0566',
-            borderRadius: 15,
-            height: 100,
-            width: 400,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          Нет подтвержденных транзакций
-          <Typography />
-        </Box>
+      <Grid container justifyContent='center'>
+        <Grid item xs={12} sm={11} md={10} lg={9} xl={8}>
+          <BorderBox
+            marginProp={0}
+            style={{
+              border: 3,
+              borderColor: '#0566',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              padding: 4,
+            }}
+          >
+            <Typography fontWeight='bold' fontSize='large'>
+              Нет подтвержденных транзакций
+            </Typography>
+          </BorderBox>
+        </Grid>
       </Grid>
     );
   }
