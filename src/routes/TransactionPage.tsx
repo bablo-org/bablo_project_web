@@ -2,7 +2,8 @@ import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Typography } from '@mui/material';
 import TransactionsList from '../components/Transactions/TransactionsList';
-import Spinner from '../components/Spinner/Spinner';
+// import Spinner from '../components/Spinner/Spinner';
+import ListSkeleton from '../components/Transactions/Skeletons/ListSkeleton';
 import { useGetTransactions } from '../queries';
 import { TransactionStatus } from '../models/enums/TransactionStatus';
 import { PATHES } from './index';
@@ -48,16 +49,16 @@ function TransactionPage() {
     );
   };
 
-  // display Spinner while loading
+  // display Skeleton while loading
   if (isTransactionsFetching && transactions?.length === 0) {
-    return <Spinner />;
+    return <ListSkeleton />;
   }
 
   // display Error if no transactions are available
   if ((!isTransactionsLoading && transactions?.length === 0) || !transactions) {
     return (
       <Typography fontSize={50} color='red' align='center'>
-        Суй ананас в жопу
+        Раньше здесь был ананас...
       </Typography>
     );
   }
