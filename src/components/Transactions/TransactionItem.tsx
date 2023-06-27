@@ -161,70 +161,72 @@ function TransactionItem({
             </Box>
           </CardContent>
         </Box>
-        <CardContent
-          sx={{
-            paddingTop: 0,
-            paddingBottom: 0,
-          }}
-        >
-          <Typography align='left' fontSize={14} fontWeight='bold'>
-            {moment(date).format('LL')}
-          </Typography>
-          <Typography
-            variant='body2'
-            fontWeight='bold'
-            color={senderId === currentUserId ? 'red' : 'green'}
-            fontSize='large'
-            align='left'
+        <Box>
+          <CardContent
+            sx={{
+              paddingTop: 0,
+              paddingBottom: 0,
+            }}
           >
-            {`${senderId === currentUserId ? '-' : '+'}${amount} ${currency}`}
-          </Typography>
-        </CardContent>
-        {showButtonContainer && (
-          <CardActions>
-            {currentUserId === senderId && status === 'PENDING' && (
-              <ButtonGroup
-                fullWidth
-                sx={{ borderRadius: 2 }}
-                size='small'
-                variant='outlined'
-                aria-label='outlined primary button group'
-              >
-                <LoadingButton
+            <Typography align='left' fontSize={14} fontWeight='bold'>
+              {moment(date).format('LL')}
+            </Typography>
+            <Typography
+              variant='body2'
+              fontWeight='bold'
+              color={senderId === currentUserId ? 'red' : 'green'}
+              fontSize='large'
+              align='left'
+            >
+              {`${senderId === currentUserId ? '-' : '+'}${amount} ${currency}`}
+            </Typography>
+          </CardContent>
+          {showButtonContainer && (
+            <CardActions>
+              {currentUserId === senderId && status === 'PENDING' && (
+                <ButtonGroup
+                  fullWidth
                   sx={{ borderRadius: 2 }}
-                  loading={declineStatus === 'loading'}
-                  onClick={putTransactionsDeclineHandler}
-                  color='error'
+                  size='small'
                   variant='outlined'
+                  aria-label='outlined primary button group'
                 >
-                  Отклонить
-                </LoadingButton>
+                  <LoadingButton
+                    sx={{ borderRadius: 2 }}
+                    loading={declineStatus === 'loading'}
+                    onClick={putTransactionsDeclineHandler}
+                    color='error'
+                    variant='outlined'
+                  >
+                    Отклонить
+                  </LoadingButton>
+                  <LoadingButton
+                    sx={{ borderRadius: 2 }}
+                    onClick={putTransactionsApproveHandler}
+                    loading={approveStatus === 'loading'}
+                    color='success'
+                    variant='outlined'
+                  >
+                    Подтвердить
+                  </LoadingButton>
+                </ButtonGroup>
+              )}
+              {status === 'APPROVED' && recieverId === currentUserId && (
                 <LoadingButton
                   sx={{ borderRadius: 2 }}
-                  onClick={putTransactionsApproveHandler}
-                  loading={approveStatus === 'loading'}
+                  fullWidth
+                  size='small'
+                  loading={completeStatus === 'loading'}
+                  onClick={putTransactionsCompleteHandler}
+                  variant='outlined'
                   color='success'
-                  variant='outlined'
                 >
-                  Подтвердить
+                  Завершить
                 </LoadingButton>
-              </ButtonGroup>
-            )}
-            {status === 'APPROVED' && recieverId === currentUserId && (
-              <LoadingButton
-                sx={{ borderRadius: 2 }}
-                fullWidth
-                size='small'
-                loading={completeStatus === 'loading'}
-                onClick={putTransactionsCompleteHandler}
-                variant='outlined'
-                color='success'
-              >
-                Завершить
-              </LoadingButton>
-            )}
-          </CardActions>
-        )}
+              )}
+            </CardActions>
+          )}
+        </Box>
       </Card>
     </BorderBox>
   );
