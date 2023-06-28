@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { useMemo, useState, useEffect } from 'react';
 import SummaryRow from './SummaryRow';
-import Spinner from '../Spinner/Spinner';
+import SummarySkeleton from './Skeletons/SummarySkeleton';
 import {
   useGetUsers,
   useGetTransactions,
@@ -284,7 +284,7 @@ function Summary() {
   }, [currentUser, currencies]);
 
   if (isTransactionsFetching && transactions?.length === 0) {
-    return <Spinner />;
+    return <SummarySkeleton />;
   }
 
   if (approvedTransactions.length === 0 && !isTransactionsLoading) {
