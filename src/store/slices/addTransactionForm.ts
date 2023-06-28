@@ -14,6 +14,10 @@ export interface UsersSum {
   [key: string]: string;
 }
 
+export interface ItemDescriptions {
+  [key: string]: string[];
+}
+
 interface GroupedCurrency extends Currency {
   group: string;
 }
@@ -31,7 +35,7 @@ interface UsersSumInput {
 export interface BillItem {
   description: string | undefined;
   sum: string | undefined;
-  isSumvalid: boolean;
+  isSumValid: boolean;
   selectedUsers: User[];
   isSelectUsersRequired: boolean;
   id: string;
@@ -53,10 +57,10 @@ interface AddTransactionForm {
   sumRemainsError: SumError;
   manualInputs: string[];
   isMyselfIncluded: boolean;
-  isbillcalculation: boolean;
-  billItemslist: BillItem[];
-  usedBillItemUsersDescription: boolean;
-  billItemUsersDescription: UsersSum;
+  isBillModeOn: boolean;
+  billitemsList: BillItem[];
+  isAddPerItemDescription: boolean;
+  perItemDescription: ItemDescriptions;
 }
 
 const initialState: AddTransactionForm = {
@@ -75,26 +79,35 @@ const initialState: AddTransactionForm = {
   sumRemainsError: {},
   manualInputs: [],
   isMyselfIncluded: false,
-  isbillcalculation: true,
-  billItemslist: [],
-  usedBillItemUsersDescription: false,
-  billItemUsersDescription: {},
+  isBillModeOn: true,
+  billitemsList: [
+    {
+      description: '',
+      sum: '',
+      isSumValid: true,
+      selectedUsers: [],
+      isSelectUsersRequired: true,
+      id: nanoid(),
+    },
+  ],
+  isAddPerItemDescription: false,
+  perItemDescription: {},
 };
 
 const shareBillItemsSumAtSender = (
   sender: string[],
-  billItemslist: BillItem[],
+  billitemsList: BillItem[],
 ) => {
   const updatedEnteredUsersSum: UsersSum = {};
   sender.forEach((userId) => {
     let totalSum = 0;
-    billItemslist.forEach((billItem) => {
+    billitemsList.forEach((billItem) => {
       if (billItem.selectedUsers.map((user) => user.id).includes(userId)) {
         const sum = billItem.sum ?? 0;
         totalSum += roundSum(+sum, billItem.selectedUsers.length);
       }
     });
-    updatedEnteredUsersSum[userId] = totalSum.toString();
+    updatedEnteredUsersSum[userId] = roundSum(totalSum, 1).toString();
   });
   return updatedEnteredUsersSum;
 };
@@ -229,7 +242,7 @@ const addTransactionForm = createSlice({
       return {
         ...initialState,
         currenciesOptions: state.currenciesOptions,
-        isbillcalculation: state.isbillcalculation,
+        isBillModeOn: state.isBillModeOn,
       };
     },
     setSelectedUsers(
@@ -304,18 +317,18 @@ const addTransactionForm = createSlice({
       state.manualInputs = [];
     },
     addBillItem(state) {
-      state.billItemslist.push({
+      state.billitemsList.push({
         description: '',
         sum: '',
-        isSumvalid: true,
+        isSumValid: true,
         selectedUsers: [],
         isSelectUsersRequired: true,
         id: nanoid(),
       });
     },
-    removeBillItem(state, action: PayloadAction<number>) {
-      state.billItemslist = state.billItemslist.filter(
-        (item, index) => index !== action.payload,
+    removeBillItem(state, action: PayloadAction<string>) {
+      state.billitemsList = state.billitemsList.filter(
+        (item) => item.id !== action.payload,
       );
     },
     setBillItemDescription(
@@ -323,7 +336,7 @@ const addTransactionForm = createSlice({
       action: PayloadAction<{ description: string; index: number }>,
     ) {
       const { description, index } = action.payload;
-      state.billItemslist[index].description = description;
+      state.billitemsList[index].description = description;
     },
     validateAndSetBillItemSum(
       state,
@@ -332,19 +345,19 @@ const addTransactionForm = createSlice({
       const { inputValue, index } = action.payload;
       const sum = replaceComma(inputValue);
 
-      state.billItemslist[index].isSumvalid = true;
+      state.billitemsList[index].isSumValid = true;
 
       if (!isSumValid(sum)) {
-        state.billItemslist[index].isSumvalid = false;
+        state.billitemsList[index].isSumValid = false;
       }
       if (!validationProps.sum.testSumInput(sum) && sum !== '') {
         return state;
       }
 
-      state.billItemslist[index].sum = sum;
+      state.billitemsList[index].sum = sum;
       state.enteredUsersSum = shareBillItemsSumAtSender(
         state.sender,
-        state.billItemslist,
+        state.billitemsList,
       );
       return state;
     },
@@ -357,8 +370,8 @@ const addTransactionForm = createSlice({
       }>,
     ) {
       const { users, index, currentUserId } = action.payload;
-      state.billItemslist[index].selectedUsers = users;
-      state.billItemslist[index].isSelectUsersRequired = true;
+      state.billitemsList[index].selectedUsers = users;
+      state.billitemsList[index].isSelectUsersRequired = true;
       const isUsersIncludeCurrentUser = users.some(
         (user) => user.id === currentUserId,
       );
@@ -367,77 +380,49 @@ const addTransactionForm = createSlice({
         (!isUsersIncludeCurrentUser && users.length > 0) ||
         (isUsersIncludeCurrentUser && users.length > 1)
       ) {
-        state.billItemslist[index].isSelectUsersRequired = false;
+        state.billitemsList[index].isSelectUsersRequired = false;
       }
 
       state.enteredUsersSum = shareBillItemsSumAtSender(
         state.sender,
-        state.billItemslist,
+        state.billitemsList,
       );
     },
-    generateBillItemUsersDescription(state) {
+    generatePerItemDescription(state) {
       state.sender.forEach((userId) => {
-        const description: string[] = [state.enteredDescription, ' '];
-        const totalCountOfUserItem = () => {
-          let count = 0;
-          state.billItemslist.forEach((billItem) => {
-            billItem.selectedUsers.forEach((selectedUser) => {
-              if (selectedUser.id === userId) {
-                count += 1;
-              }
-            });
-          });
-          return count;
-        };
-        let countOfUserItem = 0;
+        const description: string[] = [];
+        description.push(`Всего - ${state.enteredUsersSum[userId]},`);
+        description.push('в том числе:');
 
-        description.push(
-          `Всего - ${state.enteredUsersSum[userId]}, в том числе: `,
-        );
-
-        state.billItemslist.forEach((billItem, index) => {
-          let separator: string = '';
-
+        state.billitemsList.forEach((billItem, index) => {
           billItem.selectedUsers.forEach((selectedUser) => {
-            countOfUserItem += 1;
             if (selectedUser.id === userId && billItem.sum) {
-              description.push(
-                billItem.description
-                  ? `${billItem.description} - `
-                  : `позиция ${index + 1} - `,
-              );
-              description.push(
-                roundSum(
-                  +billItem.sum,
-                  billItem.selectedUsers.length,
-                ).toString(),
-              );
-              if (countOfUserItem < totalCountOfUserItem()) {
-                separator = ', ';
-              } else if (index < state.billItemslist.length - 1) {
-                separator = '; ';
-              } else {
-                separator = ';';
-              }
+              const itemSum = roundSum(
+                +billItem.sum,
+                billItem.selectedUsers.length,
+              ).toString();
+
+              const itemName = billItem.description
+                ? billItem.description
+                : `Позиция ${index + 1}`;
+              description.push(`${index + 1}. ${itemName} - ${itemSum}`);
             }
           });
-
-          description.push(separator);
         });
-        state.billItemUsersDescription[userId] = description.join('');
+        state.perItemDescription[userId] = description;
       });
     },
-    toogleUsedBillItemUsersDescription(state) {
-      state.usedBillItemUsersDescription = !state.usedBillItemUsersDescription;
+    toggleIsAddPerItemDescription(state) {
+      state.isAddPerItemDescription = !state.isAddPerItemDescription;
     },
-    toogleIsBillcalculation(state) {
-      state.isbillcalculation = !state.isbillcalculation;
+    toogleIsBillСalculation(state) {
+      state.isBillModeOn = !state.isBillModeOn;
     },
-    shareSumOnToogleBillCulculation(state) {
-      if (state.isbillcalculation) {
+    recalculateSumOnModeSwitched(state) {
+      if (state.isBillModeOn) {
         state.enteredUsersSum = shareBillItemsSumAtSender(
           state.sender,
-          state.billItemslist,
+          state.billitemsList,
         );
       }
     },
@@ -467,8 +452,8 @@ export const {
   setBillItemDescription,
   validateAndSetBillItemSum,
   setBillItemSelectedUsers,
-  generateBillItemUsersDescription,
-  toogleUsedBillItemUsersDescription,
-  toogleIsBillcalculation,
-  shareSumOnToogleBillCulculation,
+  generatePerItemDescription,
+  toggleIsAddPerItemDescription,
+  toogleIsBillСalculation,
+  recalculateSumOnModeSwitched,
 } = actions;

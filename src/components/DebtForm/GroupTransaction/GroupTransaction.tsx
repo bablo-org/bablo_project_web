@@ -10,7 +10,7 @@ import {
   SafetyDivider as SafetyDividerIcon,
   Person as PersonIcon,
 } from '@mui/icons-material';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { validationProps } from '../../../utils/validationForm';
 import classes from '../DebtForm.module.css';
@@ -58,9 +58,11 @@ function GroupTransaction({ users, shareSumHandler }: GroupTransactionProps) {
     dispatch(setEnteredUsersSumOnBlur(userId));
   };
 
-  const showInputError = (id: string) => {
-    return sumRemainsError[id] || !(isEnteredUsersSumValid[id] ?? true);
-  };
+  const showInputError = useMemo(() => {
+    return (id: string) => {
+      return sumRemainsError[id] || !(isEnteredUsersSumValid[id] ?? true);
+    };
+  }, [sumRemainsError, isEnteredUsersSumValid]);
 
   useEffect(() => {
     let amount = sender.length;

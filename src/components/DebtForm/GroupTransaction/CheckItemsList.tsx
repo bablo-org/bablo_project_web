@@ -21,10 +21,10 @@ import {
   setBillItemDescription,
   validateAndSetBillItemSum,
   setBillItemSelectedUsers,
-  toogleUsedBillItemUsersDescription,
-  generateBillItemUsersDescription,
+  toggleIsAddPerItemDescription,
+  generatePerItemDescription,
   setSelectedUsers,
-  shareSumOnToogleBillCulculation,
+  recalculateSumOnModeSwitched,
 } from '../../../store/slices/addTransactionForm';
 import User from '../../../models/User';
 import { choseUsersId } from '../SelectUser/choseUsersId';
@@ -36,23 +36,23 @@ interface ItemListProps {
 
 function ItemsList({ users, currentUserId }: ItemListProps) {
   const {
-    billItemslist,
-    usedBillItemUsersDescription,
+    billitemsList,
+    isAddPerItemDescription,
     enteredDescription,
-    isbillcalculation,
+    isBillModeOn,
   } = useAppSelector((state) => state.addTransactionForm);
-  const [isSelectFiledFocused, setIsSelectFiledFocused] = useState<{
+  const [isSelectFieldFocused, setIsSelectFieldFocused] = useState<{
     [key: number]: boolean;
   }>({});
   const dispatch = useAppDispatch();
 
   const autocompleteFocusHandler = (index: number) => {
-    const obj = { ...isSelectFiledFocused };
+    const obj = { ...isSelectFieldFocused };
     obj[index] = true;
-    setIsSelectFiledFocused(obj);
+    setIsSelectFieldFocused(obj);
   };
 
-  const selectAndChoseSenderIds = (
+  const selectAndChooseSenderIds = (
     newValue: User[],
     index: number | undefined,
   ) => {
@@ -60,12 +60,12 @@ function ItemsList({ users, currentUserId }: ItemListProps) {
       .filter((user) => user.id !== currentUserId)
       .map((user) => user.id);
 
-    const anotherInputsValue = billItemslist
+    const anotherInputsValue = billitemsList
       .filter((billItem) => {
         if (!index) {
           return billItem.id;
         }
-        return billItem.id !== billItemslist[index].id;
+        return billItem.id !== billitemsList[index].id;
       })
       .flatMap((billItem) => billItem.selectedUsers.flatMap((user) => user.id))
       .filter((id) => id !== currentUserId);
@@ -93,11 +93,11 @@ function ItemsList({ users, currentUserId }: ItemListProps) {
         disabledReceiver: newDisabledReceiver,
       }),
     );
-    dispatch(shareSumOnToogleBillCulculation());
+    dispatch(recalculateSumOnModeSwitched());
   };
 
   const changeSelectedUsersHandler = (newValue: User[], index: number) => {
-    selectAndChoseSenderIds(newValue, index);
+    selectAndChooseSenderIds(newValue, index);
 
     dispatch(
       setBillItemSelectedUsers({
@@ -108,7 +108,7 @@ function ItemsList({ users, currentUserId }: ItemListProps) {
     );
   };
 
-  const renderItemsListField = billItemslist.map((billItem, index) => (
+  const renderItemsListField = billitemsList.map((billItem, index) => (
     <Grid
       item
       xs={12}
@@ -119,7 +119,7 @@ function ItemsList({ users, currentUserId }: ItemListProps) {
       }}
     >
       <Button
-        onClick={() => dispatch(removeBillItem(index))}
+        onClick={() => dispatch(removeBillItem(billItem.id))}
         style={{ position: 'absolute', left: '-56px', top: '28px' }}
         color='error'
       >
@@ -168,7 +168,7 @@ function ItemsList({ users, currentUserId }: ItemListProps) {
             value={billItem.selectedUsers}
             isOptionEqualToValue={(option, value) => option.id === value.id}
             renderTags={
-              isSelectFiledFocused[index]
+              isSelectFieldFocused[index]
                 ? () => null
                 : () => (
                     <AvatarGroup
@@ -196,7 +196,7 @@ function ItemsList({ users, currentUserId }: ItemListProps) {
                   )
             }
             onFocus={() => autocompleteFocusHandler(index)}
-            onBlur={() => setIsSelectFiledFocused({})}
+            onBlur={() => setIsSelectFieldFocused({})}
             onChange={(event, newValue) => {
               changeSelectedUsersHandler(newValue, index);
             }}
@@ -228,16 +228,16 @@ function ItemsList({ users, currentUserId }: ItemListProps) {
   ));
 
   useEffect(() => {
-    if (usedBillItemUsersDescription) {
-      dispatch(generateBillItemUsersDescription());
+    if (isAddPerItemDescription) {
+      dispatch(generatePerItemDescription());
     }
-  }, [billItemslist, usedBillItemUsersDescription, enteredDescription]);
+  }, [billitemsList, isAddPerItemDescription, enteredDescription]);
 
   useEffect(() => {
-    if (isbillcalculation) {
-      selectAndChoseSenderIds([], undefined);
+    if (isBillModeOn) {
+      selectAndChooseSenderIds([], undefined);
     }
-  }, [isbillcalculation]);
+  }, [isBillModeOn]);
 
   return (
     <>
@@ -299,9 +299,9 @@ function ItemsList({ users, currentUserId }: ItemListProps) {
                 Сгенерировать описание по позициям
               </Typography>
               <Switch
-                checked={usedBillItemUsersDescription}
+                checked={isAddPerItemDescription}
                 onChange={() => {
-                  dispatch(toogleUsedBillItemUsersDescription());
+                  dispatch(toggleIsAddPerItemDescription());
                 }}
                 inputProps={{ 'aria-label': 'controlled' }}
               />

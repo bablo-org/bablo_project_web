@@ -1,30 +1,17 @@
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  Typography,
-  ButtonGroup,
-  Box,
-  CardActions,
-} from '@mui/material';
-import { LoadingButton } from '@mui/lab';
 import { useMemo } from 'react';
-import moment from 'moment';
 import { auth } from '../../services/firebase';
-import UserAvatar from '../UserAvatar/UserAvatar';
 import {
   useApproveTransation,
   useCompleteTransation,
   useDeclineTransation,
 } from '../../queries';
-import BorderBox from '../UI/BorderBox';
-import DescriptionTooltip from './DescriptionTooltip';
 import {
   TransactionStatus,
   getStatusColor,
   getStatusString,
 } from '../../models/enums/TransactionStatus';
 import User from '../../models/User';
+import RenderTransactionItem from '../UI/RenderTransactionItem';
 
 type TransactionItemProps = {
   description: string;
@@ -84,141 +71,26 @@ function TransactionItem({
   }, [users, currentUserId]);
 
   return (
-    <BorderBox
-      marginProp={0}
-      borderRadius={2}
-      style={{
-        height: '100%',
-      }}
-    >
-      <Card
-        sx={{
-          fontSize: 'small',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-        }}
-      >
-        <Box>
-          <CardHeader
-            title={
-              <Box
-                sx={{
-                  justifyContent: 'space-between',
-                  display: 'flex',
-                  flexDirection: 'row',
-                }}
-              >
-                <Box display='flex' flexDirection='row'>
-                  <UserAvatar
-                    xs={30}
-                    sm={30}
-                    md={30}
-                    id={recieverId}
-                    avatarUrl={secondUser?.avatar}
-                    name=''
-                    style={{
-                      boxShadow: '1px 1px 3px rgba(0, 0, 0, 0.5)',
-                      marginRight: '10px',
-                      marginLeft: '0px',
-                    }}
-                  />
-                  <Typography alignSelf='center' align='left' fontWeight='bold'>
-                    {secondUser?.name}
-                  </Typography>
-                </Box>
-                <Box>
-                  <Typography
-                    alignSelf='center'
-                    fontWeight='bold'
-                    fontSize={14}
-                    color={getStatusColor(status)}
-                  >
-                    {getStatusString(status)}
-                  </Typography>
-                </Box>
-              </Box>
-            }
-          />
-          <CardContent>
-            <Box
-              sx={{
-                backgroundColor: 'rgba(25, 118, 210, 0.12)',
-                borderRadius: 2,
-                padding: 1,
-              }}
-            >
-              <DescriptionTooltip tooltipDescription={`${description}`} />
-            </Box>
-          </CardContent>
-        </Box>
-        <CardContent
-          sx={{
-            paddingTop: 0,
-            paddingBottom: 0,
-          }}
-        >
-          <Typography align='left' fontSize={14} fontWeight='bold'>
-            {moment(date).format('LL')}
-          </Typography>
-          <Typography
-            variant='body2'
-            fontWeight='bold'
-            color={senderId === currentUserId ? 'red' : 'green'}
-            fontSize='large'
-            align='left'
-          >
-            {`${senderId === currentUserId ? '-' : '+'}${amount} ${currency}`}
-          </Typography>
-        </CardContent>
-        {showButtonContainer && (
-          <CardActions>
-            {currentUserId === senderId && status === 'PENDING' && (
-              <ButtonGroup
-                fullWidth
-                sx={{ borderRadius: 2 }}
-                size='small'
-                variant='outlined'
-                aria-label='outlined primary button group'
-              >
-                <LoadingButton
-                  sx={{ borderRadius: 2 }}
-                  loading={declineStatus === 'loading'}
-                  onClick={putTransactionsDeclineHandler}
-                  color='error'
-                  variant='outlined'
-                >
-                  Отклонить
-                </LoadingButton>
-                <LoadingButton
-                  sx={{ borderRadius: 2 }}
-                  onClick={putTransactionsApproveHandler}
-                  loading={approveStatus === 'loading'}
-                  color='success'
-                  variant='outlined'
-                >
-                  Подтвердить
-                </LoadingButton>
-              </ButtonGroup>
-            )}
-            {status === 'APPROVED' && recieverId === currentUserId && (
-              <LoadingButton
-                sx={{ borderRadius: 2 }}
-                fullWidth
-                size='small'
-                loading={completeStatus === 'loading'}
-                onClick={putTransactionsCompleteHandler}
-                variant='outlined'
-                color='success'
-              >
-                Завершить
-              </LoadingButton>
-            )}
-          </CardActions>
-        )}
-      </Card>
-    </BorderBox>
+    <RenderTransactionItem
+      avatarId={recieverId}
+      avatarUrl={secondUser?.avatar}
+      userName={secondUser?.name}
+      statusColor={getStatusColor(status)}
+      status={getStatusString(status)}
+      description={description}
+      date={date}
+      amountColor={senderId === currentUserId ? 'red' : 'green'}
+      amount={`${senderId === currentUserId ? '-' : '+'}${amount} ${currency}`}
+      showButtonContainer={showButtonContainer}
+      isApprovedStatus={status === 'APPROVED' && recieverId === currentUserId}
+      isPendingStatus={currentUserId === senderId && status === 'PENDING'}
+      declineStatus={declineStatus === 'loading'}
+      declineHandler={putTransactionsDeclineHandler}
+      approveStatus={approveStatus === 'loading'}
+      approveHandler={putTransactionsApproveHandler}
+      completeStatus={completeStatus === 'loading'}
+      completeHandler={putTransactionsCompleteHandler}
+    />
   );
 }
 

@@ -1,18 +1,8 @@
-import {
-  Grid,
-  Typography,
-  Card,
-  Box,
-  CardContent,
-  CardHeader,
-  Divider,
-} from '@mui/material';
-import moment from 'moment';
-import BorderBox from '../UI/BorderBox';
-import UserAvatar from '../UserAvatar/UserAvatar';
-import DescriptionTooltip from '../Transactions/DescriptionTooltip';
+import { Grid, Typography, Divider } from '@mui/material';
+import { nanoid } from '@reduxjs/toolkit';
 import { useAppSelector } from '../../store/hooks';
 import User from '../../models/User';
+import RenderTransactionItem from '../UI/RenderTransactionItem';
 
 interface RenderPreviewProps {
   users: User[] | undefined;
@@ -34,13 +24,13 @@ function RenderPreview({
   const {
     enteredUsersSum,
     enteredDate,
-    usedBillItemUsersDescription,
-    billItemUsersDescription,
+    perItemDescription,
     enteredDescription,
     enteredCurrency,
     sender,
     receiver,
     enteredSum,
+    isAddPerItemDescription,
   } = useAppSelector((state) => state.addTransactionForm);
 
   if (!users || !currentUserId) {
@@ -55,9 +45,9 @@ function RenderPreview({
   };
   const renderedUsers: User[] = [];
 
-  const isRenderUserCurrentUser = sender.includes(currentUserId);
+  const isRenderedUserCurrentUser = sender.includes(currentUserId);
 
-  if (isRenderUserCurrentUser) {
+  if (isRenderedUserCurrentUser) {
     renderedUsers.push(...filterUsers(receiver));
   } else {
     renderedUsers.push(...filterUsers(renderedUsersId));
@@ -66,7 +56,7 @@ function RenderPreview({
   const transactionSum = (user: User) => {
     const currency = enteredCurrency?.id ?? '';
 
-    if (isRenderUserCurrentUser && enteredSum) {
+    if (isRenderedUserCurrentUser && enteredSum) {
       return `-${enteredSum} ${currency}`;
     }
     if (sender.length === 1 && enteredSum) {
@@ -75,119 +65,50 @@ function RenderPreview({
     if (enteredUsersSum[user.id] && enteredUsersSum[user.id]) {
       return `+${enteredUsersSum[user.id]} ${currency}`;
     }
-    return null;
+    return undefined;
+  };
+
+  const chooseDescription = (user: User) => {
+    if (isAddPerItemDescription && perItemDescription[user.id]) {
+      const description = [...perItemDescription[user.id]];
+      if (enteredDescription) {
+        description.unshift(enteredDescription);
+      }
+      return description.map((line, index) => (
+        <Typography
+          variant='body1'
+          sx={{ textIndent: index > 1 ? '20px' : '0px' }}
+          key={nanoid()}
+        >
+          {line}
+        </Typography>
+      ));
+    }
+    return enteredDescription;
   };
 
   return (
     <Grid container spacing={2}>
       <Grid item xs={12}>
         <Typography variant='h6' sx={{ textAlign: 'left' }}>
-          Сгенерированные транзакции
+          Предпросмотр транзакций
         </Typography>
         <Divider />
       </Grid>
       {renderedUsers.map((user) => (
         <Grid item xs={gridSize.xs} md={gridSize.md} key={user.id}>
-          <BorderBox
-            marginProp={0}
-            borderRadius={2}
-            style={{
-              height: '100%',
-            }}
-          >
-            <Card
-              sx={{
-                fontSize: 'small',
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-              }}
-            >
-              <Box>
-                <CardHeader
-                  title={
-                    <Box
-                      sx={{
-                        justifyContent: 'space-between',
-                        display: 'flex',
-                        flexDirection: 'row',
-                      }}
-                    >
-                      <Box display='flex' flexDirection='row'>
-                        <UserAvatar
-                          xs={30}
-                          sm={30}
-                          md={30}
-                          id={user.id}
-                          avatarUrl={user.avatar}
-                          name=''
-                          style={{
-                            boxShadow: '1px 1px 3px rgba(0, 0, 0, 0.5)',
-                            marginRight: '10px',
-                            marginLeft: '0px',
-                          }}
-                        />
-                        <Typography
-                          alignSelf='center'
-                          align='left'
-                          fontWeight='bold'
-                        >
-                          {user.name}
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography
-                          alignSelf='center'
-                          fontWeight='bold'
-                          fontSize={14}
-                          color='orange'
-                        >
-                          Pending
-                        </Typography>
-                      </Box>
-                    </Box>
-                  }
-                />
-                <CardContent>
-                  <Box
-                    sx={{
-                      backgroundColor: 'rgba(25, 118, 210, 0.12)',
-                      borderRadius: 2,
-                      padding: 1,
-                    }}
-                  >
-                    <DescriptionTooltip
-                      tooltipDescription={
-                        usedBillItemUsersDescription
-                          ? billItemUsersDescription[user.id]
-                          : enteredDescription
-                      }
-                    />
-                  </Box>
-                </CardContent>
-              </Box>
-              <CardContent
-                sx={{
-                  paddingTop: 0,
-                  paddingBottom: 0,
-                }}
-              >
-                <Typography align='left' fontSize={14} fontWeight='bold'>
-                  {moment(enteredDate).format('LL')}
-                </Typography>
-                <Typography
-                  variant='body2'
-                  fontWeight='bold'
-                  color={isRenderUserCurrentUser ? 'red' : 'green'}
-                  fontSize='large'
-                  align='left'
-                >
-                  {transactionSum(user)}
-                </Typography>
-              </CardContent>
-            </Card>
-          </BorderBox>
+          <RenderTransactionItem
+            avatarId={user.id}
+            avatarUrl={user.avatar}
+            userName={user.name}
+            statusColor='orange'
+            status='Pending'
+            description={chooseDescription(user)}
+            date={enteredDate}
+            amountColor={isRenderedUserCurrentUser ? 'red' : 'green'}
+            amount={transactionSum(user)}
+            showButtonContainer={false}
+          />
         </Grid>
       ))}
     </Grid>

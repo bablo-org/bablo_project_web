@@ -36,13 +36,13 @@ import {
   validateAndSetEnteredSum,
   setEnteredSumOnBlur,
   shareSum,
-  toogleIsBillcalculation,
+  toogleIsBillСalculation,
 } from '../../store/slices/addTransactionForm';
 import SelectUsers from './SelectUser/SelectUsers';
 import { isAllManual, choseSumTextHelper } from './Utils';
 import GroupTransaction from './GroupTransaction/GroupTransaction';
 import { groupCurrencies } from '../../utils/groupCurrencies';
-import ItemsList from './GroupTransaction/ItemsList';
+import ItemsList from './GroupTransaction/CheckItemsList';
 import RenderPreview from './RenderPreview';
 import BorderBox from '../UI/BorderBox';
 
@@ -59,9 +59,9 @@ function DebtForm() {
     currenciesOptions,
     sumRemainsError,
     manualInputs,
-    isbillcalculation,
-    usedBillItemUsersDescription,
-    billItemUsersDescription,
+    isBillModeOn,
+    isAddPerItemDescription,
+    perItemDescription,
   } = useAppSelector((state) => state.addTransactionForm);
 
   const dispatch = useAppDispatch();
@@ -109,8 +109,8 @@ function DebtForm() {
         receiver: receiver[0],
         currency: enteredCurrency?.id,
         amount: sender.length === 1 ? +enteredSum! : +enteredUsersSum[id],
-        description: usedBillItemUsersDescription
-          ? billItemUsersDescription[id]
+        description: isAddPerItemDescription
+          ? perItemDescription[id].join('\n')
           : enteredDescription,
         date: enteredDate?.valueOf(),
       };
@@ -169,8 +169,15 @@ function DebtForm() {
   );
 
   const toogleTransactionMethod = () => {
-    dispatch(toogleIsBillcalculation());
+    dispatch(toogleIsBillСalculation());
   };
+
+  const sumInputError = useMemo(() => {
+    return (
+      (enteredSum && !validationProps.sum.testSum(enteredSum)) ||
+      !isEnteredSumValid
+    );
+  }, [enteredSum, isEnteredSumValid, validationProps.sum]);
 
   useEffect(() => {
     if (isAllManual(manualInputs, sender.length)) {
@@ -200,20 +207,20 @@ function DebtForm() {
           <Grid item xs={12}>
             <Stack direction='row' spacing={2} sx={{ justifyContent: 'end' }}>
               <Button
-                variant={!isbillcalculation ? 'contained' : 'outlined'}
+                variant={!isBillModeOn ? 'contained' : 'outlined'}
                 onClick={toogleTransactionMethod}
               >
                 Расчет по участникам
               </Button>
               <Button
-                variant={isbillcalculation ? 'contained' : 'outlined'}
+                variant={isBillModeOn ? 'contained' : 'outlined'}
                 onClick={toogleTransactionMethod}
               >
                 Расчет по чеку
               </Button>
             </Stack>
           </Grid>
-          {!isbillcalculation && (
+          {!isBillModeOn && (
             <SelectUsers
               users={users}
               isUsersLoading={isUsersLoading}
@@ -274,10 +281,10 @@ function DebtForm() {
                     className={enteredCurrency ? classes.valid : undefined}
                   />
                 </Grid>
-                {isbillcalculation && (
+                {isBillModeOn && (
                   <ItemsList users={users} currentUserId={currentUserId} />
                 )}
-                {!isbillcalculation && (
+                {!isBillModeOn && (
                   <Grid item xs={12}>
                     <FormControl fullWidth required>
                       <TextField
@@ -297,13 +304,7 @@ function DebtForm() {
                           sumRemainsError,
                           isEnteredSumValid,
                         )}
-                        error={
-                          !!(
-                            (enteredSum &&
-                              !validationProps.sum.testSum(enteredSum)) ||
-                            !isEnteredSumValid
-                          )
-                        }
+                        error={sumInputError}
                         style={{ whiteSpace: 'pre-wrap' }}
                         className={enteredSum ? classes.valid : undefined}
                         required={sender.length < 2}
@@ -311,7 +312,7 @@ function DebtForm() {
                     </FormControl>
                   </Grid>
                 )}
-                {sender.length > 1 && !isbillcalculation && (
+                {sender.length > 1 && !isBillModeOn && (
                   <GroupTransaction
                     users={users}
                     shareSumHandler={shareSumHandler}
@@ -322,9 +323,7 @@ function DebtForm() {
                     <TextField
                       variant='outlined'
                       label={
-                        usedBillItemUsersDescription
-                          ? 'Общее описание'
-                          : 'Описание'
+                        isAddPerItemDescription ? 'Общее описание' : 'Описание'
                       }
                       value={enteredDescription}
                       type='text'
@@ -333,7 +332,7 @@ function DebtForm() {
                       helperText={validationProps.description.title}
                       style={{ whiteSpace: 'pre-wrap' }}
                       className={enteredDescription && classes.valid}
-                      required={!usedBillItemUsersDescription}
+                      required={!isAddPerItemDescription}
                     />
                   </FormControl>
                 </Grid>
