@@ -11,7 +11,7 @@ import {
   getStatusString,
 } from '../../models/enums/TransactionStatus';
 import User from '../../models/User';
-import RenderTransactionItem from '../UI/RenderTransactionItem';
+import TransactionCard from '../TransactionCard/TransactionCard';
 
 type TransactionItemProps = {
   description: string;
@@ -37,12 +37,15 @@ function TransactionItem({
 }: TransactionItemProps) {
   const currentUserId = auth?.currentUser?.uid;
 
-  const showButtonContainer = useMemo(() => {
-    return (
-      (currentUserId === senderId && status === 'PENDING') ||
-      (status === 'APPROVED' && recieverId === currentUserId)
-    );
-  }, [currentUserId, status, senderId, recieverId]);
+  const itemStatus = useMemo(() => {
+    if (senderId === currentUserId && status === 'PENDING') {
+      return TransactionStatus.PENDING;
+    }
+    if (recieverId === currentUserId && status === 'APPROVED') {
+      return TransactionStatus.APPROVED;
+    }
+    return undefined;
+  }, [senderId, recieverId, status, currentUserId]);
 
   const { mutate: putTransactionsApprove, status: approveStatus } =
     useApproveTransation();
@@ -71,19 +74,18 @@ function TransactionItem({
   }, [users, currentUserId]);
 
   return (
-    <RenderTransactionItem
+    <TransactionCard
       avatarId={recieverId}
       avatarUrl={secondUser?.avatar}
       userName={secondUser?.name}
       statusColor={getStatusColor(status)}
       status={getStatusString(status)}
-      description={description}
+      description={description.split('\n')}
       date={date}
       amountColor={senderId === currentUserId ? 'red' : 'green'}
       amount={`${senderId === currentUserId ? '-' : '+'}${amount} ${currency}`}
-      showButtonContainer={showButtonContainer}
-      isApprovedStatus={status === 'APPROVED' && recieverId === currentUserId}
-      isPendingStatus={currentUserId === senderId && status === 'PENDING'}
+      showButtonContainer={!!itemStatus}
+      itemStatus={itemStatus}
       declineStatus={declineStatus === 'loading'}
       declineHandler={putTransactionsDeclineHandler}
       approveStatus={approveStatus === 'loading'}

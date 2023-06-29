@@ -10,22 +10,24 @@ import {
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import moment from 'moment';
+import { nanoid } from '@reduxjs/toolkit';
+import { useMemo } from 'react';
 import UserAvatar from '../UserAvatar/UserAvatar';
-import BorderBox from './BorderBox';
+import BorderBox from '../UI/BorderBox';
+import { TransactionStatus } from '../../models/enums/TransactionStatus';
 
-interface RenderTransactionItemProps {
+interface TransactionCardProps {
   avatarId: string;
   avatarUrl: string | undefined;
   userName: string | undefined;
   statusColor: string;
   status: string;
-  description: string | JSX.Element[];
+  description: string[];
   date: number | undefined;
   amountColor: string;
   amount: string | undefined;
   showButtonContainer: boolean;
-  isApprovedStatus?: boolean;
-  isPendingStatus?: boolean;
+  itemStatus?: TransactionStatus | undefined;
   declineStatus?: boolean;
   declineHandler?: () => void;
   approveStatus?: boolean;
@@ -34,7 +36,7 @@ interface RenderTransactionItemProps {
   completeHandler?: () => void;
 }
 
-function RenderTransactionItem({
+function TransactionCard({
   avatarId,
   avatarUrl,
   userName,
@@ -45,31 +47,26 @@ function RenderTransactionItem({
   amountColor,
   amount,
   showButtonContainer,
-  isApprovedStatus,
-  isPendingStatus,
+  itemStatus,
   declineStatus,
   declineHandler,
   approveStatus,
   approveHandler,
   completeStatus,
   completeHandler,
-}: RenderTransactionItemProps) {
-  const renderDescription = () => {
-    if (typeof description === 'string') {
-      return (
-        <Typography
-          align='left'
-          sx={{
-            display: '-webkit-box',
-            overflow: 'hidden',
-          }}
-        >
-          {description}
-        </Typography>
-      );
-    }
-    return description;
-  };
+}: TransactionCardProps) {
+  const renderDescription = useMemo(() => {
+    return description.map((line, index) => (
+      <Typography
+        variant='body1'
+        sx={{ textIndent: index > 1 ? '20px' : '0px' }}
+        key={nanoid()}
+      >
+        {line}
+      </Typography>
+    ));
+  }, [description]);
+
   return (
     <BorderBox
       marginProp={0}
@@ -134,7 +131,7 @@ function RenderTransactionItem({
               sx={{
                 textAlign: 'left',
               }}
-              title={<Typography fontSize={17}>{description}</Typography>}
+              title={<Typography fontSize={17}>{renderDescription}</Typography>}
             >
               <Box
                 sx={{
@@ -144,7 +141,7 @@ function RenderTransactionItem({
                   textAlign: 'left',
                 }}
               >
-                {renderDescription()}
+                {renderDescription}
               </Box>
             </Tooltip>
           </CardContent>
@@ -170,7 +167,7 @@ function RenderTransactionItem({
         </CardContent>
         {showButtonContainer && (
           <CardActions>
-            {isPendingStatus && (
+            {itemStatus === TransactionStatus.PENDING && (
               <ButtonGroup
                 fullWidth
                 sx={{ borderRadius: 2 }}
@@ -198,7 +195,7 @@ function RenderTransactionItem({
                 </LoadingButton>
               </ButtonGroup>
             )}
-            {isApprovedStatus && (
+            {itemStatus === TransactionStatus.APPROVED && (
               <LoadingButton
                 sx={{ borderRadius: 2 }}
                 fullWidth
@@ -218,4 +215,4 @@ function RenderTransactionItem({
   );
 }
 
-export default RenderTransactionItem;
+export default TransactionCard;

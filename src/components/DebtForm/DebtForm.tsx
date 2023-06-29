@@ -43,7 +43,7 @@ import { isAllManual, choseSumTextHelper } from './Utils';
 import GroupTransaction from './GroupTransaction/GroupTransaction';
 import { groupCurrencies } from '../../utils/groupCurrencies';
 import ItemsList from './GroupTransaction/CheckItemsList';
-import RenderPreview from './RenderPreview';
+import PreviewTransaction from './PreviewTransaction';
 import BorderBox from '../UI/BorderBox';
 
 function DebtForm() {
@@ -103,15 +103,31 @@ function DebtForm() {
   };
 
   const putTransaction = async () => {
+    const chooseAmount = (id: string) => {
+      if (!isBillModeOn && sender.length === 1) {
+        return +enteredSum!;
+      }
+      return +enteredUsersSum[id];
+    };
+
+    const chooseDescription = (id: string) => {
+      const description: string[] = [];
+      if (enteredDescription) {
+        description.push(enteredDescription);
+      }
+      if (isAddPerItemDescription) {
+        description.push(...perItemDescription[id]);
+      }
+      return description.join('\n');
+    };
+
     const debtData = sender.map((id) => {
       return {
         sender: id,
         receiver: receiver[0],
         currency: enteredCurrency?.id,
-        amount: sender.length === 1 ? +enteredSum! : +enteredUsersSum[id],
-        description: isAddPerItemDescription
-          ? perItemDescription[id].join('\n')
-          : enteredDescription,
+        amount: chooseAmount(id),
+        description: chooseDescription(id),
         date: enteredDate?.valueOf(),
       };
     });
@@ -282,7 +298,17 @@ function DebtForm() {
                   />
                 </Grid>
                 {isBillModeOn && (
-                  <ItemsList users={users} currentUserId={currentUserId} />
+                  <>
+                    <Grid item xs={12}>
+                      <Typography
+                        variant='body1'
+                        sx={{ textAlign: 'left', fontWeight: 'bold' }}
+                      >
+                        Позиции чека
+                      </Typography>
+                    </Grid>
+                    <ItemsList users={users} currentUserId={currentUserId} />
+                  </>
                 )}
                 {!isBillModeOn && (
                   <Grid item xs={12}>
@@ -362,7 +388,7 @@ function DebtForm() {
                 </Grid>
                 {sender.length > 0 && (
                   <Grid item xs={12}>
-                    <RenderPreview
+                    <PreviewTransaction
                       users={users}
                       startIndex={0}
                       quantity={4}

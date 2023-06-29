@@ -55,6 +55,7 @@ function ItemsList({ users, currentUserId }: ItemListProps) {
   const selectAndChooseSenderIds = (
     newValue: User[],
     index: number | undefined,
+    toogledBillMode: boolean,
   ) => {
     const inputValue = newValue
       .filter((user) => user.id !== currentUserId)
@@ -62,7 +63,7 @@ function ItemsList({ users, currentUserId }: ItemListProps) {
 
     const anotherInputsValue = billitemsList
       .filter((billItem) => {
-        if (!index) {
+        if (index === undefined) {
           return billItem.id;
         }
         return billItem.id !== billitemsList[index].id;
@@ -71,7 +72,7 @@ function ItemsList({ users, currentUserId }: ItemListProps) {
       .filter((id) => id !== currentUserId);
     const updatedSender = [...new Set([...inputValue, ...anotherInputsValue])];
 
-    if (updatedSender.length === 0) {
+    if (toogledBillMode && updatedSender.length === 0) {
       return;
     }
 
@@ -97,7 +98,7 @@ function ItemsList({ users, currentUserId }: ItemListProps) {
   };
 
   const changeSelectedUsersHandler = (newValue: User[], index: number) => {
-    selectAndChooseSenderIds(newValue, index);
+    selectAndChooseSenderIds(newValue, index, false);
 
     dispatch(
       setBillItemSelectedUsers({
@@ -235,7 +236,7 @@ function ItemsList({ users, currentUserId }: ItemListProps) {
 
   useEffect(() => {
     if (isBillModeOn) {
-      selectAndChooseSenderIds([], undefined);
+      selectAndChooseSenderIds([], undefined, true);
     }
   }, [isBillModeOn]);
 

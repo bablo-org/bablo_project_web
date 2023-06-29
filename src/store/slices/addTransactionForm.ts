@@ -393,6 +393,7 @@ const addTransactionForm = createSlice({
         const description: string[] = [];
         description.push(`Всего - ${state.enteredUsersSum[userId]},`);
         description.push('в том числе:');
+        let count = 1;
 
         state.billitemsList.forEach((billItem, index) => {
           billItem.selectedUsers.forEach((selectedUser) => {
@@ -405,7 +406,8 @@ const addTransactionForm = createSlice({
               const itemName = billItem.description
                 ? billItem.description
                 : `Позиция ${index + 1}`;
-              description.push(`${index + 1}. ${itemName} - ${itemSum}`);
+              description.push(`${count}. ${itemName} - ${itemSum}`);
+              count += 1;
             }
           });
         });

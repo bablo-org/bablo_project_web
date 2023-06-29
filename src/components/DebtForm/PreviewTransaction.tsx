@@ -1,10 +1,9 @@
 import { Grid, Typography, Divider } from '@mui/material';
-import { nanoid } from '@reduxjs/toolkit';
 import { useAppSelector } from '../../store/hooks';
 import User from '../../models/User';
-import RenderTransactionItem from '../UI/RenderTransactionItem';
+import TransactionCard from '../TransactionCard/TransactionCard';
 
-interface RenderPreviewProps {
+interface PreviewTransactionProps {
   users: User[] | undefined;
   startIndex: number;
   quantity: number;
@@ -14,13 +13,13 @@ interface RenderPreviewProps {
   };
   currentUserId: string | undefined;
 }
-function RenderPreview({
+function PreviewTransaction({
   users,
   startIndex,
   quantity,
   gridSize,
   currentUserId,
-}: RenderPreviewProps) {
+}: PreviewTransactionProps) {
   const {
     enteredUsersSum,
     enteredDate,
@@ -74,17 +73,9 @@ function RenderPreview({
       if (enteredDescription) {
         description.unshift(enteredDescription);
       }
-      return description.map((line, index) => (
-        <Typography
-          variant='body1'
-          sx={{ textIndent: index > 1 ? '20px' : '0px' }}
-          key={nanoid()}
-        >
-          {line}
-        </Typography>
-      ));
+      return description;
     }
-    return enteredDescription;
+    return [enteredDescription];
   };
 
   return (
@@ -97,7 +88,7 @@ function RenderPreview({
       </Grid>
       {renderedUsers.map((user) => (
         <Grid item xs={gridSize.xs} md={gridSize.md} key={user.id}>
-          <RenderTransactionItem
+          <TransactionCard
             avatarId={user.id}
             avatarUrl={user.avatar}
             userName={user.name}
@@ -115,4 +106,4 @@ function RenderPreview({
   );
 }
 
-export default RenderPreview;
+export default PreviewTransaction;

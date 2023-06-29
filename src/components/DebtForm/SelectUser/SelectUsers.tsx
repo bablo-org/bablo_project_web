@@ -68,7 +68,7 @@ function SelectUsers({
 
   return (
     <>
-      <Grid item xs={12}>
+      <Grid item xs={12} sx={{ marginTop: '31px' }}>
         <Stack direction='column' spacing={2}>
           <Typography variant='h6' sx={{ textAlign: 'left' }}>
             Должник
