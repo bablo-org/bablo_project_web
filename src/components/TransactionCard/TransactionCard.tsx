@@ -146,70 +146,72 @@ function TransactionCard({
             </Tooltip>
           </CardContent>
         </Box>
-        <CardContent
-          sx={{
-            paddingTop: 0,
-            paddingBottom: 0,
-          }}
-        >
-          <Typography align='left' fontSize={14} fontWeight='bold'>
-            {moment(date).format('LL')}
-          </Typography>
-          <Typography
-            variant='body2'
-            fontWeight='bold'
-            color={amountColor}
-            fontSize='large'
-            align='left'
+        <Box>
+          <CardContent
+            sx={{
+              paddingTop: 0,
+              paddingBottom: 0,
+            }}
           >
-            {amount}
-          </Typography>
-        </CardContent>
-        {showButtonContainer && (
-          <CardActions>
-            {itemStatus === TransactionStatus.PENDING && (
-              <ButtonGroup
-                fullWidth
-                sx={{ borderRadius: 2 }}
-                size='small'
-                variant='outlined'
-                aria-label='outlined primary button group'
-              >
-                <LoadingButton
+            <Typography align='left' fontSize={14} fontWeight='bold'>
+              {moment(date).format('LL')}
+            </Typography>
+            <Typography
+              variant='body2'
+              fontWeight='bold'
+              color={amountColor}
+              fontSize='large'
+              align='left'
+            >
+              {amount}
+            </Typography>
+          </CardContent>
+          {showButtonContainer && (
+            <CardActions>
+              {itemStatus === TransactionStatus.PENDING && (
+                <ButtonGroup
+                  fullWidth
                   sx={{ borderRadius: 2 }}
-                  loading={declineStatus}
-                  onClick={declineHandler}
-                  color='error'
+                  size='small'
                   variant='outlined'
+                  aria-label='outlined primary button group'
                 >
-                  Отклонить
-                </LoadingButton>
+                  <LoadingButton
+                    sx={{ borderRadius: 2 }}
+                    loading={declineStatus}
+                    onClick={declineHandler}
+                    color='error'
+                    variant='outlined'
+                  >
+                    Отклонить
+                  </LoadingButton>
+                  <LoadingButton
+                    sx={{ borderRadius: 2 }}
+                    onClick={approveHandler}
+                    loading={approveStatus}
+                    color='success'
+                    variant='outlined'
+                  >
+                    Подтвердить
+                  </LoadingButton>
+                </ButtonGroup>
+              )}
+              {itemStatus === TransactionStatus.APPROVED && (
                 <LoadingButton
                   sx={{ borderRadius: 2 }}
-                  onClick={approveHandler}
-                  loading={approveStatus}
+                  fullWidth
+                  size='small'
+                  loading={completeStatus}
+                  onClick={completeHandler}
+                  variant='outlined'
                   color='success'
-                  variant='outlined'
                 >
-                  Подтвердить
+                  Завершить
                 </LoadingButton>
-              </ButtonGroup>
-            )}
-            {itemStatus === TransactionStatus.APPROVED && (
-              <LoadingButton
-                sx={{ borderRadius: 2 }}
-                fullWidth
-                size='small'
-                loading={completeStatus}
-                onClick={completeHandler}
-                variant='outlined'
-                color='success'
-              >
-                Завершить
-              </LoadingButton>
-            )}
-          </CardActions>
-        )}
+              )}
+            </CardActions>
+          )}
+        </Box>
       </Card>
     </BorderBox>
   );
