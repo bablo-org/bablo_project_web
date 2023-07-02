@@ -16,6 +16,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Check as CheckIcon, Clear as ClearIcon } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import dayjs, { Dayjs } from 'dayjs';
+import { nanoid } from '@reduxjs/toolkit';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { validationProps } from '../../utils/validationForm';
 import classes from './DebtForm.module.css';
@@ -43,8 +44,10 @@ import { isAllManual, choseSumTextHelper } from './Utils';
 import GroupTransaction from './GroupTransaction/GroupTransaction';
 import { groupCurrencies } from '../../utils/groupCurrencies';
 import ItemsList from './GroupTransaction/CheckItemsList';
-import PreviewTransaction from './PreviewTransaction';
 import BorderBox from '../UI/BorderBox';
+import TransactionCard from '../TransactionCard/TransactionCard';
+import User from '../../models/User';
+import { TransactionStatus } from '../../models/enums/TransactionStatus';
 
 function DebtForm() {
   const {
@@ -194,6 +197,30 @@ function DebtForm() {
       !isEnteredSumValid
     );
   }, [enteredSum, isEnteredSumValid, validationProps.sum]);
+
+  const transactionSum = (user: User) => {
+    if (currentUser?.id === user.id && enteredSum) {
+      return parseInt(enteredSum, 10);
+    }
+    if (sender.length === 1 && enteredSum) {
+      return parseInt(enteredSum, 10);
+    }
+    if (enteredUsersSum[user.id] && enteredUsersSum[user.id]) {
+      return parseInt(enteredUsersSum[user.id], 10);
+    }
+    return 0;
+  };
+
+  const chooseDescription = (user: User) => {
+    if (isAddPerItemDescription && perItemDescription[user.id]) {
+      const description = [...perItemDescription[user.id]];
+      if (enteredDescription) {
+        description.unshift(enteredDescription).toString();
+      }
+      return description.toString();
+    }
+    return enteredDescription;
+  };
 
   useEffect(() => {
     if (isAllManual(manualInputs, sender.length)) {
@@ -386,15 +413,38 @@ function DebtForm() {
                     </Grid>
                   </Grid>
                 </Grid>
-                {sender.length > 0 && (
+                {sender.length > 0 && users && (
                   <Grid item xs={12}>
-                    <PreviewTransaction
-                      users={users}
-                      startIndex={0}
-                      quantity={4}
-                      gridSize={{ xs: 12, md: 6 }}
-                      currentUserId={currentUserId}
-                    />
+                    <Grid container spacing={2}>
+                      <Grid item xs={12}>
+                        <Typography variant='h6' sx={{ textAlign: 'left' }}>
+                          Предпросмотр транзакций
+                        </Typography>
+                        <Divider />
+                      </Grid>
+                      {users
+                        .filter((user) => sender.includes(user.id))
+                        .map((user) => (
+                          <Grid item xs={12} md={6} key={user.id}>
+                            <TransactionCard
+                              previewMode
+                              transaction={{
+                                id: nanoid(),
+                                amount: transactionSum(user),
+                                currency: enteredCurrency?.id || '',
+                                created: Date.now(),
+                                description: chooseDescription(user),
+                                sender: user.id,
+                                receiver: receiver[0],
+                                date: enteredDate ?? Date.now(),
+                                status: TransactionStatus.PENDING,
+                                updated: Date.now(),
+                              }}
+                              users={users}
+                            />
+                          </Grid>
+                        ))}
+                    </Grid>
                   </Grid>
                 )}
                 <Grid item xs={12}>

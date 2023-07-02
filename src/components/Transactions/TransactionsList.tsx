@@ -1,14 +1,14 @@
 import { Grid, Box, Typography, Divider, Button } from '@mui/material';
 import { useMemo, useState } from 'react';
-import TransactionItem from './TransactionItem';
 import BorderBox from '../UI/BorderBox';
 import Transaction from '../../models/Transaction';
 import FilterCollapse from './FilterAndSort/FilterCollapse';
 import SearchField from './FilterAndSort/FIlterFields/SearchField';
-import { useGetUsers, useGetCurrencies } from '../../queries';
+import { useGetCurrencies } from '../../queries';
 import SortMenu from './FilterAndSort/SortFields/SortMenu';
 import { auth } from '../../services/firebase';
 import User from '../../models/User';
+import TransactionCard from '../TransactionCard/TransactionCard';
 
 export enum TransactionType {
   ALL = 'ALL',
@@ -18,13 +18,18 @@ export enum TransactionType {
 
 interface TransactionsListProps {
   transactions: Transaction[];
+  users: User[];
   wrapperBox?: {
     title?: string;
     showWithoutTitle?: boolean;
   };
 }
 
-function TransactionsList({ transactions, wrapperBox }: TransactionsListProps) {
+function TransactionsList({
+  transactions,
+  wrapperBox,
+  users,
+}: TransactionsListProps) {
   const [checked, setChecked] = useState(false);
   const [searchString, setSearchString] = useState('');
   const [sortBySum, setSortBySum] = useState(false);
@@ -34,7 +39,6 @@ function TransactionsList({ transactions, wrapperBox }: TransactionsListProps) {
     TransactionType.ALL,
   );
   const [selectedCurrency, setSelectedCurrency] = useState<string | null>('');
-  const { data: users } = useGetUsers();
   const { data: currencies } = useGetCurrencies();
   const filteredTransactions = useMemo(() => {
     let sortedTransactions: Transaction[] = [...transactions];
@@ -156,17 +160,7 @@ function TransactionsList({ transactions, wrapperBox }: TransactionsListProps) {
         <Grid container spacing={2}>
           {filteredTransactions.map((transaction) => (
             <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={transaction.id}>
-              <TransactionItem
-                id={transaction.id}
-                currency={transaction.currency}
-                amount={transaction.amount}
-                description={transaction.description}
-                date={transaction.date}
-                status={transaction.status}
-                senderId={transaction.sender}
-                recieverId={transaction.receiver}
-                users={users}
-              />
+              <TransactionCard transaction={transaction} users={users} />
             </Grid>
           ))}
         </Grid>
