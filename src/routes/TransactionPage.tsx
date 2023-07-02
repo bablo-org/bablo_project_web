@@ -1,11 +1,12 @@
 import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Typography } from '@mui/material';
+import { Grid, Typography } from '@mui/material';
 import TransactionsList from '../components/Transactions/TransactionsList';
-import Spinner from '../components/Spinner/Spinner';
+import TransactionsListSkeleton from '../components/Transactions/Skeletons/TransactionsListSkeleton';
 import { useGetTransactions } from '../queries';
 import { TransactionStatus } from '../models/enums/TransactionStatus';
 import { PATHES } from './index';
+import BorderBox from '../components/UI/BorderBox';
 
 enum Pages {
   ACTUAL = 'ACTUAL',
@@ -48,17 +49,34 @@ function TransactionPage() {
     );
   };
 
-  // display Spinner while loading
+  // display Skeleton while loading
   if (isTransactionsFetching && transactions?.length === 0) {
-    return <Spinner />;
+    return <TransactionsListSkeleton />;
   }
 
   // display Error if no transactions are available
+  // Раньше здесь был ананас...
   if ((!isTransactionsLoading && transactions?.length === 0) || !transactions) {
     return (
-      <Typography fontSize={50} color='red' align='center'>
-        Суй ананас в жопу
-      </Typography>
+      <Grid container justifyContent='center'>
+        <Grid item xs={12} sm={11} md={10} lg={9} xl={8}>
+          <BorderBox
+            marginProp={0}
+            style={{
+              border: 3,
+              borderColor: '#0566',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              padding: 4,
+            }}
+          >
+            <Typography fontWeight='bold' fontSize='large'>
+              Транзакции не найдены
+            </Typography>
+          </BorderBox>
+        </Grid>
+      </Grid>
     );
   }
 

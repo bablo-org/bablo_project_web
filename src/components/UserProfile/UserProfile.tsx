@@ -27,7 +27,7 @@ function UserProfile() {
           currentUser={currentUser!}
           showSkeleton={showSkeleton}
         />
-        <BorderBox marginProp={2}>
+        <BorderBox marginProp={2} borderRadius={2}>
           <Grid item xs={12} sx={{ m: 4 }}>
             <Typography
               variant='h6'
@@ -40,7 +40,7 @@ function UserProfile() {
             <TelegramProfile currentUser={currentUser!} />
           </Grid>
         </BorderBox>
-        <BorderBox marginProp={2}>
+        <BorderBox marginProp={2} borderRadius={2}>
           <Grid item xs={12} sx={{ m: 4 }}>
             <Typography
               variant='h6'
