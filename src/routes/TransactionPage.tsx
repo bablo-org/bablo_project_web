@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { Grid, Typography } from '@mui/material';
 import TransactionsList from '../components/Transactions/TransactionsList';
 import TransactionsListSkeleton from '../components/Transactions/Skeletons/TransactionsListSkeleton';
-import { useGetTransactions } from '../queries';
+import { useGetTransactions, useGetUsers } from '../queries';
 import { TransactionStatus } from '../models/enums/TransactionStatus';
 import { PATHES } from './index';
 import BorderBox from '../components/UI/BorderBox';
@@ -42,6 +42,7 @@ function TransactionPage() {
     isLoading: isTransactionsLoading,
     isRefetching: isTransactionsFetching,
   } = useGetTransactions(currentPage.queryParam);
+  const { data: users, isFetching: isUsersFetching } = useGetUsers();
 
   const transactionsFilteredByStatus = (status: TransactionStatus) => {
     return (
@@ -50,13 +51,20 @@ function TransactionPage() {
   };
 
   // display Skeleton while loading
-  if (isTransactionsFetching && transactions?.length === 0) {
+  if (
+    (isTransactionsFetching && transactions?.length === 0) ||
+    (isUsersFetching && users?.length === 0)
+  ) {
     return <TransactionsListSkeleton />;
   }
 
   // display Error if no transactions are available
   // Раньше здесь был ананас...
-  if ((!isTransactionsLoading && transactions?.length === 0) || !transactions) {
+  if (
+    (!isTransactionsLoading && transactions?.length === 0) ||
+    !transactions ||
+    !users
+  ) {
     return (
       <Grid container justifyContent='center'>
         <Grid item xs={12} sm={11} md={10} lg={9} xl={8}>
@@ -86,6 +94,7 @@ function TransactionPage() {
       return (
         <TransactionsList
           transactions={transactions}
+          users={users}
           wrapperBox={{
             showWithoutTitle: true,
           }}
@@ -100,6 +109,7 @@ function TransactionPage() {
             transactions={transactionsFilteredByStatus(
               TransactionStatus.PENDING,
             )}
+            users={users}
             wrapperBox={{
               title: 'Ожидающие',
             }}
@@ -108,6 +118,7 @@ function TransactionPage() {
             transactions={transactionsFilteredByStatus(
               TransactionStatus.APPROVED,
             )}
+            users={users}
             wrapperBox={{
               title: 'Подтвержденные',
             }}

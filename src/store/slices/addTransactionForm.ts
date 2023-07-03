@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { PayloadAction, createSlice, nanoid } from '@reduxjs/toolkit';
 import Currency from '../../models/Currency';
 import User from '../../models/User';
 import { validationProps } from '../../utils/validationForm';
@@ -11,6 +11,10 @@ import {
 } from '../../components/DebtForm/Utils';
 
 export interface UsersSum {
+  [key: string]: string;
+}
+
+export interface ItemDescriptions {
   [key: string]: string;
 }
 
@@ -26,6 +30,15 @@ interface UsersSumInput {
   inputValue: string | undefined;
   user: User | undefined;
   currentUserId: string | undefined;
+}
+
+export interface BillItem {
+  description: string | undefined;
+  sum: string | undefined;
+  isSumValid: boolean;
+  selectedUsers: User[];
+  isSelectUsersRequired: boolean;
+  id: string;
 }
 
 interface AddTransactionForm {
@@ -44,6 +57,10 @@ interface AddTransactionForm {
   sumRemainsError: SumError;
   manualInputs: string[];
   isMyselfIncluded: boolean;
+  isBillModeOn: boolean;
+  billitemsList: BillItem[];
+  isAddPerItemDescription: boolean;
+  perItemDescription: ItemDescriptions;
 }
 
 const initialState: AddTransactionForm = {
@@ -62,6 +79,37 @@ const initialState: AddTransactionForm = {
   sumRemainsError: {},
   manualInputs: [],
   isMyselfIncluded: false,
+  isBillModeOn: true,
+  billitemsList: [
+    {
+      description: '',
+      sum: '',
+      isSumValid: true,
+      selectedUsers: [],
+      isSelectUsersRequired: true,
+      id: nanoid(),
+    },
+  ],
+  isAddPerItemDescription: false,
+  perItemDescription: {},
+};
+
+const shareBillItemsSumAtSender = (
+  sender: string[],
+  billitemsList: BillItem[],
+) => {
+  const updatedEnteredUsersSum: UsersSum = {};
+  sender.forEach((userId) => {
+    let totalSum = 0;
+    billitemsList.forEach((billItem) => {
+      if (billItem.selectedUsers.map((user) => user.id).includes(userId)) {
+        const sum = billItem.sum ?? 0;
+        totalSum += roundSum(+sum, billItem.selectedUsers.length);
+      }
+    });
+    updatedEnteredUsersSum[userId] = roundSum(totalSum, 1).toString();
+  });
+  return updatedEnteredUsersSum;
 };
 
 const addTransactionForm = createSlice({
@@ -194,6 +242,7 @@ const addTransactionForm = createSlice({
       return {
         ...initialState,
         currenciesOptions: state.currenciesOptions,
+        isBillModeOn: state.isBillModeOn,
       };
     },
     setSelectedUsers(
@@ -267,6 +316,118 @@ const addTransactionForm = createSlice({
       state.isEnteredUsersSumValid = {};
       state.manualInputs = [];
     },
+    addBillItem(state) {
+      state.billitemsList.push({
+        description: '',
+        sum: '',
+        isSumValid: true,
+        selectedUsers: [],
+        isSelectUsersRequired: true,
+        id: nanoid(),
+      });
+    },
+    removeBillItem(state, action: PayloadAction<string>) {
+      state.billitemsList = state.billitemsList.filter(
+        (item) => item.id !== action.payload,
+      );
+    },
+    setBillItemDescription(
+      state,
+      action: PayloadAction<{ description: string; index: number }>,
+    ) {
+      const { description, index } = action.payload;
+      state.billitemsList[index].description = description;
+    },
+    validateAndSetBillItemSum(
+      state,
+      action: PayloadAction<{ inputValue: string; index: number }>,
+    ) {
+      const { inputValue, index } = action.payload;
+      const sum = replaceComma(inputValue);
+
+      state.billitemsList[index].isSumValid = true;
+
+      if (!isSumValid(sum)) {
+        state.billitemsList[index].isSumValid = false;
+      }
+      if (!validationProps.sum.testSumInput(sum) && sum !== '') {
+        return state;
+      }
+
+      state.billitemsList[index].sum = sum;
+      state.enteredUsersSum = shareBillItemsSumAtSender(
+        state.sender,
+        state.billitemsList,
+      );
+      return state;
+    },
+    setBillItemSelectedUsers(
+      state,
+      action: PayloadAction<{
+        users: User[];
+        index: number;
+        currentUserId: string | undefined;
+      }>,
+    ) {
+      const { users, index, currentUserId } = action.payload;
+      state.billitemsList[index].selectedUsers = users;
+      state.billitemsList[index].isSelectUsersRequired = true;
+      const isUsersIncludeCurrentUser = users.some(
+        (user) => user.id === currentUserId,
+      );
+
+      if (
+        (!isUsersIncludeCurrentUser && users.length > 0) ||
+        (isUsersIncludeCurrentUser && users.length > 1)
+      ) {
+        state.billitemsList[index].isSelectUsersRequired = false;
+      }
+
+      state.enteredUsersSum = shareBillItemsSumAtSender(
+        state.sender,
+        state.billitemsList,
+      );
+    },
+    generatePerItemDescription(state) {
+      state.sender.forEach((userId) => {
+        let description = `Всего - ${state.enteredUsersSum[userId]},\nв том числе:\n`;
+        let count = 1;
+
+        state.billitemsList.forEach((billItem, index) => {
+          billItem.selectedUsers.forEach((selectedUser) => {
+            if (selectedUser.id === userId && billItem.sum) {
+              const itemSum = roundSum(
+                +billItem.sum,
+                billItem.selectedUsers.length,
+              ).toString();
+
+              const itemName = billItem.description
+                ? billItem.description
+                : `Позиция ${index + 1}`;
+              description = description.concat(
+                `${count}. ${itemName} - ${itemSum}\n`,
+              );
+              count += 1;
+            }
+          });
+        });
+        state.perItemDescription[userId] = description;
+      });
+    },
+    toggleIsAddPerItemDescription(state) {
+      state.isAddPerItemDescription = !state.isAddPerItemDescription;
+    },
+    toogleIsBillСalculation(state) {
+      state.isBillModeOn = !state.isBillModeOn;
+    },
+    recalculateSumOnModeSwitched(state) {
+      if (state.isBillModeOn) {
+        state.enteredUsersSum = shareBillItemsSumAtSender(
+          state.sender,
+          state.billitemsList,
+        );
+      }
+    },
   },
 });
 
@@ -288,4 +449,13 @@ export const {
   validateAndSetEnteredSum,
   setEnteredSumOnBlur,
   shareSum,
+  addBillItem,
+  removeBillItem,
+  setBillItemDescription,
+  validateAndSetBillItemSum,
+  setBillItemSelectedUsers,
+  generatePerItemDescription,
+  toggleIsAddPerItemDescription,
+  toogleIsBillСalculation,
+  recalculateSumOnModeSwitched,
 } = actions;

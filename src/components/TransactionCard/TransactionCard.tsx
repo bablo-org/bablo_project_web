@@ -6,82 +6,96 @@ import {
   ButtonGroup,
   Box,
   CardActions,
+  Tooltip,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { useMemo } from 'react';
 import moment from 'moment';
-import { auth } from '../../services/firebase';
+import { nanoid } from '@reduxjs/toolkit';
+import { useMemo } from 'react';
 import UserAvatar from '../UserAvatar/UserAvatar';
+import BorderBox from '../UI/BorderBox';
+import {
+  TransactionStatus,
+  getStatusColor,
+} from '../../models/enums/TransactionStatus';
 import {
   useApproveTransation,
   useCompleteTransation,
   useDeclineTransation,
 } from '../../queries';
-import BorderBox from '../UI/BorderBox';
-import DescriptionTooltip from './DescriptionTooltip';
-import {
-  TransactionStatus,
-  getStatusColor,
-  getStatusString,
-} from '../../models/enums/TransactionStatus';
 import User from '../../models/User';
+import Transaction from '../../models/Transaction';
+import { useAppSelector } from '../../store/hooks';
 
-type TransactionItemProps = {
-  description: string;
-  date: number;
-  status: TransactionStatus;
-  currency: string;
-  amount: number;
-  id: string;
-  senderId: string;
-  recieverId: string;
-  users: User[] | undefined;
-};
-function TransactionItem({
-  description,
-  date,
-  status,
-  currency,
-  amount,
-  id,
-  senderId,
-  recieverId,
+interface TransactionCardProps {
+  users: User[];
+  transaction: Transaction;
+  previewMode?: boolean;
+}
+
+function TransactionCard({
   users,
-}: TransactionItemProps) {
-  const currentUserId = auth?.currentUser?.uid;
-
-  const showButtonContainer = useMemo(() => {
-    return (
-      (currentUserId === senderId && status === 'PENDING') ||
-      (status === 'APPROVED' && recieverId === currentUserId)
-    );
-  }, [currentUserId, status, senderId, recieverId]);
-
+  transaction,
+  previewMode = false,
+}: TransactionCardProps) {
+  const currentUserId = useAppSelector((state) => state.auth.user?.uid);
   const { mutate: putTransactionsApprove, status: approveStatus } =
     useApproveTransation();
   const { mutate: putTransactionsComplete, status: completeStatus } =
     useCompleteTransation();
   const { mutate: putTransactionsDecline, status: declineStatus } =
     useDeclineTransation();
-  const putTransactionsDeclineHandler = () => {
-    putTransactionsDecline([id]);
-  };
-
-  const putTransactionsCompleteHandler = () => {
-    putTransactionsComplete([id]);
-  };
-
-  const putTransactionsApproveHandler = () => {
-    putTransactionsApprove([id]);
-  };
 
   // a user with whom the current trasaction is
   const secondUser = useMemo(() => {
-    if (currentUserId === senderId) {
-      return users?.find((user) => user.id === recieverId);
+    if (currentUserId === transaction.sender) {
+      return users?.find((user) => user.id === transaction.receiver);
     }
-    return users?.find((user) => user.id === senderId);
-  }, [users, currentUserId]);
+    return users?.find((user) => user.id === transaction.sender);
+  }, [users, transaction]);
+
+  const showButtonContainer = useMemo(() => {
+    if (previewMode) {
+      return false;
+    }
+    if (
+      transaction.sender === currentUserId &&
+      transaction.status === TransactionStatus.PENDING
+    ) {
+      return true;
+    }
+    if (
+      transaction.receiver === currentUserId &&
+      transaction.status === TransactionStatus.APPROVED
+    ) {
+      return true;
+    }
+    return false;
+  }, [transaction, previewMode]);
+
+  const putTransactionsDeclineHandler = () => {
+    putTransactionsDecline([transaction.id]);
+  };
+
+  const putTransactionsCompleteHandler = () => {
+    putTransactionsComplete([transaction.id]);
+  };
+
+  const putTransactionsApproveHandler = () => {
+    putTransactionsApprove([transaction.id]);
+  };
+
+  const renderDescription = useMemo(() => {
+    return transaction.description.split('\n').map((line, index) => (
+      <Typography
+        variant='body1'
+        sx={{ textIndent: index > 1 ? '20px' : '0px' }}
+        key={nanoid()}
+      >
+        {line}
+      </Typography>
+    ));
+  }, [transaction]);
 
   return (
     <BorderBox
@@ -115,7 +129,7 @@ function TransactionItem({
                     xs={30}
                     sm={30}
                     md={30}
-                    id={recieverId}
+                    id={transaction.receiver}
                     avatarUrl={secondUser?.avatar}
                     name=''
                     style={{
@@ -133,32 +147,33 @@ function TransactionItem({
                     alignSelf='center'
                     fontWeight='bold'
                     fontSize={14}
-                    color={getStatusColor(status)}
+                    color={getStatusColor(transaction.status)}
                   >
-                    {getStatusString(status)}
+                    {transaction.status}
                   </Typography>
                 </Box>
               </Box>
             }
           />
           <CardContent>
-            <Box
+            <Tooltip
+              arrow
               sx={{
-                backgroundColor: 'rgba(25, 118, 210, 0.12)',
-                borderRadius: 2,
-                padding: 1,
+                textAlign: 'left',
               }}
+              title={<Typography fontSize={17}>{renderDescription}</Typography>}
             >
-              <Typography
-                align='left'
+              <Box
                 sx={{
-                  display: '-webkit-box',
-                  overflow: 'hidden',
+                  backgroundColor: 'rgba(25, 118, 210, 0.12)',
+                  borderRadius: 2,
+                  padding: 1,
+                  textAlign: 'left',
                 }}
               >
-                <DescriptionTooltip tooltipDescription={`${description}`} />
-              </Typography>
-            </Box>
+                {renderDescription}
+              </Box>
+            </Tooltip>
           </CardContent>
         </Box>
         <Box>
@@ -169,21 +184,21 @@ function TransactionItem({
             }}
           >
             <Typography align='left' fontSize={14} fontWeight='bold'>
-              {moment(date).format('LL')}
+              {moment(transaction.date).format('LL')}
             </Typography>
             <Typography
               variant='body2'
               fontWeight='bold'
-              color={senderId === currentUserId ? 'red' : 'green'}
+              color={transaction.sender === currentUserId ? 'red' : 'green'}
               fontSize='large'
               align='left'
             >
-              {`${senderId === currentUserId ? '-' : '+'}${amount} ${currency}`}
+              {transaction.amount} {transaction.currency}
             </Typography>
           </CardContent>
           {showButtonContainer && (
             <CardActions>
-              {currentUserId === senderId && status === 'PENDING' && (
+              {transaction.status === TransactionStatus.PENDING && (
                 <ButtonGroup
                   fullWidth
                   sx={{ borderRadius: 2 }}
@@ -211,7 +226,7 @@ function TransactionItem({
                   </LoadingButton>
                 </ButtonGroup>
               )}
-              {status === 'APPROVED' && recieverId === currentUserId && (
+              {transaction.status === TransactionStatus.APPROVED && (
                 <LoadingButton
                   sx={{ borderRadius: 2 }}
                   fullWidth
@@ -232,4 +247,4 @@ function TransactionItem({
   );
 }
 
-export default TransactionItem;
+export default TransactionCard;
