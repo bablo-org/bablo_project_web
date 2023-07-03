@@ -105,23 +105,26 @@ function DebtForm() {
     dispatch(clearForm());
   };
 
+  const chooseDescription = (id: string) => {
+    if (isAddPerItemDescription && perItemDescription[id]) {
+      let description = perItemDescription[id];
+      if (enteredDescription) {
+        description = enteredDescription.concat(
+          '\n',
+          ...perItemDescription[id],
+        );
+      }
+      return description.toString();
+    }
+    return enteredDescription;
+  };
+
   const putTransaction = async () => {
     const chooseAmount = (id: string) => {
       if (!isBillModeOn && sender.length === 1) {
         return +enteredSum!;
       }
       return +enteredUsersSum[id];
-    };
-
-    const chooseDescription = (id: string) => {
-      const description: string[] = [];
-      if (enteredDescription) {
-        description.push(enteredDescription);
-      }
-      if (isAddPerItemDescription) {
-        description.push(...perItemDescription[id]);
-      }
-      return description.join('\n');
     };
 
     const debtData = sender.map((id) => {
@@ -199,27 +202,13 @@ function DebtForm() {
   }, [enteredSum, isEnteredSumValid, validationProps.sum]);
 
   const transactionSum = (user: User) => {
-    if (currentUser?.id === user.id && enteredSum) {
-      return parseInt(enteredSum, 10);
+    if (enteredSum && sender.length === 1) {
+      return +enteredSum;
     }
-    if (sender.length === 1 && enteredSum) {
-      return parseInt(enteredSum, 10);
-    }
-    if (enteredUsersSum[user.id] && enteredUsersSum[user.id]) {
-      return parseInt(enteredUsersSum[user.id], 10);
+    if (enteredUsersSum[user.id]) {
+      return +enteredUsersSum[user.id];
     }
     return 0;
-  };
-
-  const chooseDescription = (user: User) => {
-    if (isAddPerItemDescription && perItemDescription[user.id]) {
-      const description = [...perItemDescription[user.id]];
-      if (enteredDescription) {
-        description.unshift(enteredDescription).toString();
-      }
-      return description.toString();
-    }
-    return enteredDescription;
   };
 
   useEffect(() => {
@@ -433,7 +422,7 @@ function DebtForm() {
                                 amount: transactionSum(user),
                                 currency: enteredCurrency?.id || '',
                                 created: Date.now(),
-                                description: chooseDescription(user),
+                                description: chooseDescription(user.id),
                                 sender: user.id,
                                 receiver: receiver[0],
                                 date: enteredDate ?? Date.now(),

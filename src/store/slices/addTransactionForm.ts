@@ -15,7 +15,7 @@ export interface UsersSum {
 }
 
 export interface ItemDescriptions {
-  [key: string]: string[];
+  [key: string]: string;
 }
 
 interface GroupedCurrency extends Currency {
@@ -390,9 +390,7 @@ const addTransactionForm = createSlice({
     },
     generatePerItemDescription(state) {
       state.sender.forEach((userId) => {
-        const description: string[] = [];
-        description.push(`Всего - ${state.enteredUsersSum[userId]},`);
-        description.push('в том числе:');
+        let description = `Всего - ${state.enteredUsersSum[userId]},\nв том числе:\n`;
         let count = 1;
 
         state.billitemsList.forEach((billItem, index) => {
@@ -406,7 +404,9 @@ const addTransactionForm = createSlice({
               const itemName = billItem.description
                 ? billItem.description
                 : `Позиция ${index + 1}`;
-              description.push(`${count}. ${itemName} - ${itemSum}`);
+              description = description.concat(
+                `${count}. ${itemName} - ${itemSum}\n`,
+              );
               count += 1;
             }
           });

@@ -23,9 +23,9 @@ import {
   useCompleteTransation,
   useDeclineTransation,
 } from '../../queries';
-import { auth } from '../../services/firebase';
 import User from '../../models/User';
 import Transaction from '../../models/Transaction';
+import { useAppSelector } from '../../store/hooks';
 
 interface TransactionCardProps {
   users: User[];
@@ -38,7 +38,7 @@ function TransactionCard({
   transaction,
   previewMode = false,
 }: TransactionCardProps) {
-  const currentUserId = auth?.currentUser?.uid;
+  const currentUserId = useAppSelector((state) => state.auth.user?.uid);
   const { mutate: putTransactionsApprove, status: approveStatus } =
     useApproveTransation();
   const { mutate: putTransactionsComplete, status: completeStatus } =
