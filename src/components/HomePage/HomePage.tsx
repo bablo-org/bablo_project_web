@@ -2,7 +2,7 @@ import { Box, Button, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import BorderBox from '../UI/BorderBox';
-import i18n from '../../i18n';
+import i18n from '../../services/i18n';
 
 function HomePage() {
   const { t } = useTranslation();

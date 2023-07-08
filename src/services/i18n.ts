@@ -1,11 +1,10 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
-import enNs1 from './languages/en.json';
-import ruNs1 from './languages/ru.json';
+import enNs1 from '../languages/en.json';
+import ruNs1 from '../languages/ru.json';
 
 export const defaultNS = 'ns1';
-export const fallbackNS = 'fallback';
 
 i18n
   // detect user language
@@ -18,7 +17,6 @@ i18n
   .init({
     debug: true,
     fallbackLng: 'en',
-    lng: 'en',
     defaultNS,
     interpolation: {
       escapeValue: false, // not needed for react as it escapes by default
