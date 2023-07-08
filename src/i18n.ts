@@ -1,8 +1,8 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
-import enNs1 from './Languages/en.json';
-import ruNs1 from './Languages/ru.json';
+import enNs1 from './languages/en.json';
+import ruNs1 from './languages/ru.json';
 
 export const defaultNS = 'ns1';
 export const fallbackNS = 'fallback';

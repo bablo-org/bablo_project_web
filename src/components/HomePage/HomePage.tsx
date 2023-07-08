@@ -22,7 +22,7 @@ function HomePage() {
     <>
       <BorderBox marginProp={2}>
         <>
-          <Typography>{t('title')}</Typography>
+          <Typography>{t('homePage.welcome')}</Typography>
           <Box
             component='img'
             src='https://wow.zamimg.com/modelviewer/live/webthumbs/npc/166/83622.webp'
