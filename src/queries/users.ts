@@ -34,6 +34,41 @@ const useGetUsers = () => {
   });
 };
 
+const useGetUserById = (id: string) => {
+  return useQuery({
+    queryKey: [`users/${id}`],
+    placeholderData: [],
+    refetchOnReconnect: 'always',
+    refetchOnWindowFocus: 'always',
+    retryOnMount: true,
+    select: (data: any) => {
+      if (data.length === 0) {
+        return undefined;
+      }
+      return data.map((user: any) => ({
+        id: user.id,
+        name: user.name,
+        avatar: user.avatar,
+        created: user.created,
+        privateData: {
+          email: user.privateData?.email,
+          telegramId: user.privateData?.telegramId,
+          telegramUser: user.privateData?.telegramUser,
+          settings: {
+            enableTelegramNotifications:
+              user.privateData?.settings?.enableTelegramNotifications,
+            favoriteCurrencies: user?.privateData?.settings?.favoriteCurrencies,
+          },
+          network: {
+            partners: user.privateData?.network?.partners,
+          },
+        },
+        active: user.active,
+      }))[0] as User;
+    },
+  });
+};
+
 const useUpdateUserAvatar = () => {
   const queryClient = useQueryClient();
 
@@ -130,4 +165,5 @@ export {
   useUpdateTgUserName,
   useUpdateUserSettings,
   useRegisterUser,
+  useGetUserById,
 };

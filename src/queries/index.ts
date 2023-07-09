@@ -59,4 +59,6 @@ export {
   useUpdateUserAvatar,
   useUpdateTgUserName,
   useUpdateUserSettings,
+  useRegisterUser,
+  useGetUserById,
 } from './users';
