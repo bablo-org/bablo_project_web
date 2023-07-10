@@ -64,7 +64,7 @@ function AuthorizedLayout() {
 
   const [open, setOpen] = useState(false);
 
-  const handleClick = () => {
+  const handleClickTransactions = () => {
     if (
       (open &&
         location.pathname !==
@@ -81,6 +81,13 @@ function AuthorizedLayout() {
       `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_ACTUAL}`,
     );
     setOpen(!open);
+  };
+
+  const handleClick = (item: ItemButton) => {
+    navigate(item.path);
+    if (mobileOpen) {
+      setMobileOpen(false);
+    }
   };
 
   const dispatch = useAppDispatch();
@@ -104,12 +111,17 @@ function AuthorizedLayout() {
     ],
     [],
   );
-  const listItemButtons = useMemo(
+  const listItemButtons: ItemButton[] = useMemo(
     () => [
       {
         name: 'Добавить транзакцию',
         path: PATHES.ADD_TRANSACTION,
         icon: <AddBox />,
+      },
+      {
+        name: 'Транзакции',
+        path: `${PATHES.HISTORY_HOME}/${PATHES.HISTORY_HOME.HISTORY_ACTUAL}`,
+        icon: <Payments />,
       },
       {
         name: 'Итоги',
@@ -160,6 +172,32 @@ function AuthorizedLayout() {
     }
   }, [location.pathname]);
 
+  const optionalList = (
+    <List component='div' disablePadding>
+      {transctionsItemButtons.map((item) => (
+        <ListItem key={item.name} disablePadding>
+          <ListItemButton
+            sx={{ pl: 4 }}
+            onClick={() => {
+              navigate(item.path);
+              if (mobileOpen) {
+                setMobileOpen(false);
+              }
+            }}
+            selected={isCurrentLocation(item)}
+          >
+            <ListItemIcon
+              sx={isCurrentLocation(item) ? { color: '#1976d2' } : undefined}
+            >
+              {item.icon}
+            </ListItemIcon>
+            <ListItemText primary={item.name} />
+          </ListItemButton>
+        </ListItem>
+      ))}
+    </List>
+  );
+
   const drawer = (
     <div>
       <IconButton
@@ -178,45 +216,16 @@ function AuthorizedLayout() {
       </IconButton>
       <Divider />
       <List>
-        {listItemButtons.map((item) => (
-          <ListItem key={item.name} disablePadding>
-            <ListItemButton
-              onClick={() => {
-                navigate(item.path);
-                if (mobileOpen) {
-                  setMobileOpen(false);
-                }
-              }}
-              selected={isCurrentLocation(item)}
-            >
-              <ListItemIcon
-                sx={isCurrentLocation(item) ? { color: '#1976d2' } : undefined}
-              >
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText primary={item.name} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-        <ListItemButton onClick={handleClick}>
-          <ListItemIcon>
-            <Payments />
-          </ListItemIcon>
-          <ListItemText primary='Транзакции' />
-          {open ? <ExpandLess /> : <ExpandMore />}
-        </ListItemButton>
-        <Collapse in={open} timeout='auto' unmountOnExit>
-          <List component='div' disablePadding>
-            {transctionsItemButtons.map((item) => (
+        {listItemButtons.map((item) => {
+          return (
+            <>
               <ListItem key={item.name} disablePadding>
                 <ListItemButton
-                  sx={{ pl: 4 }}
-                  onClick={() => {
-                    navigate(item.path);
-                    if (mobileOpen) {
-                      setMobileOpen(false);
-                    }
-                  }}
+                  onClick={
+                    item.name === 'Транзакции'
+                      ? handleClickTransactions
+                      : () => handleClick(item)
+                  }
                   selected={isCurrentLocation(item)}
                 >
                   <ListItemIcon
@@ -227,11 +236,18 @@ function AuthorizedLayout() {
                     {item.icon}
                   </ListItemIcon>
                   <ListItemText primary={item.name} />
+                  {item.name === 'Транзакции' &&
+                    (open ? <ExpandLess /> : <ExpandMore />)}
                 </ListItemButton>
               </ListItem>
-            ))}
-          </List>
-        </Collapse>
+              {item.name === 'Транзакции' && (
+                <Collapse in={open} timeout='auto' unmountOnExit>
+                  {optionalList}
+                </Collapse>
+              )}
+            </>
+          );
+        })}
       </List>
       <Divider />
       <List>
