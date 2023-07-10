@@ -2,5 +2,18 @@
   "homePage": {
     "xui": "aboba",
     "welcome": "hello"
+  },
+  "authorizedLayout": {
+    "addTransactionsLabel": "Create new transaction",
+    "transactionsLabels": {
+      "menuLabel": "Transactions",
+      "actualLabel": "Actual",
+      "declinedLabel": "Declined",
+      "completedLabel": "Completed"
+    },
+    "summaryLabel": "Summary",
+    "profileLabel": "Profile",
+    "contactsLabel": "Contacts",
+    "logOutLabel": "Logout"
   }
 }

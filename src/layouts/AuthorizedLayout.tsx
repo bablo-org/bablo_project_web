@@ -1,6 +1,7 @@
 import {
   AppBar,
   Box,
+  Button,
   Collapse,
   CssBaseline,
   Divider,
@@ -28,6 +29,7 @@ import {
   History,
   People,
 } from '@mui/icons-material/';
+import { useTranslation } from 'react-i18next';
 import { useMemo, useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { logout } from '../services/firebase';
@@ -38,6 +40,7 @@ import { SnackbarSeverity } from '../models/enums/SnackbarSeverity';
 import Logo from '../BabloLogo.png';
 import RequestNameDialog from '../components/RequestNameDialog/RequestNameDialog';
 import { useGetUsers } from '../queries';
+import i18n from '../services/i18n';
 
 interface ItemButton {
   name: string;
@@ -47,6 +50,18 @@ interface ItemButton {
 const drawerWidth = 240;
 
 function AuthorizedLayout() {
+  const [isEnglish, setIsEnglish] = useState(true);
+  const handleLngClick = () => {
+    if (!isEnglish) {
+      setIsEnglish(true);
+      i18n.changeLanguage('en-US');
+    }
+    if (isEnglish) {
+      setIsEnglish(false);
+      i18n.changeLanguage('ru');
+    }
+  };
+  const { t } = useTranslation();
   const [mobileOpen, setMobileOpen] = useState<boolean>(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -94,52 +109,52 @@ function AuthorizedLayout() {
   const transctionsItemButtons = useMemo(
     () => [
       {
-        name: 'Актуальные',
+        name: t('authorizedLayout.transactionsLabels.actualLabel'),
         path: `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_ACTUAL}`,
         icon: <Done />,
       },
       {
-        name: 'Отклоненные',
+        name: t('authorizedLayout.transactionsLabels.declinedLabel'),
         path: `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_DECLINED}`,
         icon: <Block />,
       },
       {
-        name: 'Завершенные',
+        name: t('authorizedLayout.transactionsLabels.completedLabel'),
         path: `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_COMPLETED}`,
         icon: <History />,
       },
     ],
-    [],
+    [t],
   );
   const listItemButtons: ItemButton[] = useMemo(
     () => [
       {
-        name: 'Добавить транзакцию',
+        name: t('authorizedLayout.addTransactionsLabel'),
         path: PATHES.ADD_TRANSACTION,
         icon: <AddBox />,
       },
       {
-        name: 'Транзакции',
+        name: t('authorizedLayout.transactionsLabels.menuLabel'),
         path: `${PATHES.HISTORY_HOME}/${PATHES.HISTORY_HOME.HISTORY_ACTUAL}`,
         icon: <Payments />,
       },
       {
-        name: 'Итоги',
+        name: t('authorizedLayout.summaryLabel'),
         path: PATHES.SUMMARY,
         icon: <Summarize />,
       },
       {
-        name: 'Профиль',
+        name: t('authorizedLayout.profileLabel'),
         path: PATHES.PROFILE,
         icon: <AccountCircle />,
       },
       {
-        name: 'Контакты',
+        name: t('authorizedLayout.contactsLabel'),
         path: PATHES.CONTACTS,
         icon: <People />,
       },
     ],
-    [],
+    [t],
   );
 
   const handleDrawerToggle = () => {
@@ -154,19 +169,19 @@ function AuthorizedLayout() {
     switch (location.pathname) {
       case '/add':
       case PATHES.ADD_TRANSACTION:
-        return 'Создать транзакцию';
+        return t('authorizedLayout.addTransactionsLabel');
       case `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_ACTUAL}`:
-        return 'Актуальные транзакции';
+        return t('authorizedLayout.transactionsLabels.actualLabel');
       case `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_COMPLETED}`:
-        return 'Завершенные транзакции';
+        return t('authorizedLayout.transactionsLabels.completedLabel');
       case `${PATHES.HISTORY_HOME.HOME}/${PATHES.HISTORY_HOME.HISTORY_DECLINED}`:
-        return 'Отклоненные транзакции';
+        return t('authorizedLayout.transactionsLabels.declinedLabel');
       case PATHES.SUMMARY:
-        return 'Итоги';
+        return t('authorizedLayout.summaryLabel');
       case PATHES.PROFILE:
-        return 'Профиль';
+        return t('authorizedLayout.profileLabel');
       case PATHES.CONTACTS:
-        return 'Контакты';
+        return t('authorizedLayout.contactsLabel');
       default:
         return 'Bablo Project';
     }
@@ -222,7 +237,7 @@ function AuthorizedLayout() {
               <ListItem key={item.name} disablePadding>
                 <ListItemButton
                   onClick={
-                    item.name === 'Транзакции'
+                    item.name === 'Транзакции' || item.name === 'Transactions'
                       ? handleClickTransactions
                       : () => handleClick(item)
                   }
@@ -236,11 +251,12 @@ function AuthorizedLayout() {
                     {item.icon}
                   </ListItemIcon>
                   <ListItemText primary={item.name} />
-                  {item.name === 'Транзакции' &&
+                  {(item.name === 'Транзакции' ||
+                    item.name === 'Transactions') &&
                     (open ? <ExpandLess /> : <ExpandMore />)}
                 </ListItemButton>
               </ListItem>
-              {item.name === 'Транзакции' && (
+              {(item.name === 'Транзакции' || item.name === 'Transactions') && (
                 <Collapse in={open} timeout='auto' unmountOnExit>
                   {optionalList}
                 </Collapse>
@@ -267,7 +283,7 @@ function AuthorizedLayout() {
             <ListItemIcon>
               <Logout />
             </ListItemIcon>
-            <ListItemText primary='Выйти' />
+            <ListItemText primary={t('authorizedLayout.logOutLabel')} />
           </ListItemButton>
         </ListItem>
       </List>
@@ -296,9 +312,12 @@ function AuthorizedLayout() {
             >
               <Menu />
             </IconButton>
-            <Typography variant='h6' noWrap component='div'>
-              {pageHeader}
-            </Typography>
+            <Box flexDirection='row' display='flex' justifyContent='center'>
+              <Typography variant='h6'>{pageHeader}</Typography>
+              <Button variant='contained' onClick={handleLngClick}>
+                язык менять
+              </Button>
+            </Box>
           </Toolbar>
         </AppBar>
         <Box
