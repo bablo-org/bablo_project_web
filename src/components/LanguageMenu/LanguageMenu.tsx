@@ -6,6 +6,7 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import { Language } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
+import moment from 'moment';
 
 export default function LanuguageMenu() {
   const { t, i18n } = useTranslation();
@@ -76,13 +77,19 @@ export default function LanuguageMenu() {
       >
         <MenuItem
           selected={i18n.language === 'en'}
-          onClick={() => i18n.changeLanguage('en')}
+          onClick={() => {
+            i18n.changeLanguage('en');
+            moment.locale('en');
+          }}
         >
           English
         </MenuItem>
         <MenuItem
           selected={i18n.language === 'ru'}
-          onClick={() => i18n.changeLanguage('ru')}
+          onClick={() => {
+            i18n.changeLanguage('ru');
+            moment.locale('ru');
+          }}
         >
           Русский
         </MenuItem>
