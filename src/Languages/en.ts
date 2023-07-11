@@ -57,6 +57,28 @@ const en = {
     },
     noTransactionsFound: 'No transactions found',
   },
+  summaryPage: {
+    pageHeader: 'Approved transactions',
+    currencyConverter: {
+      converterHeader: 'Currency converter',
+      defaultValue: 'All currencies',
+      helperText: 'Select currency ',
+    },
+    summaryTable: {
+      countRow: 'Qty',
+      userRow: 'User',
+      valueGainRow: 'I get',
+      valueLostRow: 'I owe',
+      totalRow: 'Total',
+      grandTotal: 'Grand total',
+      transactionList: {
+        date: 'Date',
+        description: 'Description',
+        amount: 'Amount',
+      },
+    },
+    noApprovedTransactions: 'No approved transactions ',
+  },
 };
 
 export default en;

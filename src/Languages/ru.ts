@@ -59,6 +59,28 @@ const ru: TranslationKeys = {
     },
     noTransactionsFound: 'Транзакции не найдены',
   },
+  summaryPage: {
+    pageHeader: 'Подтвержденные транзакции',
+    currencyConverter: {
+      converterHeader: 'Конвертер валют',
+      defaultValue: 'Все валюты',
+      helperText: 'Выберите валюту ',
+    },
+    summaryTable: {
+      countRow: 'Кол-во',
+      userRow: 'Пользователь',
+      valueGainRow: 'Я получу',
+      valueLostRow: 'Я должен',
+      totalRow: 'Итоги',
+      grandTotal: 'Итоговая сумма',
+      transactionList: {
+        date: 'Дата',
+        description: 'Описание',
+        amount: 'Сумма',
+      },
+    },
+    noApprovedTransactions: 'Нет подтвержденных транзакций',
+  },
 };
 
 export default ru;

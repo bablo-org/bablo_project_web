@@ -1,9 +1,11 @@
 import { Box, Paper, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   totals: { [key: string]: number };
 }
 function Overall({ totals }: Props) {
+  const { t } = useTranslation();
   return (
     <Paper
       sx={{
@@ -15,7 +17,7 @@ function Overall({ totals }: Props) {
         paddingRight: 2,
       }}
     >
-      <div>Итоговая сумма</div>
+      <div>{t('summaryPage.summaryTable.grandTotal')}</div>
       <Box
         sx={{
           paddingTop: 2,
