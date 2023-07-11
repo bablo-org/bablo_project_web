@@ -12,6 +12,7 @@ import { LoadingButton } from '@mui/lab';
 import moment from 'moment';
 import { nanoid } from '@reduxjs/toolkit';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import UserAvatar from '../UserAvatar/UserAvatar';
 import BorderBox from '../UI/BorderBox';
 import {
@@ -38,6 +39,7 @@ function TransactionCard({
   transaction,
   previewMode = false,
 }: TransactionCardProps) {
+  const { t } = useTranslation();
   const currentUserId = useAppSelector((state) => state.auth.user?.uid);
   const { mutate: putTransactionsApprove, status: approveStatus } =
     useApproveTransation();
@@ -213,7 +215,9 @@ function TransactionCard({
                     color='error'
                     variant='outlined'
                   >
-                    Отклонить
+                    {t(
+                      'transactionsPage.transactionLayout.transactionCard.declineButton',
+                    )}
                   </LoadingButton>
                   <LoadingButton
                     sx={{ borderRadius: 2 }}
@@ -222,7 +226,9 @@ function TransactionCard({
                     color='success'
                     variant='outlined'
                   >
-                    Подтвердить
+                    {t(
+                      'transactionsPage.transactionLayout.transactionCard.approveButton',
+                    )}
                   </LoadingButton>
                 </ButtonGroup>
               )}
@@ -236,7 +242,9 @@ function TransactionCard({
                   variant='outlined'
                   color='success'
                 >
-                  Завершить
+                  {t(
+                    'transactionsPage.transactionLayout.transactionCard.completeButton',
+                  )}
                 </LoadingButton>
               )}
             </CardActions>

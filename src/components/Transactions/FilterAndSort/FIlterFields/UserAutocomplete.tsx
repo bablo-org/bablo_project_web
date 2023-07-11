@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Autocomplete, Avatar, Box, Chip, TextField } from '@mui/material';
 import { auth } from '../../../../services/firebase';
 import User from '../../../../models/User';
@@ -11,6 +12,7 @@ function UserAutocomplete({
   onChange: (user: User[]) => void;
   selectedUsers: User[];
 }) {
+  const { t } = useTranslation();
   if (!users) {
     return null;
   }
@@ -57,8 +59,10 @@ function UserAutocomplete({
       renderInput={(params) => (
         <TextField
           {...params}
-          label='Фильтр контактов'
-          placeholder='Контакты'
+          label={t('transactionsPage.filterCollapse.contactsFilter')}
+          placeholder={t(
+            'transactionsPage.filterCollapse.contactsFilterHelper',
+          )}
         />
       )}
     />

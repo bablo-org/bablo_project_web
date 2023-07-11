@@ -2,6 +2,7 @@ import * as React from 'react';
 import { styled, alpha } from '@mui/material/styles';
 import InputBase from '@mui/material/InputBase';
 import SearchIcon from '@mui/icons-material/Search';
+import { useTranslation } from 'react-i18next';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -51,13 +52,14 @@ interface SearchFieldProps {
 }
 
 function SearchField({ setSearchString, searchString }: SearchFieldProps) {
+  const { t } = useTranslation();
   return (
     <Search>
       <SearchIconWrapper>
         <SearchIcon />
       </SearchIconWrapper>
       <StyledInputBase
-        placeholder='Search…'
+        placeholder={t('transactionsPage.transactionLayout.searchField')}
         inputProps={{ 'aria-label': 'search' }}
         value={searchString}
         onChange={(e) => setSearchString(e.target.value)}
