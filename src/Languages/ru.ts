@@ -4,6 +4,15 @@ const ru: TranslationKeys = {
   homePage: {
     welcome: 'дарова',
   },
+  languageMenu: {
+    languageSettings: 'Настройки языка',
+  },
+  accountMenu: {
+    accountSettings: 'Настройки аккаунта',
+    myProfile: 'Мой профиль',
+    logout: 'Выйти',
+    tryLater: 'Ошибка, попробуйте позже...',
+  },
   authorizedLayout: {
     addTransactionsLabel: 'Добавить транзакцию',
     transactionsLabels: {
@@ -15,7 +24,6 @@ const ru: TranslationKeys = {
     summaryLabel: 'Итоги',
     profileLabel: 'Профиль',
     contactsLabel: 'Контакты',
-    logOutLabel: 'Выйти',
   },
   transactionsPage: {
     noTransactionsFoundByFilter:

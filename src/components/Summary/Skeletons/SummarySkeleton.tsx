@@ -10,6 +10,7 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
+import { nanoid } from '@reduxjs/toolkit';
 import SummaryRowSkeleton from './SummaryRowSkeleton';
 
 function SummarySkeleton() {
@@ -33,7 +34,7 @@ function SummarySkeleton() {
           </TableHead>
           <TableBody>
             {Array.from(Array(5)).map(() => {
-              return <SummaryRowSkeleton />;
+              return <SummaryRowSkeleton key={nanoid()} />;
             })}
           </TableBody>
         </Table>
