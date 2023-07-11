@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Grid, Typography } from '@mui/material';
@@ -15,6 +16,7 @@ enum Pages {
 }
 
 function TransactionPage() {
+  const { t } = useTranslation();
   const location = useLocation();
   const currentPage = useMemo(() => {
     switch (location.pathname) {
@@ -80,7 +82,7 @@ function TransactionPage() {
             }}
           >
             <Typography fontWeight='bold' fontSize='large'>
-              Транзакции не найдены
+              {t('transactionsPage.noTransactionsFound')}
             </Typography>
           </BorderBox>
         </Grid>
@@ -111,7 +113,9 @@ function TransactionPage() {
             )}
             users={users}
             wrapperBox={{
-              title: 'Ожидающие',
+              title: t(
+                'transactionsPage.transactionLayout.transactionStatusLabels.pending',
+              ),
             }}
           />
           <TransactionsList
@@ -120,7 +124,9 @@ function TransactionPage() {
             )}
             users={users}
             wrapperBox={{
-              title: 'Подтвержденные',
+              title: t(
+                'transactionsPage.transactionLayout.transactionStatusLabels.approved',
+              ),
             }}
           />
         </>

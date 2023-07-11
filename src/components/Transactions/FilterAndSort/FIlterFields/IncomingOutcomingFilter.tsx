@@ -1,5 +1,6 @@
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import { useTranslation } from 'react-i18next';
 import { TransactionType } from '../../TransactionsList';
 
 interface IncomingOutcomingFilterProps {
@@ -11,16 +12,17 @@ function IncomingOutcomingFilter({
   onChange,
   selectedTransactionType,
 }: IncomingOutcomingFilterProps) {
+  const { t } = useTranslation();
   const getButtonTitle = (type: TransactionType) => {
     switch (type) {
       case TransactionType.ALL:
-        return 'Все';
+        return t('transactionsPage.filterCollapse.statusFilter.all');
       case TransactionType.INCOMING:
-        return 'Входящие';
+        return t('transactionsPage.filterCollapse.statusFilter.incoming');
       case TransactionType.OUTCOMING:
-        return 'Исходящие';
+        return t('transactionsPage.filterCollapse.statusFilter.outcoming');
       default:
-        return 'Все';
+        return t('transactionsPage.filterCollapse.statusFilter.all');
     }
   };
 

@@ -1,5 +1,6 @@
 import { Grid, Box, Typography, Divider, Button } from '@mui/material';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import BorderBox from '../UI/BorderBox';
 import Transaction from '../../models/Transaction';
 import FilterCollapse from './FilterAndSort/FilterCollapse';
@@ -30,6 +31,7 @@ function TransactionsList({
   wrapperBox,
   users,
 }: TransactionsListProps) {
+  const { t } = useTranslation();
   const [checked, setChecked] = useState(false);
   const [searchString, setSearchString] = useState('');
   const [sortBySum, setSortBySum] = useState(false);
@@ -139,7 +141,7 @@ function TransactionsList({
       return (
         <>
           <Typography padding={2}>
-            Транзакций не найдено, попробуйте изменить настройки фильтрации
+            {t('transactionsPage.noTransactionsFoundByFilter')}
           </Typography>
           <Button
             variant='contained'
@@ -149,7 +151,7 @@ function TransactionsList({
               height: '41px',
             }}
           >
-            Сбросить фильтр
+            {t('transactionsPage.clearFilter')}
           </Button>
         </>
       );
@@ -211,7 +213,7 @@ function TransactionsList({
                       height: '41px',
                     }}
                   >
-                    Фильтр
+                    {t('transactionsPage.transactionLayout.filterButton')}
                   </Button>
                 </Grid>
                 <Grid item xs='auto'>

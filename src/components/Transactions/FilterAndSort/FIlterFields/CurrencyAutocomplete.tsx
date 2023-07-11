@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Autocomplete, TextField, CircularProgress } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { useGetCurrencies } from '../../../../queries';
 import { groupCurrencies } from '../../../../utils/groupCurrencies';
 import { auth } from '../../../../services/firebase';
@@ -28,6 +29,7 @@ function CurrencyAutocomplete({
   onChange: (currency: string | null) => void;
   selectedCurrency: string | null;
 }) {
+  const { t } = useTranslation();
   const currentUserId = auth?.currentUser?.uid;
   const { data: currencies, isFetching: loadingCurrencies } =
     useGetCurrencies();
@@ -77,7 +79,7 @@ function CurrencyAutocomplete({
       renderInput={(params) => (
         <TextField
           {...params}
-          label='Фильтр валют'
+          label={t('transactionsPage.filterCollapse.currencyFilter')}
           InputProps={{
             ...params.InputProps,
             endAdornment: (

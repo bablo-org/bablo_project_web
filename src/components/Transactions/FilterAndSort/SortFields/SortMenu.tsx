@@ -4,6 +4,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { Box } from '@mui/material';
 import { ExpandMore, ExpandLess } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 
 interface SortMenuProps {
   setSortByDate: (bool: boolean) => void;
@@ -18,6 +19,7 @@ function SortMenu({
   sortByDate,
   sortBySum,
 }: SortMenuProps) {
+  const { t } = useTranslation();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -48,7 +50,7 @@ function SortMenu({
           height: '41px',
         }}
       >
-        Сортировать
+        {t('transactionsPage.transactionLayout.sortButton')}
       </Button>
       <Menu
         id='basic-menu'
@@ -60,10 +62,10 @@ function SortMenu({
         }}
       >
         <MenuItem selected={sortByDate} divider onClick={handleSortByDate}>
-          По дате
+          {t('transactionsPage.sortMenu.date')}
         </MenuItem>
         <MenuItem selected={sortBySum} onClick={handleSortBySum}>
-          По сумме
+          {t('transactionsPage.sortMenu.sum')}
         </MenuItem>
       </Menu>
     </Box>
