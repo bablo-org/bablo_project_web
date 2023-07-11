@@ -1,6 +1,28 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { defaultQueryFn } from '.';
 import User, { UserSettings } from '../models/User';
+import { auth } from '../services/firebase';
+
+const transformUser = (user: any): User => ({
+  id: user.id,
+  name: user.name,
+  avatar: user.avatar,
+  created: user.created,
+  privateData: {
+    email: user.privateData?.email,
+    telegramId: user.privateData?.telegramId,
+    telegramUser: user.privateData?.telegramUser,
+    settings: {
+      enableTelegramNotifications:
+        user.privateData?.settings?.enableTelegramNotifications,
+      favoriteCurrencies: user?.privateData?.settings?.favoriteCurrencies,
+    },
+    network: {
+      partners: user.privateData?.network?.partners,
+    },
+  },
+  active: user.active,
+});
 
 const useGetUsers = () => {
   return useQuery({
@@ -10,26 +32,23 @@ const useGetUsers = () => {
     refetchOnWindowFocus: 'always',
     retryOnMount: true,
     select: (data: any) => {
-      return data.map((user: any) => ({
-        id: user.id,
-        name: user.name,
-        avatar: user.avatar,
-        created: user.created,
-        privateData: {
-          email: user.privateData?.email,
-          telegramId: user.privateData?.telegramId,
-          telegramUser: user.privateData?.telegramUser,
-          settings: {
-            enableTelegramNotifications:
-              user.privateData?.settings?.enableTelegramNotifications,
-            favoriteCurrencies: user?.privateData?.settings?.favoriteCurrencies,
-          },
-          network: {
-            partners: user.privateData?.network?.partners,
-          },
-        },
-        active: user.active,
-      })) as User[];
+      return data.map(transformUser) as User[];
+    },
+  });
+};
+
+const useGetCurrentUser = () => {
+  const currentUserId = auth?.currentUser?.uid;
+  return useQuery({
+    queryKey: ['users?filter=partners'],
+    placeholderData: [],
+    refetchOnReconnect: 'always',
+    refetchOnWindowFocus: 'always',
+    retryOnMount: true,
+    select: (data: any[]) => {
+      return data
+        .map(transformUser)
+        .find((user) => user.id === currentUserId) as User | undefined;
     },
   });
 };
@@ -45,26 +64,7 @@ const useGetUserById = (id: string) => {
       if (data.length === 0) {
         return undefined;
       }
-      return data.map((user: any) => ({
-        id: user.id,
-        name: user.name,
-        avatar: user.avatar,
-        created: user.created,
-        privateData: {
-          email: user.privateData?.email,
-          telegramId: user.privateData?.telegramId,
-          telegramUser: user.privateData?.telegramUser,
-          settings: {
-            enableTelegramNotifications:
-              user.privateData?.settings?.enableTelegramNotifications,
-            favoriteCurrencies: user?.privateData?.settings?.favoriteCurrencies,
-          },
-          network: {
-            partners: user.privateData?.network?.partners,
-          },
-        },
-        active: user.active,
-      }))[0] as User;
+      return data.map(transformUser)[0] as User;
     },
   });
 };
@@ -166,4 +166,5 @@ export {
   useUpdateUserSettings,
   useRegisterUser,
   useGetUserById,
+  useGetCurrentUser,
 };

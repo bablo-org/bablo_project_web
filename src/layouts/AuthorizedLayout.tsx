@@ -1,7 +1,6 @@
 import {
   AppBar,
   Box,
-  Button,
   Collapse,
   CssBaseline,
   Divider,
@@ -19,8 +18,6 @@ import {
   Menu,
   AddBox,
   Summarize,
-  AccountCircle,
-  Logout,
   Payments,
   ExpandLess,
   ExpandMore,
@@ -30,17 +27,15 @@ import {
   People,
 } from '@mui/icons-material/';
 import { useTranslation } from 'react-i18next';
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { logout } from '../services/firebase';
 import { PATHES } from '../routes';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { showSnackbarMessage } from '../store/slices/snackbarMessage';
-import { SnackbarSeverity } from '../models/enums/SnackbarSeverity';
+import { useAppSelector } from '../store/hooks';
 import Logo from '../BabloLogo.png';
 import RequestNameDialog from '../components/RequestNameDialog/RequestNameDialog';
 import { useGetUsers } from '../queries';
-import i18n from '../services/i18n';
+import AccountMenu from '../components/AccountMenu/AccountMenu';
+import LanguageMenu from '../components/LanguageMenu/LanguageMenu';
 
 interface ItemButton {
   name: string;
@@ -50,17 +45,6 @@ interface ItemButton {
 const drawerWidth = 240;
 
 function AuthorizedLayout() {
-  const [isEnglish, setIsEnglish] = useState(true);
-  const handleLngClick = () => {
-    if (!isEnglish) {
-      setIsEnglish(true);
-      i18n.changeLanguage('en-US');
-    }
-    if (isEnglish) {
-      setIsEnglish(false);
-      i18n.changeLanguage('ru');
-    }
-  };
   const { t } = useTranslation();
   const [mobileOpen, setMobileOpen] = useState<boolean>(false);
   const navigate = useNavigate();
@@ -105,8 +89,7 @@ function AuthorizedLayout() {
     }
   };
 
-  const dispatch = useAppDispatch();
-  const transctionsItemButtons = useMemo(
+  const transctionsItemButtons: ItemButton[] = useMemo(
     () => [
       {
         name: t('authorizedLayout.transactionsLabels.actualLabel'),
@@ -126,7 +109,7 @@ function AuthorizedLayout() {
     ],
     [t],
   );
-  const listItemButtons: ItemButton[] = useMemo(
+  const listTransactionButtons: ItemButton[] = useMemo(
     () => [
       {
         name: t('authorizedLayout.addTransactionsLabel'),
@@ -143,11 +126,12 @@ function AuthorizedLayout() {
         path: PATHES.SUMMARY,
         icon: <Summarize />,
       },
-      {
-        name: t('authorizedLayout.profileLabel'),
-        path: PATHES.PROFILE,
-        icon: <AccountCircle />,
-      },
+    ],
+    [t],
+  );
+
+  const listOtherButtons: ItemButton[] = useMemo(
+    () => [
       {
         name: t('authorizedLayout.contactsLabel'),
         path: PATHES.CONTACTS,
@@ -185,7 +169,7 @@ function AuthorizedLayout() {
       default:
         return 'Bablo Project';
     }
-  }, [location.pathname]);
+  }, [location.pathname, t]);
 
   const optionalList = (
     <List component='div' disablePadding>
@@ -213,6 +197,35 @@ function AuthorizedLayout() {
     </List>
   );
 
+  const renderButton = (item: ItemButton) => (
+    <React.Fragment key={item.name}>
+      <ListItem disablePadding>
+        <ListItemButton
+          onClick={
+            item.name === 'Транзакции' || item.name === 'Transactions'
+              ? handleClickTransactions
+              : () => handleClick(item)
+          }
+          selected={isCurrentLocation(item)}
+        >
+          <ListItemIcon
+            sx={isCurrentLocation(item) ? { color: '#1976d2' } : undefined}
+          >
+            {item.icon}
+          </ListItemIcon>
+          <ListItemText primary={item.name} />
+          {(item.name === 'Транзакции' || item.name === 'Transactions') &&
+            (open ? <ExpandLess /> : <ExpandMore />)}
+        </ListItemButton>
+      </ListItem>
+      {(item.name === 'Транзакции' || item.name === 'Transactions') && (
+        <Collapse in={open} timeout='auto' unmountOnExit>
+          {optionalList}
+        </Collapse>
+      )}
+    </React.Fragment>
+  );
+
   const drawer = (
     <div>
       <IconButton
@@ -230,63 +243,9 @@ function AuthorizedLayout() {
         />
       </IconButton>
       <Divider />
-      <List>
-        {listItemButtons.map((item) => {
-          return (
-            <>
-              <ListItem key={item.name} disablePadding>
-                <ListItemButton
-                  onClick={
-                    item.name === 'Транзакции' || item.name === 'Transactions'
-                      ? handleClickTransactions
-                      : () => handleClick(item)
-                  }
-                  selected={isCurrentLocation(item)}
-                >
-                  <ListItemIcon
-                    sx={
-                      isCurrentLocation(item) ? { color: '#1976d2' } : undefined
-                    }
-                  >
-                    {item.icon}
-                  </ListItemIcon>
-                  <ListItemText primary={item.name} />
-                  {(item.name === 'Транзакции' ||
-                    item.name === 'Transactions') &&
-                    (open ? <ExpandLess /> : <ExpandMore />)}
-                </ListItemButton>
-              </ListItem>
-              {(item.name === 'Транзакции' || item.name === 'Transactions') && (
-                <Collapse in={open} timeout='auto' unmountOnExit>
-                  {optionalList}
-                </Collapse>
-              )}
-            </>
-          );
-        })}
-      </List>
+      <List>{listTransactionButtons.map(renderButton)}</List>
       <Divider />
-      <List>
-        <ListItem key='Выйти' disablePadding>
-          <ListItemButton
-            onClick={async () => {
-              logout().catch(() => {
-                dispatch(
-                  showSnackbarMessage({
-                    severity: SnackbarSeverity.ERROR,
-                    message: 'Ошибка, попробуйте позже...',
-                  }),
-                );
-              });
-            }}
-          >
-            <ListItemIcon>
-              <Logout />
-            </ListItemIcon>
-            <ListItemText primary={t('authorizedLayout.logOutLabel')} />
-          </ListItemButton>
-        </ListItem>
-      </List>
+      <List>{listOtherButtons.map(renderButton)}</List>
     </div>
   );
 
@@ -312,11 +271,17 @@ function AuthorizedLayout() {
             >
               <Menu />
             </IconButton>
-            <Box flexDirection='row' display='flex' justifyContent='center'>
+            <Box
+              flexDirection='row'
+              display='flex'
+              flexGrow={1}
+              justifyContent='flex-start'
+            >
               <Typography variant='h6'>{pageHeader}</Typography>
-              <Button variant='contained' onClick={handleLngClick}>
-                язык менять
-              </Button>
+            </Box>
+            <Box display='flex' flexDirection='row'>
+              <LanguageMenu />
+              <AccountMenu />
             </Box>
           </Toolbar>
         </AppBar>

@@ -2,6 +2,15 @@ const en = {
   homePage: {
     welcome: 'hello',
   },
+  languageMenu: {
+    languageSettings: 'Language settings',
+  },
+  accountMenu: {
+    accountSettings: 'Account settings',
+    myProfile: 'My profile',
+    logout: 'Logout',
+    tryLater: 'Error, try again later...',
+  },
   authorizedLayout: {
     addTransactionsLabel: 'Create new transaction',
     transactionsLabels: {
@@ -13,7 +22,6 @@ const en = {
     summaryLabel: 'Summary',
     profileLabel: 'Profile',
     contactsLabel: 'Contacts',
-    logOutLabel: 'Logout',
   },
   transactionsPage: {
     noTransactionsFoundByFilter:
