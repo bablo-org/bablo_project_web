@@ -1,4 +1,4 @@
-import ns1 from '../languages/en.json';
+import ns1 from '../Languages/en';
 
 const resources = {
   ns1,
