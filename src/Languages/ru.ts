@@ -29,6 +29,11 @@ const ru: TranslationKeys = {
         pending: 'Ожидающие',
         approved: 'Подтвержденные',
       },
+      transactionCard: {
+        approveButton: 'Подтвердить',
+        declineButton: 'Отклонить',
+        completeButton: 'Завершить',
+      },
     },
     filterCollapse: {
       contactsFilter: 'Фильтр контактов',

@@ -27,6 +27,11 @@ const en = {
         pending: 'Pending',
         approved: 'Approved',
       },
+      transactionCard: {
+        approveButton: 'Approve',
+        declineButton: 'Decline',
+        completeButton: 'Complete',
+      },
     },
     filterCollapse: {
       contactsFilter: 'Contacts filter',
