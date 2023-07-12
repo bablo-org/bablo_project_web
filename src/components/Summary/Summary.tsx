@@ -77,14 +77,14 @@ function createData(
 }
 
 function Summary() {
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
   const currentUserId = auth?.currentUser?.uid;
   const { data: users } = useGetUsers();
 
   const defaulConvertertValue = {
     group: '',
     id: '',
-    name: '',
+    name: t('summaryPage.currencyConverter.defaultValue'),
     rate: 0,
     symbol: '',
     updated: 0,
@@ -98,9 +98,6 @@ function Summary() {
   const [summaryData, setSummaryData] = useState<UserSummaryData[]>([]);
   const [enteredCurrency, setEnteredCurrency] =
     useState<GroupedCurrency | null>(defaulConvertertValue);
-  const [currenciesOptions, setCurrenciesOptions] = useState<GroupedCurrency[]>(
-    [],
-  );
   const { data: currencies, isFetching: loadingCurrencies } =
     useGetCurrencies();
 
@@ -138,6 +135,15 @@ function Summary() {
     });
     return total;
   }, [summaryData]);
+
+  const currenciesOptions: GroupedCurrency[] = useMemo(() => {
+    if (!currentUser || !currencies) {
+      return [];
+    }
+    const options = groupCurrencies(currencies, currentUser);
+
+    return [defaulConvertertValue, ...options];
+  }, [currentUser, currencies, i18n.language]);
 
   const updateSummaryData = () => {
     const summaryCurrencies: { [key: string]: number } = {};
@@ -260,14 +266,17 @@ function Summary() {
     if (filteredSummaryData.length === 0) return;
     if (
       !enteredCurrency ||
-      enteredCurrency.name === 'Все валюты' ||
-      enteredCurrency.name === 'All currencies'
+      enteredCurrency.name === t('summaryPage.currencyConverter.defaultValue')
     ) {
       setSummaryData(filteredSummaryData);
     } else {
       setSummaryData(convertSummaryDate(filteredSummaryData));
     }
   }, [filteredSummaryData, enteredCurrency]);
+
+  useEffect(() => {
+    setEnteredCurrency(defaulConvertertValue);
+  }, [i18n.language]);
 
   const rows = summaryData.map((userSummaryData) => {
     return createData(
@@ -280,16 +289,6 @@ function Summary() {
       }),
     );
   });
-
-  useEffect(() => {
-    if (!currentUser || !currencies) {
-      return;
-    }
-    const options = groupCurrencies(currencies, currentUser);
-    options.unshift(defaulConvertertValue);
-
-    setCurrenciesOptions(options);
-  }, [currentUser, currencies]);
 
   if (isTransactionsFetching && transactions?.length === 0) {
     return <SummarySkeleton />;
@@ -331,12 +330,18 @@ function Summary() {
         onChange={(event, newValue) => {
           setEnteredCurrency(newValue);
         }}
+        clearIcon={
+          enteredCurrency?.name === defaulConvertertValue.name
+            ? null
+            : undefined
+        }
         loading={loadingCurrencies}
         loadingText='Загрузка...'
         noOptionsText='Ничего не найдено'
         groupBy={(option) => option.group}
         getOptionLabel={(option) => {
-          if (option.name === '') return '';
+          if (option.name === t('summaryPage.currencyConverter.defaultValue'))
+            return t('summaryPage.currencyConverter.defaultValue');
           const currencyName = `${option.id} - ${option.name}`;
           return currencyName;
         }}
@@ -345,7 +350,6 @@ function Summary() {
             {...params}
             label={t('summaryPage.currencyConverter.converterHeader')}
             helperText={t('summaryPage.currencyConverter.helperText')}
-            required
             InputProps={{
               ...params.InputProps,
               endAdornment: (
