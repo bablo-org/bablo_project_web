@@ -336,8 +336,8 @@ function Summary() {
             : undefined
         }
         loading={loadingCurrencies}
-        loadingText='Загрузка...'
-        noOptionsText='Ничего не найдено'
+        loadingText={t('summaryPage.currencyConverter.loading')}
+        noOptionsText={t('summaryPage.currencyConverter.notFound')}
         groupBy={(option) => option.group}
         getOptionLabel={(option) => {
           if (option.name === t('summaryPage.currencyConverter.defaultValue'))

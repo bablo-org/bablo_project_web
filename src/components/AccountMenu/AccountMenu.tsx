@@ -69,6 +69,7 @@ export default function AccountMenu() {
         </Tooltip>
       </Box>
       <Menu
+        disableScrollLock
         anchorEl={anchorEl}
         id='account-menu'
         open={open}

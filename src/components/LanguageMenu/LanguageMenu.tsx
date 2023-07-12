@@ -45,6 +45,7 @@ export default function LanuguageMenu() {
         open={open}
         onClose={handleClose}
         onClick={handleClose}
+        disableScrollLock
         PaperProps={{
           elevation: 0,
           sx: {

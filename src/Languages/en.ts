@@ -63,6 +63,8 @@ const en = {
       converterHeader: 'Currency converter',
       defaultValue: 'All currencies',
       helperText: 'Select currency ',
+      loading: 'Loading...',
+      notFound: 'Nothing found',
     },
     summaryTable: {
       countRow: 'Qty',

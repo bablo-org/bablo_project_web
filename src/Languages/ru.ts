@@ -65,6 +65,8 @@ const ru: TranslationKeys = {
       converterHeader: 'Конвертер валют',
       defaultValue: 'Все валюты',
       helperText: 'Выберите валюту ',
+      loading: 'Загрузка...',
+      notFound: 'Ничего не найдено',
     },
     summaryTable: {
       countRow: 'Кол-во',
