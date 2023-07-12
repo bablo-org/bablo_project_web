@@ -8,6 +8,7 @@ import {
   TableHead,
   TableRow,
 } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
 import { useState } from 'react';
 import { nanoid } from '@reduxjs/toolkit';
@@ -27,6 +28,7 @@ function printArr(arr: string[]) {
 }
 
 function SummaryRow({ row }: { row: SummaryRowProps }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
   const addPlus = (amount: number) => {
@@ -64,9 +66,17 @@ function SummaryRow({ row }: { row: SummaryRowProps }) {
               <Table size='small' aria-label='purchases'>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Дата</TableCell>
-                    <TableCell>Описание</TableCell>
-                    <TableCell align='right'>Сумма</TableCell>
+                    <TableCell>
+                      {t('summaryPage.summaryTable.transactionList.date')}
+                    </TableCell>
+                    <TableCell>
+                      {t(
+                        'summaryPage.summaryTable.transactionList.description',
+                      )}
+                    </TableCell>
+                    <TableCell align='right'>
+                      {t('summaryPage.summaryTable.transactionList.amount')}
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

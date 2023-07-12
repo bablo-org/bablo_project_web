@@ -292,6 +292,7 @@ function AuthorizedLayout() {
         >
           {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
           <Drawer
+            disableScrollLock
             variant='temporary'
             open={mobileOpen}
             onClose={handleDrawerToggle}
@@ -309,6 +310,7 @@ function AuthorizedLayout() {
             {drawer}
           </Drawer>
           <Drawer
+            disableScrollLock
             variant='permanent'
             sx={{
               display: { xs: 'none', sm: 'block' },

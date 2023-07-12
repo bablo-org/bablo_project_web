@@ -12,6 +12,7 @@ import {
   TextField,
   CircularProgress,
 } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { useMemo, useState, useEffect } from 'react';
 import SummaryRow from './SummaryRow';
 import SummarySkeleton from './Skeletons/SummarySkeleton';
@@ -74,18 +75,21 @@ function createData(
     history,
   };
 }
-const defaulConvertertValue = {
-  group: '',
-  id: '',
-  name: 'Все валюты',
-  rate: 0,
-  symbol: '',
-  updated: 0,
-};
 
 function Summary() {
+  const { i18n, t } = useTranslation();
   const currentUserId = auth?.currentUser?.uid;
   const { data: users } = useGetUsers();
+
+  const defaulConvertertValue = {
+    group: '',
+    id: '',
+    name: t('summaryPage.currencyConverter.defaultValue'),
+    rate: 0,
+    symbol: '',
+    updated: 0,
+  };
+
   const {
     data: transactions,
     isLoading: isTransactionsLoading,
@@ -94,9 +98,6 @@ function Summary() {
   const [summaryData, setSummaryData] = useState<UserSummaryData[]>([]);
   const [enteredCurrency, setEnteredCurrency] =
     useState<GroupedCurrency | null>(defaulConvertertValue);
-  const [currenciesOptions, setCurrenciesOptions] = useState<GroupedCurrency[]>(
-    [],
-  );
   const { data: currencies, isFetching: loadingCurrencies } =
     useGetCurrencies();
 
@@ -134,6 +135,15 @@ function Summary() {
     });
     return total;
   }, [summaryData]);
+
+  const currenciesOptions: GroupedCurrency[] = useMemo(() => {
+    if (!currentUser || !currencies) {
+      return [];
+    }
+    const options = groupCurrencies(currencies, currentUser);
+
+    return [defaulConvertertValue, ...options];
+  }, [currentUser, currencies, i18n.language]);
 
   const updateSummaryData = () => {
     const summaryCurrencies: { [key: string]: number } = {};
@@ -254,12 +264,19 @@ function Summary() {
 
   useEffect(() => {
     if (filteredSummaryData.length === 0) return;
-    if (!enteredCurrency || enteredCurrency.name === 'Все валюты') {
+    if (
+      !enteredCurrency ||
+      enteredCurrency.name === t('summaryPage.currencyConverter.defaultValue')
+    ) {
       setSummaryData(filteredSummaryData);
     } else {
       setSummaryData(convertSummaryDate(filteredSummaryData));
     }
   }, [filteredSummaryData, enteredCurrency]);
+
+  useEffect(() => {
+    setEnteredCurrency(defaulConvertertValue);
+  }, [i18n.language]);
 
   const rows = summaryData.map((userSummaryData) => {
     return createData(
@@ -272,16 +289,6 @@ function Summary() {
       }),
     );
   });
-
-  useEffect(() => {
-    if (!currentUser || !currencies) {
-      return;
-    }
-    const options = groupCurrencies(currencies, currentUser);
-    options.unshift(defaulConvertertValue);
-
-    setCurrenciesOptions(options);
-  }, [currentUser, currencies]);
 
   if (isTransactionsFetching && transactions?.length === 0) {
     return <SummarySkeleton />;
@@ -303,7 +310,7 @@ function Summary() {
             }}
           >
             <Typography fontWeight='bold' fontSize='large'>
-              Нет подтвержденных транзакций
+              {t('summaryPage.noApprovedTransactions')}
             </Typography>
           </BorderBox>
         </Grid>
@@ -314,7 +321,7 @@ function Summary() {
   return (
     <>
       <Typography variant='h6' gutterBottom component='div'>
-        Подтвержденные транзакции
+        {t('summaryPage.pageHeader')}
       </Typography>
       <Autocomplete
         id='currencyAuto'
@@ -323,23 +330,26 @@ function Summary() {
         onChange={(event, newValue) => {
           setEnteredCurrency(newValue);
         }}
+        clearIcon={
+          enteredCurrency?.name === defaulConvertertValue.name
+            ? null
+            : undefined
+        }
         loading={loadingCurrencies}
-        loadingText='Загрузка...'
-        noOptionsText='Ничего не найдено'
+        loadingText={t('summaryPage.currencyConverter.loading')}
+        noOptionsText={t('summaryPage.currencyConverter.notFound')}
         groupBy={(option) => option.group}
         getOptionLabel={(option) => {
-          if (option.name === 'Все валюты') {
-            return option.name;
-          }
+          if (option.name === t('summaryPage.currencyConverter.defaultValue'))
+            return t('summaryPage.currencyConverter.defaultValue');
           const currencyName = `${option.id} - ${option.name}`;
           return currencyName;
         }}
         renderInput={(params) => (
           <TextField
             {...params}
-            label='Конвертер валют'
-            helperText='Выберите валюту'
-            required
+            label={t('summaryPage.currencyConverter.converterHeader')}
+            helperText={t('summaryPage.currencyConverter.helperText')}
             InputProps={{
               ...params.InputProps,
               endAdornment: (
@@ -359,11 +369,17 @@ function Summary() {
           <TableHead>
             <TableRow>
               <TableCell />
-              <TableCell>Кол-во</TableCell>
-              <TableCell>Пользователь</TableCell>
-              <TableCell align='right'>Я получу</TableCell>
-              <TableCell align='right'>Я Должен</TableCell>
-              <TableCell align='right'>Итоги</TableCell>
+              <TableCell>{t('summaryPage.summaryTable.countRow')}</TableCell>
+              <TableCell>{t('summaryPage.summaryTable.userRow')}</TableCell>
+              <TableCell align='right'>
+                {t('summaryPage.summaryTable.valueGainRow')}
+              </TableCell>
+              <TableCell align='right'>
+                {t('summaryPage.summaryTable.valueLostRow')}
+              </TableCell>
+              <TableCell align='right'>
+                {t('summaryPage.summaryTable.totalRow')}
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
