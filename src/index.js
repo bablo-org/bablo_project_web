@@ -6,6 +6,7 @@ import store from './store';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import './services/i18n';
+import 'moment/locale/ru';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
